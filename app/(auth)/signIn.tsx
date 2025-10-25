@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import { primary, neutral, semantic } from '../../src/constants/colors';
 
 const SignIn = () => {
   const router = useRouter();
@@ -54,11 +55,11 @@ const SignIn = () => {
           {/* Illustration */}
           <View style={styles.illustrationContainer}>
             <View style={styles.illustration}>
-              <View style={[styles.illustrationCircle, { backgroundColor: '#E5E2FF' }]} />
-              <View style={[styles.illustrationDot, styles.dot1, { backgroundColor: '#0890FE' }]} />
-              <View style={[styles.illustrationDot, styles.dot2, { backgroundColor: '#FF4267' }]} />
-              <View style={[styles.illustrationDot, styles.dot3, { backgroundColor: '#FFAF2A' }]} />
-              <View style={[styles.illustrationDot, styles.dot4, { backgroundColor: '#52D5BA' }]} />
+              <View style={[styles.illustrationCircle, { backgroundColor: primary.primary4 }]} />
+              <View style={[styles.illustrationDot, styles.dot1, { backgroundColor: semantic.info }]} />
+              <View style={[styles.illustrationDot, styles.dot2, { backgroundColor: semantic.error }]} />
+              <View style={[styles.illustrationDot, styles.dot3, { backgroundColor: semantic.warning }]} />
+              <View style={[styles.illustrationDot, styles.dot4, { backgroundColor: semantic.success }]} />
             </View>
           </View>
 
@@ -67,7 +68,7 @@ const SignIn = () => {
             <TextInput
               style={styles.input}
               placeholder="Email"
-              placeholderTextColor="#CACACA"
+              placeholderTextColor={neutral.neutral4}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -78,7 +79,7 @@ const SignIn = () => {
               <TextInput
                 style={[styles.input, styles.passwordInput]}
                 placeholder="Password"
-                placeholderTextColor="#CACACA"
+                placeholderTextColor={neutral.neutral4}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -91,7 +92,7 @@ const SignIn = () => {
               </Pressable>
             </View>
 
-            <Pressable>
+            <Pressable onPress={() => router.push('/(auth)/forgotPassword')}>
               <Text style={styles.forgotPassword}>Forgot your password ?</Text>
             </Pressable>
           </View>
@@ -117,7 +118,7 @@ const SignIn = () => {
           {/* Sign Up Link */}
           <View style={styles.signUpContainer}>
             <Text style={styles.signUpText}>Don't have an account? </Text>
-            <Pressable onPress={() => router.push('/sign-up')}>
+            <Pressable onPress={() => router.navigate('/signUp')}>
               <Text style={styles.signUpLink}>Sign Up</Text>
             </Pressable>
           </View>
@@ -132,7 +133,7 @@ export default SignIn;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#3629B7', // Primary purple
+    backgroundColor: primary.primary1,
   },
   flex: {
     flex: 1,
@@ -149,16 +150,16 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 24,
-    color: '#FFFFFF',
+    color: neutral.neutral6,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: neutral.neutral6,
   },
   content: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: neutral.neutral6,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },
@@ -173,13 +174,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#3629B7',
+    color: primary.primary1,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#343434',
+    color: neutral.neutral1,
   },
   illustrationContainer: {
     alignItems: 'center',
@@ -231,12 +232,12 @@ const styles = StyleSheet.create({
   input: {
     height: 44,
     borderWidth: 1,
-    borderColor: '#CBCBCB',
+    borderColor: neutral.neutral4,
     borderRadius: 15,
     paddingHorizontal: 12,
     fontSize: 14,
     fontWeight: '500',
-    color: '#343434',
+    color: neutral.neutral1,
     marginBottom: 16,
   },
   passwordContainer: {
@@ -258,27 +259,27 @@ const styles = StyleSheet.create({
   forgotPassword: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#CACACA',
+    color: neutral.neutral4,
     textAlign: 'right',
   },
   signInButton: {
     height: 44,
-    backgroundColor: '#3629B7',
+    backgroundColor: primary.primary1,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
   },
   signInButtonDisabled: {
-    backgroundColor: '#F2F1F9',
+    backgroundColor: primary.primary4,
   },
   signInButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: neutral.neutral6,
   },
   signInButtonTextDisabled: {
-    color: '#FFFFFF',
+    color: neutral.neutral6,
   },
   fingerprintContainer: {
     alignItems: 'center',
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#F2F1F9',
+    backgroundColor: primary.primary4,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -303,11 +304,11 @@ const styles = StyleSheet.create({
   signUpText: {
     fontSize: 12,
     fontWeight: '400',
-    color: '#343434',
+    color: neutral.neutral1,
   },
   signUpLink: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#3629B7',
+    color: primary.primary1,
   },
 });

@@ -9,6 +9,7 @@ const RootLayout = () => {
         }}>
             <Stack.Screen name="signIn" options={{title: "Sign In"}} />
             <Stack.Screen name="signUp" options={{title: "Sign Up"}} />
+            <Stack.Screen name="forgotPassword" options={{title: "Forgot Password"}} />
         </Stack>
     );
 }

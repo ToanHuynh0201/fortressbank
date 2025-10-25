@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import { primary, neutral, semantic } from '../../src/constants/colors';
 
 const SignUp = () => {
   const router = useRouter();
@@ -61,11 +62,11 @@ const SignUp = () => {
           {/* Illustration */}
           <View style={styles.illustrationContainer}>
             <View style={styles.illustration}>
-              <View style={[styles.illustrationCircle, { backgroundColor: '#E5E2FF' }]} />
-              <View style={[styles.illustrationDot, styles.dot1, { backgroundColor: '#0890FE' }]} />
-              <View style={[styles.illustrationDot, styles.dot2, { backgroundColor: '#FF4267' }]} />
-              <View style={[styles.illustrationDot, styles.dot3, { backgroundColor: '#FFAF2A' }]} />
-              <View style={[styles.illustrationDot, styles.dot4, { backgroundColor: '#52D5BA' }]} />
+              <View style={[styles.illustrationCircle, { backgroundColor: primary.primary4 }]} />
+              <View style={[styles.illustrationDot, styles.dot1, { backgroundColor: semantic.info }]} />
+              <View style={[styles.illustrationDot, styles.dot2, { backgroundColor: semantic.error }]} />
+              <View style={[styles.illustrationDot, styles.dot3, { backgroundColor: semantic.warning }]} />
+              <View style={[styles.illustrationDot, styles.dot4, { backgroundColor: semantic.success }]} />
             </View>
           </View>
 
@@ -74,7 +75,7 @@ const SignUp = () => {
             <TextInput
               style={[styles.input, name && styles.inputActive]}
               placeholder="Name"
-              placeholderTextColor="#CACACA"
+              placeholderTextColor={neutral.neutral4}
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
@@ -83,7 +84,7 @@ const SignUp = () => {
             <TextInput
               style={[styles.input, phone && styles.inputActive]}
               placeholder="Phone Number"
-              placeholderTextColor="#CACACA"
+              placeholderTextColor={neutral.neutral4}
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
@@ -94,7 +95,7 @@ const SignUp = () => {
               <TextInput
                 style={[styles.input, styles.passwordInput, password && styles.inputActive]}
                 placeholder="Password"
-                placeholderTextColor="#CACACA"
+                placeholderTextColor={neutral.neutral4}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -139,7 +140,7 @@ const SignUp = () => {
           {/* Sign In Link */}
           <View style={styles.signInContainer}>
             <Text style={styles.signInText}>Have an account? </Text>
-            <Pressable onPress={() => router.push('/(auth)/signIn')}>
+            <Pressable onPress={() => router.navigate('/(auth)/signIn')}>
               <Text style={styles.signInLink}>Sign In</Text>
             </Pressable>
           </View>
@@ -155,7 +156,7 @@ export default SignUp;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#3629B7', // Primary purple
+    backgroundColor: primary.primary1,
   },
   flex: {
     flex: 1,
@@ -172,16 +173,16 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 24,
-    color: '#FFFFFF',
+    color: neutral.neutral6,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: neutral.neutral6,
   },
   content: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: neutral.neutral6,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },
@@ -196,13 +197,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#3629B7',
+    color: primary.primary1,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#343434',
+    color: neutral.neutral1,
   },
   illustrationContainer: {
     alignItems: 'center',
@@ -254,18 +255,18 @@ const styles = StyleSheet.create({
   input: {
     height: 44,
     borderWidth: 1,
-    borderColor: '#CBCBCB',
+    borderColor: neutral.neutral4,
     borderRadius: 15,
     paddingHorizontal: 12,
     fontSize: 14,
     fontWeight: '500',
-    color: '#343434',
+    color: neutral.neutral1,
     marginBottom: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: neutral.neutral6,
   },
   inputActive: {
-    borderColor: '#CBCBCB',
-    color: '#343434',
+    borderColor: neutral.neutral4,
+    color: neutral.neutral1,
   },
   passwordContainer: {
     position: 'relative',
@@ -293,18 +294,18 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#BFBFBF',
+    borderColor: neutral.neutral4,
     marginRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: neutral.neutral6,
   },
   checkboxChecked: {
-    backgroundColor: '#3629B7',
-    borderColor: '#3629B7',
+    backgroundColor: primary.primary1,
+    borderColor: primary.primary1,
   },
   checkmark: {
-    color: '#FFFFFF',
+    color: neutral.neutral6,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -312,28 +313,28 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12,
     fontWeight: '900',
-    color: '#000000',
+    color: neutral.neutral1,
     lineHeight: 16,
   },
   termsLink: {
-    color: '#3629B7',
+    color: primary.primary1,
     textDecorationLine: 'underline',
   },
   signUpButton: {
     height: 44,
-    backgroundColor: '#3629B7',
+    backgroundColor: primary.primary1,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 32,
   },
   signUpButtonDisabled: {
-    backgroundColor: '#F2F1F9',
+    backgroundColor: primary.primary4,
   },
   signUpButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: neutral.neutral6,
   },
   signInContainer: {
     flexDirection: 'row',
@@ -343,11 +344,11 @@ const styles = StyleSheet.create({
   signInText: {
     fontSize: 12,
     fontWeight: '400',
-    color: '#343434',
+    color: neutral.neutral1,
   },
   signInLink: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#3629B7',
+    color: primary.primary1,
   },
 });

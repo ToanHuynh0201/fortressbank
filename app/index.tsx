@@ -1,8 +1,9 @@
 import {StatusBar} from "expo-status-bar";
 import {StyleSheet, Text, View, Pressable} from "react-native";
 import {Link, useRouter} from "expo-router";
+import { primary, neutral } from '../src/constants/colors';
 
-const Home = () => {
+const index = () => {
     const router = useRouter();
     return (
         <View style={styles.container}>
@@ -17,6 +18,14 @@ const Home = () => {
                 <Pressable style={[styles.button, styles.buttonOutline]} onPress={() => router.push("(auth)/signUp")}>
                         <Text style={[styles.buttonText, styles.buttonTextOutline]}>Sign Up</Text>
                     </Pressable>
+
+                <Pressable style={[styles.button, styles.buttonSecondary]} onPress={() => router.push("(auth)/forgotPassword")}>
+                        <Text style={styles.buttonText}>Forgot Password</Text>
+                    </Pressable>
+
+                <Pressable style={[styles.button, styles.buttonSecondary]} onPress={() => router.push("(auth)/changePassword")}>
+                        <Text style={styles.buttonText}>Change Password</Text>
+                    </Pressable>
             </View>
             
             <StatusBar style="auto" />
@@ -24,12 +33,12 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default index;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: neutral.neutral6,
         alignItems: "center",
         justifyContent: "center",
         padding: 20,
@@ -38,10 +47,11 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         marginBottom: 10,
+        color: neutral.neutral1,
     },
     subtitle: {
         fontSize: 16,
-        color: "#666",
+        color: neutral.neutral2,
         marginBottom: 30,
     },
     buttonContainer: {
@@ -50,7 +60,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     button: {
-        backgroundColor: "#3629B7",
+        backgroundColor: primary.primary1,
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 12,
@@ -59,19 +69,19 @@ const styles = StyleSheet.create({
     buttonOutline: {
         backgroundColor: 'transparent',
         borderWidth: 2,
-        borderColor: '#3629B7',
+        borderColor: primary.primary1,
     },
     buttonSecondary: {
-        backgroundColor: '#5655B9',
+        backgroundColor: primary.primary2,
         marginTop: 8,
     },
     buttonText: {
-        color: "#fff",
+        color: neutral.neutral6,
         fontSize: 16,
         fontWeight: "600",
     },
     buttonTextOutline: {
-        color: '#3629B7',
+        color: primary.primary1,
     },
 });
 

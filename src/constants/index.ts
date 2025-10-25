@@ -89,6 +89,10 @@ export const SUCCESS_MESSAGES = {
     ACTION_COMPLETED: "Action completed successfully!",
 };
 
+// Re-export colors from colors.ts
+export { colors, primary, neutral, semantic } from "./colors";
+export type { PrimaryColor, NeutralColor, SemanticColor } from "./colors";
+
 export default {
     API_CONFIG,
     AUTH_CONFIG,
