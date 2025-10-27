@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { primary, neutral } from '../../src/constants/colors';
+import { neutral, primary } from '@/constants';
 
 type Step = 'enter-phone' | 'confirm-phone' | 'enter-code' | 'change-password';
 

@@ -1,7 +1,7 @@
 import {StatusBar} from "expo-status-bar";
 import {StyleSheet, Text, View, Pressable} from "react-native";
 import {Link, useRouter} from "expo-router";
-import { primary, neutral } from '../src/constants/colors';
+import { primary, neutral } from '@/constants/colors';
 
 const index = () => {
     const router = useRouter();
@@ -12,20 +12,20 @@ const index = () => {
             
             <View style={styles.buttonContainer}>
                 <Pressable style={styles.button} onPress={() => router.push("(auth)/signIn")}>
-                        <Text style={styles.buttonText}>Sign In</Text>
-                    </Pressable>
+                    <Text style={styles.buttonText}>Sign In</Text>
+                </Pressable>
                 
                 <Pressable style={[styles.button, styles.buttonOutline]} onPress={() => router.push("(auth)/signUp")}>
-                        <Text style={[styles.buttonText, styles.buttonTextOutline]}>Sign Up</Text>
-                    </Pressable>
+                    <Text style={[styles.buttonText, styles.buttonTextOutline]}>Sign Up</Text>
+                </Pressable>
 
                 <Pressable style={[styles.button, styles.buttonSecondary]} onPress={() => router.push("(auth)/forgotPassword")}>
-                        <Text style={styles.buttonText}>Forgot Password</Text>
-                    </Pressable>
+                    <Text style={styles.buttonText}>Forgot Password</Text>
+                </Pressable>
 
                 <Pressable style={[styles.button, styles.buttonSecondary]} onPress={() => router.push("(auth)/changePassword")}>
-                        <Text style={styles.buttonText}>Change Password</Text>
-                    </Pressable>
+                    <Text style={styles.buttonText}>Change Password</Text>
+                </Pressable>
             </View>
             
             <StatusBar style="auto" />

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { primary, neutral, semantic } from '../../src/constants/colors';
+import { primary, neutral, semantic } from '@/constants/colors';
 
 const ChangePassword = () => {
   const router = useRouter();

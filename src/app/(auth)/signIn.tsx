@@ -5,27 +5,25 @@ import {
   View,
   TextInput,
   Pressable,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { primary, neutral, semantic } from '../../src/constants/colors';
+import { primary, neutral, semantic } from "@/constants/colors";
 
-const SignUp = () => {
+const SignIn = () => {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const handleSignUp = () => {
-    // TODO: Implement sign up logic
-    console.log('Sign up with:', name, phone, password);
+  const handleSignIn = () => {
+    // TODO: Implement sign in logic
+    // console.log('Sign in with:', email, password);
+    router.replace('/(home)');
   };
 
   return (
@@ -37,26 +35,22 @@ const SignUp = () => {
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backIcon}>←</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>Sign up</Text>
+        <Text style={styles.headerTitle}>Sign in</Text>
       </View>
 
       {/* Main Content */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView 
-            style={styles.content}
-            contentContainerStyle={styles.contentContainer}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            bounces={false}
-          >
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.welcomeSection}>
-            <Text style={styles.title}>Welcome to us,</Text>
-            <Text style={styles.subtitle}>Hello there, create New account</Text>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Hello there, sign in to continue</Text>
           </View>
 
           {/* Illustration */}
@@ -73,27 +67,18 @@ const SignUp = () => {
           {/* Input Fields */}
           <View style={styles.inputContainer}>
             <TextInput
-              style={[styles.input, name && styles.inputActive]}
-              placeholder="Name"
+              style={styles.input}
+              placeholder="Email"
               placeholderTextColor={neutral.neutral4}
-              value={name}
-              onChangeText={setName}
-              autoCapitalize="words"
-            />
-
-            <TextInput
-              style={[styles.input, phone && styles.inputActive]}
-              placeholder="Phone Number"
-              placeholderTextColor={neutral.neutral4}
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
               autoCapitalize="none"
             />
 
             <View style={styles.passwordContainer}>
               <TextInput
-                style={[styles.input, styles.passwordInput, password && styles.inputActive]}
+                style={[styles.input, styles.passwordInput]}
                 placeholder="Password"
                 placeholderTextColor={neutral.neutral4}
                 value={password}
@@ -107,51 +92,45 @@ const SignUp = () => {
                 <Text style={styles.eyeIconText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
               </Pressable>
             </View>
-          </View>
 
-          {/* Terms and Conditions */}
-          <Pressable 
-            style={styles.termsContainer}
-            onPress={() => setAgreedToTerms(!agreedToTerms)}
-          >
-            <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
-              {agreedToTerms && <Text style={styles.checkmark}>✓</Text>}
-            </View>
-            <Text style={styles.termsText}>
-              By creating an account your aggree{'\n'}to our{' '}
-              <Text style={styles.termsLink}>Term and Condtions</Text>
-            </Text>
-          </Pressable>
-
-          {/* Sign Up Button */}
-          <Pressable 
-            style={[
-              styles.signUpButton, 
-              (!name || !phone || !password || !agreedToTerms) && styles.signUpButtonDisabled
-            ]}
-            onPress={handleSignUp}
-            disabled={!name || !phone || !password || !agreedToTerms}
-          >
-            <Text style={styles.signUpButtonText}>
-              Sign up
-            </Text>
-          </Pressable>
-
-          {/* Sign In Link */}
-          <View style={styles.signInContainer}>
-            <Text style={styles.signInText}>Have an account? </Text>
-            <Pressable onPress={() => router.navigate('/(auth)/signIn')}>
-              <Text style={styles.signInLink}>Sign In</Text>
+            <Pressable onPress={() => router.push('/(auth)/forgotPassword')}>
+              <Text style={styles.forgotPassword}>Forgot your password ?</Text>
             </Pressable>
           </View>
-          </ScrollView>
-        </TouchableWithoutFeedback>
+
+          {/* Sign In Button */}
+          <Pressable 
+            // style={[styles.signInButton, (!email || !password) && styles.signInButtonDisabled]}
+            style={styles.signInButton}
+            onPress={handleSignIn}
+            // disabled={!email || !password}
+          >
+            <Text style={[styles.signInButtonText, (!email || !password) && styles.signInButtonTextDisabled]}>
+              Sign in
+            </Text>
+          </Pressable>
+
+          {/* Fingerprint */}
+          <View style={styles.fingerprintContainer}>
+            <View style={styles.fingerprint}>
+              <Text style={styles.fingerprintIcon}>🔒</Text>
+            </View>
+          </View>
+
+          {/* Sign Up Link */}
+          <View style={styles.signUpContainer}>
+            <Text style={styles.signUpText}>Don't have an account? </Text>
+            <Pressable onPress={() => router.navigate('/signUp')}>
+              <Text style={styles.signUpLink}>Sign Up</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );
 };
 
-export default SignUp;
+export default SignIn;
 
 const styles = StyleSheet.create({
   container: {
@@ -250,7 +229,7 @@ const styles = StyleSheet.create({
     right: 35,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   input: {
     height: 44,
@@ -262,15 +241,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: neutral.neutral1,
     marginBottom: 16,
-    backgroundColor: neutral.neutral6,
-  },
-  inputActive: {
-    borderColor: neutral.neutral4,
-    color: neutral.neutral1,
   },
   passwordContainer: {
     position: 'relative',
-    marginBottom: 0,
+    marginBottom: 8,
   },
   passwordInput: {
     marginBottom: 0,
@@ -284,69 +258,57 @@ const styles = StyleSheet.create({
   eyeIconText: {
     fontSize: 16,
   },
-  termsContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 24,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: neutral.neutral4,
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: neutral.neutral6,
-  },
-  checkboxChecked: {
-    backgroundColor: primary.primary1,
-    borderColor: primary.primary1,
-  },
-  checkmark: {
-    color: neutral.neutral6,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  termsText: {
-    flex: 1,
+  forgotPassword: {
     fontSize: 12,
-    fontWeight: '900',
-    color: neutral.neutral1,
-    lineHeight: 16,
+    fontWeight: '500',
+    color: neutral.neutral4,
+    textAlign: 'right',
   },
-  termsLink: {
-    color: primary.primary1,
-    textDecorationLine: 'underline',
-  },
-  signUpButton: {
+  signInButton: {
     height: 44,
     backgroundColor: primary.primary1,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
-  signUpButtonDisabled: {
+  signInButtonDisabled: {
     backgroundColor: primary.primary4,
   },
-  signUpButtonText: {
+  signInButtonText: {
     fontSize: 16,
     fontWeight: '500',
     color: neutral.neutral6,
   },
-  signInContainer: {
+  signInButtonTextDisabled: {
+    color: neutral.neutral6,
+  },
+  fingerprintContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  fingerprint: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: primary.primary4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fingerprintIcon: {
+    fontSize: 32,
+  },
+  signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  signInText: {
+  signUpText: {
     fontSize: 12,
     fontWeight: '400',
     color: neutral.neutral1,
   },
-  signInLink: {
+  signUpLink: {
     fontSize: 12,
     fontWeight: '600',
     color: primary.primary1,
