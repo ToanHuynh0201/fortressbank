@@ -1,10 +1,18 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { primary, neutral, semantic } from '@/constants'
-import { Bell, CreditCard, ArrowsLeftRight, ArrowLineDown, DeviceMobile, Receipt, PiggyBank, FileText, Users } from 'phosphor-react-native'
+import { primary, neutral } from '@/constants'
+import { useRouter } from 'expo-router'
+import {
+  UserAvatar,
+  NotificationBell,
+  BankCard,
+  CategoryCard,
+} from '@/components'
 
 const Home = () => {
+  const router = useRouter();
+
   const categories = [
     { id: 1, title: 'Account\nand Card', icon: 'wallet' },
     { id: 2, title: 'Transfer', icon: 'transfer' },
@@ -18,8 +26,6 @@ const Home = () => {
   ]
 
   const getIcon = (iconName: string) => {
-    const iconProps = { size: 28, color: neutral.neutral6, weight: 'regular' as any }
-    
     switch (iconName) {
       case 'wallet':
         return (
@@ -33,7 +39,7 @@ const Home = () => {
         return (
           <Image 
             source={require('../../../assets/icons/transfer.png')} 
-            style={{ width: 28, height: 28, backgroundColor: "transparent" }}
+            style={{ width: 28, height: 28 }}
             resizeMode="contain"
           />
         )
@@ -94,7 +100,7 @@ const Home = () => {
           />
         )
       default:
-        return <CreditCard {...iconProps} />
+        return null;
     }
   }
 
@@ -103,19 +109,13 @@ const Home = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Image 
-            source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
-            style={styles.avatar}
-            defaultSource={require('../../../assets/icon.png')}
+          <UserAvatar
+            imageUri="https://i.pravatar.cc/150?img=12"
+            size={50}
           />
           <Text style={styles.greeting}>Hi, Push Puttichai</Text>
         </View>
-        <TouchableOpacity style={styles.notificationContainer}>
-          <Bell size={24} color={neutral.neutral6} weight="regular" />
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>3</Text>
-          </View>
-        </TouchableOpacity>
+        <NotificationBell count={3} />
       </View>
 
       <ScrollView 
@@ -126,41 +126,22 @@ const Home = () => {
         <View style={styles.content}>
           {/* Bank Card */}
           <View style={styles.cardContainer}>
-            <View style={styles.cardBackground}>
-              <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <Text style={styles.cardName}>John Smith</Text>
-                </View>
-                <View style={styles.cardNumber}>
-                  <View style={styles.dots} />
-                  <View style={styles.dots} />
-                  <View style={styles.dots} />
-                  <View style={styles.dots} />
-                  <Text style={styles.cardNumberText}> 4756 </Text>
-                  <View style={styles.dots} />
-                  <View style={styles.dots} />
-                  <View style={styles.dots} />
-                  <View style={styles.dots} />
-                  <Text style={styles.cardNumberText}> 9018</Text>
-                </View>
-                <Text style={styles.cardBalance}>$3.469.52</Text>
-              </View>
-            </View>
+            <BankCard
+              cardholderName="John Smith"
+              cardNumber="•••• 4756 •••• 9018"
+              balance="$3.469.52"
+            />
           </View>
 
           {/* Categories Grid */}
           <View style={styles.categoriesGrid}>
             {categories.map((category) => (
-              <TouchableOpacity 
-                key={category.id} 
-                style={styles.categoryCard}
-                activeOpacity={0.7}
-              >
-                <View style={styles.categoryIcon}>
-                  {getIcon(category.icon)}
-                </View>
-                <Text style={styles.categoryTitle}>{category.title}</Text>
-              </TouchableOpacity>
+              <CategoryCard
+                key={category.id}
+                title={category.title}
+                icon={getIcon(category.icon)}
+                onPress={() => router.push('(account)/accountCard')}
+              />
             ))}
           </View>
         </View>
@@ -188,43 +169,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 18,
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: neutral.neutral6,
-  },
   greeting: {
     fontSize: 16,
     fontFamily: 'Poppins',
     fontWeight: '500',
     color: neutral.neutral6,
     lineHeight: 24,
-  },
-  notificationContainer: {
-    position: 'relative',
-    width: 26,
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badge: {
-    position: 'absolute',
-    top: 0,
-    right: -6,
-    width: 16,
-    height: 18,
-    borderRadius: 8,
-    backgroundColor: semantic.error,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    fontSize: 10,
-    fontFamily: 'Poppins',
-    fontWeight: '500',
-    color: neutral.neutral6,
-    lineHeight: 17,
   },
   scrollView: {
     flex: 1,
@@ -241,100 +191,10 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginBottom: 32,
   },
-  cardBackground: {
-    width: '100%',
-    height: 221,
-    position: 'relative',
-  },
-  card: {
-    width: '100%',
-    height: 204,
-    backgroundColor: '#1E1671',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: 'rgba(54, 41, 183, 0.07)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 30,
-    elevation: 4,
-  },
-  cardHeader: {
-    marginBottom: 30,
-  },
-  cardName: {
-    fontSize: 24,
-    fontFamily: 'Poppins',
-    fontWeight: '400',
-    color: neutral.neutral6,
-    lineHeight: 36,
-    marginBottom: 4,
-  },
-  cardType: {
-    fontSize: 14,
-    fontFamily: 'Poppins',
-    fontWeight: '500',
-    color: neutral.neutral6,
-    lineHeight: 16,
-  },
-  cardNumber: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  dots: {
-    width: 6,
-    height: 6,
-    marginHorizontal: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 2.5,
-  },
-  cardNumberText: {
-    fontSize: 16,
-    fontFamily: 'Poppins',
-    fontWeight: '400',
-    color: neutral.neutral6,
-    lineHeight: 24,
-  },
-  cardBalance: {
-    fontSize: 20,
-    fontFamily: 'Poppins',
-    fontWeight: '600',
-    color: neutral.neutral6,
-    lineHeight: 28,
-  },
   categoriesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 16,
     justifyContent: 'space-between',
-  },
-  categoryCard: {
-    width: '30%',
-    height: 100,
-    borderRadius: 15,
-    padding: 16,
-    shadowColor: 'rgba(0, 0, 0, 0.05)',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 1,
-    shadowRadius: 30,
-    elevation: 2,
-  },
-  categoryIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    backgroundColor: "transparent",
-    alignItems: 'center',
-    marginBottom: 12,
-    alignSelf: 'center',
-  },
-  categoryTitle: {
-    fontSize: 12,
-    fontFamily: 'Poppins',
-    fontWeight: '500',
-    color: '#979797',
-    lineHeight: 16,
-    textAlign: 'center',
   },
 })
