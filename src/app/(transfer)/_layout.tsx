@@ -6,11 +6,40 @@ export default function TransferLayout() {
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
+        animationDuration: 300,
       }}
     >
-      <Stack.Screen name="transfer" />
-      <Stack.Screen name="transferFilled" />
-      <Stack.Screen name="transferConfirmation" />
+      <Stack.Screen 
+        name="index"
+        options={{
+          animation: 'fade',
+        }}
+      />
+      <Stack.Screen 
+        name="transfer" 
+        options={{
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="transferFilled" 
+        options={{
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="transferConfirmation" 
+        options={{
+          animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen 
+        name="transferSuccess" 
+        options={{
+          animation: 'fade',
+          presentation: 'modal',
+        }}
+      />
     </Stack>
   );
 }
