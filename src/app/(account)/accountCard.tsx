@@ -121,6 +121,10 @@ const AccountCard = () => {
       cardHolder={card.cardHolder}
       cardLimit={card.cardLimit}
       availableCredit={card.availableCredit}
+      onPress={() => router.push({
+        pathname: '/(account)/cardDetail',
+        params: { cardId: card.id }
+      })}
     />
   );
 

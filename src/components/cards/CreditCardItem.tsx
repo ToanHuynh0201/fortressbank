@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
 import { neutral, primary } from '@/constants/colors';
 
 interface CreditCardItemProps {
@@ -11,6 +11,7 @@ interface CreditCardItemProps {
   cardLimit: string;
   availableCredit: string;
   containerStyle?: ViewStyle;
+  onPress?: () => void;
 }
 
 const CreditCardItem: React.FC<CreditCardItemProps> = ({
@@ -22,8 +23,9 @@ const CreditCardItem: React.FC<CreditCardItemProps> = ({
   cardLimit,
   availableCredit,
   containerStyle,
+  onPress,
 }) => {
-  return (
+  const CardContent = () => (
     <View style={[styles.bankCardContainer, containerStyle]}>
       <View style={styles.bankCardGradient}>
         {/* Card Type Badge */}
@@ -63,6 +65,16 @@ const CreditCardItem: React.FC<CreditCardItemProps> = ({
       </View>
     </View>
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        <CardContent />
+      </TouchableOpacity>
+    );
+  }
+
+  return <CardContent />;
 };
 
 const styles = StyleSheet.create({

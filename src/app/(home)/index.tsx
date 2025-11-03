@@ -140,7 +140,15 @@ const Home = () => {
                 key={category.id}
                 title={category.title}
                 icon={getIcon(category.icon)}
-                onPress={() => router.push('(account)/accountCard')}
+                onPress={() => {
+                  if (category.icon === 'transfer') {
+                    router.push('(transfer)/transfer');
+                  } else if (category.icon === 'wallet') {
+                    router.push('(account)/accountCard');
+                  } else {
+                    router.push('(account)/accountCard');
+                  }
+                }}
               />
             ))}
           </View>
