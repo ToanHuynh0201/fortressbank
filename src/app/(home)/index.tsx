@@ -128,7 +128,8 @@ const Home = () => {
           <View style={styles.cardContainer}>
             <BankCard
               cardholderName="John Smith"
-              cardNumber="•••• 4756 •••• 9018"
+              cardNumber="4756 1234 5678 9018"
+              maskedCardNumber="•••• •••• •••• 9018"
               balance="$3.469.52"
             />
           </View>

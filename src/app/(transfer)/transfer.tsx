@@ -9,7 +9,7 @@ import {
   TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CaretLeft } from 'phosphor-react-native';
+import { CaretLeft, Eye, EyeSlash } from 'phosphor-react-native';
 import colors from '@/constants/colors';
 import { ScreenContainer, PrimaryButton, CheckboxWithLabel } from '@/components';
 
@@ -25,12 +25,21 @@ interface Beneficiary {
   avatar: string;
 }
 
+interface Account {
+  id: string;
+  label: string;
+  fullNumber: string;
+  maskedNumber: string;
+  balance: string;
+}
+
 const Transfer = () => {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState<string>('card');
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<string>('');
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+  const [showAccountNumbers, setShowAccountNumbers] = useState(false);
   
   // Form fields
   const [name, setName] = useState('');
@@ -51,11 +60,35 @@ const Transfer = () => {
     { id: '3', name: 'Amanda', avatar: '👩' },
   ];
 
-  const accounts = [
-    { id: '1', label: 'VISA **** **** **** 1234', balance: '10,000$' },
-    { id: '2', label: 'Account 1234 5678 5689', balance: '10,000$' },
-    { id: '3', label: 'MasterCard **** 8765', balance: '5,500$' },
-    { id: '4', label: 'Savings Account 9876 5432', balance: '25,000$' },
+  const accounts: Account[] = [
+    { 
+      id: '1', 
+      label: 'VISA', 
+      fullNumber: '4532 1234 5678 1234',
+      maskedNumber: '**** **** **** 1234',
+      balance: '10,000$' 
+    },
+    { 
+      id: '2', 
+      label: 'Account', 
+      fullNumber: '1234 5678 5689',
+      maskedNumber: '**** **** 5689',
+      balance: '10,000$' 
+    },
+    { 
+      id: '3', 
+      label: 'MasterCard', 
+      fullNumber: '5412 3456 7890 8765',
+      maskedNumber: '**** **** **** 8765',
+      balance: '5,500$' 
+    },
+    { 
+      id: '4', 
+      label: 'Savings Account', 
+      fullNumber: '9876 5432 1098',
+      maskedNumber: '**** **** 1098',
+      balance: '25,000$' 
+    },
   ];
 
   const isFormValid = name && cardNumber && amount && content;
@@ -83,22 +116,48 @@ const Transfer = () => {
       >
         {/* Account Selection */}
         <View style={styles.section}>
-          <TouchableOpacity 
-            style={styles.accountSelector}
-            onPress={() => setShowAccountDropdown(!showAccountDropdown)}
-          >
-            <View>
-              <Text style={styles.accountLabel}>
-                {selectedAccount ? accounts.find(a => a.id === selectedAccount)?.label : 'Choose account / card'}
-              </Text>
-              {selectedAccount && (
-                <Text style={styles.balanceLabel}>
-                  Available balance : {accounts.find(a => a.id === selectedAccount)?.balance}
-                </Text>
-              )}
-            </View>
-            <Text style={styles.dropdownIcon}>▼</Text>
-          </TouchableOpacity>
+          <View style={styles.accountSelectorWrapper}>
+            <TouchableOpacity 
+              style={styles.accountSelector}
+              onPress={() => setShowAccountDropdown(!showAccountDropdown)}
+            >
+              <View style={styles.accountSelectorContent}>
+                <View style={styles.accountTextContainer}>
+                  {selectedAccount ? (
+                    <>
+                      <Text style={styles.accountLabelSelected}>
+                        {accounts.find(a => a.id === selectedAccount)?.label}{' '}
+                        {showAccountNumbers 
+                          ? accounts.find(a => a.id === selectedAccount)?.fullNumber
+                          : accounts.find(a => a.id === selectedAccount)?.maskedNumber
+                        }
+                      </Text>
+                      <Text style={styles.balanceLabel}>
+                        Available balance : {accounts.find(a => a.id === selectedAccount)?.balance}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text style={styles.accountLabel}>Choose account / card</Text>
+                  )}
+                </View>
+                <View style={styles.accountSelectorIcons}>
+                  {selectedAccount && (
+                    <TouchableOpacity 
+                      onPress={() => setShowAccountNumbers(!showAccountNumbers)}
+                      style={styles.eyeButton}
+                    >
+                      {showAccountNumbers ? (
+                        <Eye size={20} color={colors.primary.primary1} weight="regular" />
+                      ) : (
+                        <EyeSlash size={20} color={colors.neutral.neutral3} weight="regular" />
+                      )}
+                    </TouchableOpacity>
+                  )}
+                  <Text style={styles.dropdownIcon}>▼</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
 
           {/* Dropdown Menu */}
           {showAccountDropdown && (
@@ -120,7 +179,10 @@ const Transfer = () => {
                       <Text style={styles.cardIconText}>💳</Text>
                     </View>
                     <View style={styles.dropdownItemInfo}>
-                      <Text style={styles.dropdownItemLabel}>{account.label}</Text>
+                      <Text style={styles.dropdownItemLabel}>
+                        {account.label}{' '}
+                        {showAccountNumbers ? account.fullNumber : account.maskedNumber}
+                      </Text>
                       <Text style={styles.dropdownItemBalance}>
                         Available balance: {account.balance}
                       </Text>
@@ -133,6 +195,21 @@ const Transfer = () => {
                   </View>
                 </TouchableOpacity>
               ))}
+              
+              {/* Toggle Eye in Dropdown */}
+              <TouchableOpacity 
+                style={styles.dropdownEyeToggle}
+                onPress={() => setShowAccountNumbers(!showAccountNumbers)}
+              >
+                {showAccountNumbers ? (
+                  <Eye size={20} color={colors.primary.primary1} weight="regular" />
+                ) : (
+                  <EyeSlash size={20} color={colors.neutral.neutral3} weight="regular" />
+                )}
+                <Text style={styles.dropdownEyeText}>
+                  {showAccountNumbers ? 'Hide account numbers' : 'Show account numbers'}
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -329,22 +406,46 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     color: colors.primary.primary1,
   },
+  accountSelectorWrapper: {
+    position: 'relative',
+  },
   accountSelector: {
-    height: 44,
+    minHeight: 44,
     borderWidth: 1,
     borderColor: colors.neutral.neutral4,
     borderRadius: 15,
     paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: colors.neutral.neutral6,
+  },
+  accountSelectorContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.neutral.neutral6,
+  },
+  accountTextContainer: {
+    flex: 1,
+    marginRight: 8,
+  },
+  accountSelectorIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  eyeButton: {
+    padding: 4,
   },
   accountLabel: {
     fontFamily: 'Poppins',
     fontSize: 14,
     fontWeight: '500',
     color: colors.neutral.neutral4,
+  },
+  accountLabelSelected: {
+    fontFamily: 'Poppins',
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.neutral.neutral1,
   },
   balanceLabel: {
     fontFamily: 'Poppins',
@@ -423,6 +524,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.neutral.neutral6,
     fontWeight: 'bold',
+  },
+  dropdownEyeToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 8,
+    backgroundColor: colors.neutral.neutral6,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.neutral5,
+  },
+  dropdownEyeText: {
+    fontFamily: 'Poppins',
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.neutral.neutral1,
   },
   optionsGrid: {
     flexDirection: 'row',

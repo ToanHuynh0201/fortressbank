@@ -1,10 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
+import { Eye, EyeSlash } from 'phosphor-react-native';
 import { neutral, primary } from '@/constants/colors';
 
 interface BankCardProps {
   cardholderName: string;
   cardNumber: string;
+  maskedCardNumber?: string;
   balance: string;
   containerStyle?: ViewStyle;
   showDots?: boolean;
@@ -13,17 +15,23 @@ interface BankCardProps {
 const BankCard: React.FC<BankCardProps> = ({
   cardholderName,
   cardNumber,
+  maskedCardNumber,
   balance,
   containerStyle,
   showDots = true,
 }) => {
+  const [showFullNumber, setShowFullNumber] = useState(false);
+
+  const displayNumber = showFullNumber ? cardNumber : (maskedCardNumber || cardNumber);
+  const displayBalance = showFullNumber ? balance : '$ •••••';
+
   const renderCardNumber = () => {
     if (!showDots) {
-      return <Text style={styles.cardNumberText}>{cardNumber}</Text>;
+      return <Text style={styles.cardNumberText}>{displayNumber}</Text>;
     }
 
     // Format: •••• 4756 •••• 9018
-    const parts = cardNumber.split(' ');
+    const parts = displayNumber.split(' ');
     
     return (
       <View style={styles.cardNumber}>
@@ -48,10 +56,22 @@ const BankCard: React.FC<BankCardProps> = ({
     <View style={[styles.cardBackground, containerStyle]}>
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardName}>{cardholderName}</Text>
+          <View style={styles.cardHeaderContent}>
+            <Text style={styles.cardName}>{cardholderName}</Text>
+            <TouchableOpacity 
+              style={styles.eyeButton}
+              onPress={() => setShowFullNumber(!showFullNumber)}
+            >
+              {showFullNumber ? (
+                <Eye size={24} color={neutral.neutral6} weight="regular" />
+              ) : (
+                <EyeSlash size={24} color="rgba(255, 255, 255, 0.6)" weight="regular" />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
         {renderCardNumber()}
-        <Text style={styles.cardBalance}>{balance}</Text>
+        <Text style={styles.cardBalance}>{displayBalance}</Text>
       </View>
     </View>
   );
@@ -78,6 +98,11 @@ const styles = StyleSheet.create({
   cardHeader: {
     marginBottom: 30,
   },
+  cardHeaderContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
   cardName: {
     fontSize: 24,
     fontFamily: 'Poppins',
@@ -85,6 +110,11 @@ const styles = StyleSheet.create({
     color: neutral.neutral6,
     lineHeight: 36,
     marginBottom: 4,
+    flex: 1,
+  },
+  eyeButton: {
+    padding: 4,
+    marginTop: 4,
   },
   cardNumber: {
     flexDirection: 'row',
