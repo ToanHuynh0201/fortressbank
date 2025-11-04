@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, ScrollView, Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { LinearGradient } from 'expo-linear-gradient'
 import { primary, neutral } from '@/constants'
 import { useRouter } from 'expo-router'
 import {
@@ -106,17 +107,27 @@ const Home = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <UserAvatar
-            imageUri="https://i.pravatar.cc/150?img=12"
-            size={50}
-          />
-          <Text style={styles.greeting}>Hi, Push Puttichai</Text>
+      {/* Enhanced Header with Gradient */}
+      <LinearGradient
+        colors={['#4A3FDB', '#3629B7', '#2A1F8F']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <UserAvatar
+              imageUri="https://i.pravatar.cc/150?img=12"
+              size={54}
+            />
+            <View style={styles.greetingContainer}>
+              <Text style={styles.greetingLabel}>Welcome back,</Text>
+              <Text style={styles.greeting}>Push Puttichai</Text>
+            </View>
+          </View>
+          <NotificationBell count={3} />
         </View>
-        <NotificationBell count={3} />
-      </View>
+      </LinearGradient>
 
       <ScrollView 
         style={styles.scrollView}
@@ -166,22 +177,37 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: primary.primary1,
   },
+  headerGradient: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    paddingBottom: 24,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 18,
+    gap: 16,
+    flex: 1,
+  },
+  greetingContainer: {
+    flex: 1,
+  },
+  greetingLabel: {
+    fontSize: 13,
+    fontFamily: 'Poppins',
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.7)',
+    lineHeight: 18,
+    marginBottom: 2,
   },
   greeting: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Poppins',
-    fontWeight: '500',
+    fontWeight: '600',
     color: neutral.neutral6,
     lineHeight: 24,
   },

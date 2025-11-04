@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
+import { ArrowLeft } from 'phosphor-react-native';
 import { neutral, primary } from '@/constants/colors';
 
 interface AppHeaderProps {
@@ -32,39 +33,79 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 
   return (
     <View style={[styles.header, { backgroundColor }, containerStyle]}>
-      {showBackButton ? (
-        <Pressable style={styles.backButton} onPress={handleBack}>
-          <Text style={[styles.backIcon, { color: textColor }]}>←</Text>
-        </Pressable>
-      ) : (
-        <View style={styles.backButtonPlaceholder} />
-      )}
-      <Text style={[styles.headerTitle, { color: textColor }]}>{title}</Text>
+      <View style={styles.headerContent}>
+        {showBackButton ? (
+          <Pressable 
+            style={styles.backButton} 
+            onPress={handleBack}
+            android_ripple={{ color: 'rgba(255, 255, 255, 0.1)', radius: 24 }}
+          >
+            <View style={styles.backButtonInner}>
+              <ArrowLeft size={24} color={textColor} weight="regular" />
+            </View>
+          </Pressable>
+        ) : (
+          <View style={styles.backButtonPlaceholder} />
+        )}
+        <View style={styles.titleContainer}>
+          <Text style={[styles.headerTitle, { color: textColor }]} numberOfLines={1}>
+            {title}
+          </Text>
+        </View>
+        <View style={styles.rightPlaceholder} />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   header: {
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 50,
-    paddingHorizontal: 24,
-    paddingBottom: 25,
+    justifyContent: 'space-between',
   },
   backButton: {
-    marginRight: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  backButtonInner: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
   },
   backButtonPlaceholder: {
-    width: 40,
-    marginRight: 16,
+    width: 44,
+    height: 44,
   },
-  backIcon: {
-    fontSize: 24,
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
+    fontFamily: 'Poppins',
     fontWeight: '600',
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  rightPlaceholder: {
+    width: 44,
+    height: 44,
   },
 });
 

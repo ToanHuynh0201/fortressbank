@@ -27,10 +27,13 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 
   if (imageUri) {
     return (
-      <Image
-        source={{ uri: imageUri }}
-        style={[styles.avatar, avatarSize, containerStyle]}
-      />
+      <View style={[styles.avatarContainer, { width: size, height: size }]}>
+        <Image
+          source={{ uri: imageUri }}
+          style={[styles.avatar, avatarSize, containerStyle]}
+        />
+        <View style={styles.avatarBorder} />
+      </View>
     );
   }
 
@@ -50,9 +53,24 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 };
 
 const styles = StyleSheet.create({
+  avatarContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatar: {
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  avatarBorder: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   initials: {
     fontFamily: 'Poppins',
