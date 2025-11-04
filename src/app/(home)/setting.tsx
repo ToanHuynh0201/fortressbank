@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { AppHeader } from '@/components/common';
 import { SettingRow } from '@/components/settings';
 import { primary, neutral } from '@/constants/colors';
+import { UserAvatar } from '@/components';
 
 const Setting = () => {
   const router = useRouter();
@@ -35,7 +36,6 @@ const Setting = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar style="light" />
       
       <AppHeader 
         title="Setting" 
@@ -50,12 +50,10 @@ const Setting = () => {
       >
         {/* User Profile Section */}
         <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={require('../../../assets/adaptive-icon.png')}
-              style={styles.avatar}
+          <UserAvatar
+              imageUri="https://i.pravatar.cc/150?img=12"
+              size={90}
             />
-          </View>
           <Text style={styles.userName}>Push Puttichai</Text>
         </View>
 
@@ -110,9 +108,9 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     overflow: 'hidden',
     marginBottom: 12,
     backgroundColor: neutral.neutral5,
