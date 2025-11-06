@@ -7,7 +7,7 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { neutral, primary } from '@/constants';
+import { neutral, primary, commonStyles } from '@/constants';
 import {
   AppHeader,
   CustomInput,
@@ -18,62 +18,64 @@ import {
 } from '@/components';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useForm } from '@/hooks';
 
 type Step = 'enter-phone' | 'confirm-phone' | 'enter-code' | 'change-password';
 
 const ForgotPassword = () => {
   const router = useRouter();
   const [step, setStep] = useState<Step>('enter-phone');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [code, setCode] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  const { values, handleChange } = useForm({
+    phoneNumber: '',
+    code: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
 
   const handleSendCode = () => {
-    if (!phoneNumber.trim()) {
+    if (!values.phoneNumber.trim()) {
       Alert.alert('Error', 'Please enter your phone number');
       return;
     }
     // TODO: Call API to send verification code
-    console.log('Sending code to:', phoneNumber);
+    console.log('Sending code to:', values.phoneNumber);
     setStep('confirm-phone');
   };
 
   const handleVerifyPhone = () => {
     // TODO: Call API to verify phone and send code
-    console.log('Verifying phone:', phoneNumber);
+    console.log('Verifying phone:', values.phoneNumber);
     setStep('enter-code');
   };
 
   const handleResendCode = () => {
     // TODO: Call API to resend code
-    console.log('Resending code to:', phoneNumber);
+    console.log('Resending code to:', values.phoneNumber);
     Alert.alert('Success', 'Code has been resent to your phone');
   };
 
   const handleVerifyCode = () => {
-    if (code.length < 4) {
+    if (values.code.length < 4) {
       Alert.alert('Error', 'Please enter the verification code');
       return;
     }
     // TODO: Call API to verify code
-    console.log('Verifying code:', code);
+    console.log('Verifying code:', values.code);
     setStep('change-password');
   };
 
   const handleChangePassword = () => {
-    if (!newPassword.trim() || !confirmPassword.trim()) {
+    if (!values.newPassword.trim() || !values.confirmPassword.trim()) {
       Alert.alert('Error', 'Please enter both password fields');
       return;
     }
-    if (newPassword !== confirmPassword) {
+    if (values.newPassword !== values.confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
     // TODO: Call API to change password
-    console.log('Changing password with code:', code);
+    console.log('Changing password with code:', values.code);
     Alert.alert('Success', 'Your password has been changed successfully', [
       { text: 'OK', onPress: () => router.replace('/signIn') },
     ]);
@@ -81,8 +83,8 @@ const ForgotPassword = () => {
 
   const handleChangePhoneNumber = () => {
     setStep('enter-phone');
-    setPhoneNumber('');
-    setCode('');
+    handleChange('phoneNumber', '');
+    handleChange('code', '');
   };
 
   const renderStep = () => {
@@ -94,8 +96,8 @@ const ForgotPassword = () => {
               <Text style={styles.label}>Type your phone number</Text>
               <CustomInput
                 placeholder="(+84)"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
+                value={values.phoneNumber}
+                onChangeText={(text) => handleChange('phoneNumber', text)}
                 keyboardType="phone-pad"
                 containerStyle={styles.inputWrapper}
               />
@@ -105,7 +107,7 @@ const ForgotPassword = () => {
               <PrimaryButton
                 title="Send"
                 onPress={handleSendCode}
-                disabled={!phoneNumber.trim()}
+                disabled={!values.phoneNumber.trim()}
               />
             </CardContainer>
           </>
@@ -117,8 +119,8 @@ const ForgotPassword = () => {
             <CardContainer>
               <Text style={styles.label}>Type your phone number</Text>
               <CustomInput
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
+                value={values.phoneNumber}
+                onChangeText={(text) => handleChange('phoneNumber', text)}
                 keyboardType="phone-pad"
                 isActive={true}
                 containerStyle={styles.inputWrapper}
@@ -142,8 +144,8 @@ const ForgotPassword = () => {
               <View style={styles.codeInputRow}>
                 <CustomInput
                   placeholder="Code"
-                  value={code}
-                  onChangeText={setCode}
+                  value={values.code}
+                  onChangeText={(text) => handleChange('code', text)}
                   keyboardType="number-pad"
                   maxLength={4}
                   containerStyle={styles.codeInput}
@@ -157,7 +159,7 @@ const ForgotPassword = () => {
               </View>
               <Text style={styles.infoText}>
                 We texted you a code to verify your phone number (+84){' '}
-                {phoneNumber}
+                {values.phoneNumber}
               </Text>
               <Text style={styles.infoText}>
                 This code will expired 10 minutes after this message. If you
@@ -166,7 +168,7 @@ const ForgotPassword = () => {
               <PrimaryButton
                 title="Change password"
                 onPress={handleVerifyCode}
-                disabled={code.length < 4}
+                disabled={values.code.length < 4}
               />
             </CardContainer>
             <Pressable
@@ -185,8 +187,8 @@ const ForgotPassword = () => {
               <Text style={styles.label}>Type a code</Text>
               <View style={styles.codeInputRow}>
                 <CustomInput
-                  value={code}
-                  onChangeText={setCode}
+                  value={values.code}
+                  onChangeText={(text) => handleChange('code', text)}
                   keyboardType="number-pad"
                   maxLength={4}
                   isActive={true}
@@ -201,7 +203,7 @@ const ForgotPassword = () => {
               </View>
               <Text style={styles.infoText}>
                 We texted you a code to verify your phone number (+84){' '}
-                {phoneNumber}
+                {values.phoneNumber}
               </Text>
               <Text style={styles.infoText}>
                 This code will expired 10 minutes after this message. If you
@@ -213,23 +215,23 @@ const ForgotPassword = () => {
                 <Text style={styles.label}>New Password</Text>
                 <PasswordInput
                   placeholder="Enter new password"
-                  value={newPassword}
-                  onChangeText={setNewPassword}
+                  value={values.newPassword}
+                  onChangeText={(text) => handleChange('newPassword', text)}
                   containerStyle={styles.passwordFieldSpacing}
                 />
 
                 <Text style={styles.label}>Confirm Password</Text>
                 <PasswordInput
                   placeholder="Confirm new password"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
+                  value={values.confirmPassword}
+                  onChangeText={(text) => handleChange('confirmPassword', text)}
                 />
               </View>
 
               <PrimaryButton
                 title="Change password"
                 onPress={handleChangePassword}
-                disabled={!newPassword.trim() || !confirmPassword.trim()}
+                disabled={!values.newPassword.trim() || !values.confirmPassword.trim()}
               />
             </CardContainer>
             <Pressable

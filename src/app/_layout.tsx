@@ -10,6 +10,7 @@ const RootLayout = () => {
             <Stack.Screen 
                 name="index"
                 options={{
+                    headerShown: false,
                     animation: 'fade',
                 }}
             />

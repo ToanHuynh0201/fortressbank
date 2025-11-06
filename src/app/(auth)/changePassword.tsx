@@ -6,7 +6,7 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { primary, neutral } from '@/constants/colors';
+import { primary, neutral, commonStyles } from '@/constants';
 import {
   AppHeader,
   PasswordInput,
@@ -17,26 +17,32 @@ import {
 } from '@/components';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useForm } from '@/hooks';
 
 const ChangePassword = () => {
   const router = useRouter();
   const [step, setStep] = useState<'enter-passwords' | 'success'>('enter-passwords');
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  
+  const { values, handleChange } = useForm({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  const isFormValid = values.oldPassword && values.newPassword && values.confirmPassword;
 
   const handleChangePassword = () => {
-    if (!oldPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
+    if (!isFormValid) {
       Alert.alert('Error', 'Please fill in all password fields');
       return;
     }
 
-    if (newPassword !== confirmPassword) {
+    if (values.newPassword !== values.confirmPassword) {
       Alert.alert('Error', 'New passwords do not match');
       return;
     }
 
-    if (oldPassword === newPassword) {
+    if (values.oldPassword === values.newPassword) {
       Alert.alert('Error', 'New password must be different from old password');
       return;
     }
@@ -113,8 +119,8 @@ const ChangePassword = () => {
               <Text style={styles.label}>Type your old password</Text>
               <PasswordInput
                 placeholder="************"
-                value={oldPassword}
-                onChangeText={setOldPassword}
+                value={values.oldPassword}
+                onChangeText={(text) => handleChange('oldPassword', text)}
               />
             </View>
 
@@ -123,8 +129,8 @@ const ChangePassword = () => {
               <Text style={styles.label}>Type your new password</Text>
               <PasswordInput
                 placeholder="************"
-                value={newPassword}
-                onChangeText={setNewPassword}
+                value={values.newPassword}
+                onChangeText={(text) => handleChange('newPassword', text)}
               />
             </View>
 
@@ -133,8 +139,8 @@ const ChangePassword = () => {
               <Text style={styles.label}>Confirm password</Text>
               <PasswordInput
                 placeholder="************"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
+                value={values.confirmPassword}
+                onChangeText={(text) => handleChange('confirmPassword', text)}
               />
             </View>
 
@@ -142,7 +148,7 @@ const ChangePassword = () => {
             <PrimaryButton
               title="Change password"
               onPress={handleChangePassword}
-              disabled={!oldPassword.trim() || !newPassword.trim() || !confirmPassword.trim()}
+              disabled={!isFormValid}
               style={styles.button}
             />
           </CardContainer>

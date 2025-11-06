@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,7 +6,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { primary, neutral } from "@/constants/colors";
+import { primary, neutral, commonStyles } from "@/constants";
 import {
   AuthLayout,
   CustomInput,
@@ -15,15 +15,17 @@ import {
   LinkText,
   DecorativeIllustration,
 } from '@/components';
+import { useForm } from '@/hooks';
+import { validationRules } from '@/utils';
 
 const SignIn = () => {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange, isValid } = useForm({
+    email: '',
+    password: '',
+  });
 
   const handleSignIn = () => {
-    // TODO: Implement sign in logic
-    // console.log('Sign in with:', email, password);
     router.replace('/(home)');
   };
 
@@ -43,8 +45,8 @@ const SignIn = () => {
       <View style={styles.inputContainer}>
         <CustomInput
           placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
+          value={values.email}
+          onChangeText={(text) => handleChange('email', text)}
           keyboardType="email-address"
           autoCapitalize="none"
           containerStyle={styles.input}
@@ -52,8 +54,8 @@ const SignIn = () => {
 
         <PasswordInput
           placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
+          value={values.password}
+          onChangeText={(text) => handleChange('password', text)}
           containerStyle={styles.input}
         />
 
@@ -66,7 +68,7 @@ const SignIn = () => {
       <PrimaryButton
         title="Sign in"
         onPress={handleSignIn}
-        disabled={!email || !password}
+        disabled={!values.email || !values.password}
         style={styles.signInButton}
       />
 

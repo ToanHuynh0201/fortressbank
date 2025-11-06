@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { primary, neutral } from '@/constants/colors';
+import { primary, neutral, commonStyles } from '@/constants';
 import {
   AuthLayout,
   CustomInput,
@@ -15,18 +15,23 @@ import {
   DecorativeIllustration,
   CheckboxWithLabel,
 } from '@/components';
+import { useForm } from '@/hooks';
 
 const SignUp = () => {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const { values, handleChange, setFieldValue } = useForm({
+    name: '',
+    phone: '',
+    password: '',
+    agreedToTerms: false,
+  });
 
   const handleSignUp = () => {
     // TODO: Implement sign up logic
-    console.log('Sign up with:', name, phone, password);
+    console.log('Sign up with:', values);
   };
+
+  const isFormValid = values.name && values.phone && values.password && values.agreedToTerms;
 
   return (
     <AuthLayout title="Sign up">
@@ -44,36 +49,36 @@ const SignUp = () => {
       <View style={styles.inputContainer}>
         <CustomInput
           placeholder="Name"
-          value={name}
-          onChangeText={setName}
+          value={values.name}
+          onChangeText={(text) => handleChange('name', text)}
           autoCapitalize="words"
-          isActive={!!name}
+          isActive={!!values.name}
           containerStyle={styles.input}
         />
 
         <CustomInput
           placeholder="Phone Number"
-          value={phone}
-          onChangeText={setPhone}
+          value={values.phone}
+          onChangeText={(text) => handleChange('phone', text)}
           keyboardType="phone-pad"
           autoCapitalize="none"
-          isActive={!!phone}
+          isActive={!!values.phone}
           containerStyle={styles.input}
         />
 
         <PasswordInput
           placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          isActive={!!password}
+          value={values.password}
+          onChangeText={(text) => handleChange('password', text)}
+          isActive={!!values.password}
           containerStyle={styles.passwordInput}
         />
       </View>
 
       {/* Terms and Conditions */}
       <CheckboxWithLabel
-        checked={agreedToTerms}
-        onPress={() => setAgreedToTerms(!agreedToTerms)}
+        checked={values.agreedToTerms}
+        onPress={() => setFieldValue('agreedToTerms', !values.agreedToTerms)}
         label={
           <Text style={styles.termsText}>
             By creating an account your aggree{'\n'}to our{' '}
@@ -87,7 +92,7 @@ const SignUp = () => {
       <PrimaryButton
         title="Sign up"
         onPress={handleSignUp}
-        disabled={!name || !phone || !password || !agreedToTerms}
+        disabled={!isFormValid}
         style={styles.signUpButton}
       />
 

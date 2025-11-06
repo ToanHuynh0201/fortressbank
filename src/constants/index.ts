@@ -93,6 +93,9 @@ export const SUCCESS_MESSAGES = {
 export { colors, primary, neutral, semantic } from "./colors";
 export type { PrimaryColor, NeutralColor, SemanticColor } from "./colors";
 
+// Re-export common styles
+export { commonStyles } from "./styles";
+
 export default {
     API_CONFIG,
     AUTH_CONFIG,

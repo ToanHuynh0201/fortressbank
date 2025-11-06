@@ -6,12 +6,12 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CaretLeft, Eye, EyeSlash } from 'phosphor-react-native';
 import colors from '@/constants/colors';
-import { ScreenContainer, PrimaryButton, CheckboxWithLabel } from '@/components';
+import { ScreenContainer, PrimaryButton, CheckboxWithLabel, CustomInput } from '@/components';
+import { useForm } from '@/hooks';
 
 interface TransferOption {
   id: string;
@@ -41,12 +41,14 @@ const Transfer = () => {
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [showAccountNumbers, setShowAccountNumbers] = useState(false);
   
-  // Form fields
-  const [name, setName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [amount, setAmount] = useState('');
-  const [content, setContent] = useState('');
-  const [saveToBeneficiary, setSaveToBeneficiary] = useState(false);
+  // Form fields managed by useForm hook
+  const { values, handleChange, setFieldValue } = useForm({
+    name: '',
+    cardNumber: '',
+    amount: '',
+    content: '',
+    saveToBeneficiary: false,
+  });
 
   const transferOptions: TransferOption[] = [
     { id: 'card', title: 'Transfer via\ncard number', icon: '💳' },
@@ -91,7 +93,7 @@ const Transfer = () => {
     },
   ];
 
-  const isFormValid = name && cardNumber && amount && content;
+  const isFormValid = values.name && values.cardNumber && values.amount && values.content;
 
   return (
     <ScreenContainer backgroundColor={colors.neutral.neutral6}>
@@ -289,45 +291,41 @@ const Transfer = () => {
 
         {/* Transfer Form */}
         <View style={styles.formCard}>
-          <TextInput
-            style={styles.input}
+          <CustomInput
             placeholder="Name"
-            placeholderTextColor={colors.neutral.neutral4}
-            value={name}
-            onChangeText={setName}
+            value={values.name}
+            onChangeText={(text) => handleChange('name', text)}
+            containerStyle={styles.input}
           />
 
-          <TextInput
-            style={styles.input}
+          <CustomInput
             placeholder="Card number"
-            placeholderTextColor={colors.neutral.neutral4}
-            value={cardNumber}
-            onChangeText={setCardNumber}
+            value={values.cardNumber}
+            onChangeText={(text) => handleChange('cardNumber', text)}
             keyboardType="numeric"
+            containerStyle={styles.input}
           />
 
-          <TextInput
-            style={styles.input}
+          <CustomInput
             placeholder="Amount"
-            placeholderTextColor={colors.neutral.neutral4}
-            value={amount}
-            onChangeText={setAmount}
+            value={values.amount}
+            onChangeText={(text) => handleChange('amount', text)}
             keyboardType="numeric"
+            containerStyle={styles.input}
           />
 
-          <TextInput
-            style={styles.input}
+          <CustomInput
             placeholder="Content"
-            placeholderTextColor={colors.neutral.neutral4}
-            value={content}
-            onChangeText={setContent}
+            value={values.content}
+            onChangeText={(text) => handleChange('content', text)}
+            containerStyle={styles.input}
           />
 
           {/* Checkbox */}
           <View style={styles.checkboxContainer}>
             <CheckboxWithLabel
-              checked={saveToBeneficiary}
-              onPress={() => setSaveToBeneficiary(!saveToBeneficiary)}
+              checked={values.saveToBeneficiary}
+              onPress={() => setFieldValue('saveToBeneficiary', !values.saveToBeneficiary)}
               label="Save to directory of beneficiary"
               labelStyle={styles.checkboxLabel}
             />
@@ -646,16 +644,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   input: {
-    height: 44,
-    borderWidth: 1,
-    borderColor: colors.neutral.neutral4,
-    borderRadius: 15,
-    paddingHorizontal: 12,
     marginBottom: 24,
-    fontFamily: 'Poppins',
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.neutral.neutral1,
   },
   checkboxContainer: {
     marginBottom: 24,

@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ViewStyle } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { primary, neutral } from '@/constants/colors';
 import AppHeader from '../common/AppHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -22,13 +22,10 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   onBack,
   headerBackgroundColor = primary.primary1,
   contentBackgroundColor = neutral.neutral6,
-  containerStyle,
   contentContainerStyle,
 }) => {
   return (
-    <View style={[styles.container, { backgroundColor: headerBackgroundColor }, containerStyle]}>
-      <StatusBar style="light" />
-      
+    <SafeAreaView style={styles.container} edges={['top']} >
       <AppHeader
         title={title}
         showBackButton={showBackButton}
@@ -49,13 +46,15 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
+    
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: primary.primary1,
   },
   flex: {
     flex: 1,
