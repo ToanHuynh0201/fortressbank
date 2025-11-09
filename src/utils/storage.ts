@@ -80,3 +80,17 @@ export const isStorageAvailable = async () => {
         return false;
     }
 };
+
+/**
+ * Clear all AsyncStorage data
+ * @returns {Promise<boolean>} Success status
+ */
+export const clearStorage = async () => {
+    try {
+        await AsyncStorage.clear();
+        return true;
+    } catch (error) {
+        console.warn("Error clearing all AsyncStorage:", error);
+        return false;
+    }
+};

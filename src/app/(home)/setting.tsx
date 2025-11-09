@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -7,6 +7,7 @@ import { AppHeader } from '@/components/common';
 import { SettingRow } from '@/components/settings';
 import { primary, neutral } from '@/constants/colors';
 import { UserAvatar } from '@/components';
+import { clearStorage } from '@/utils/storage';
 
 const Setting = () => {
   const router = useRouter();
@@ -32,6 +33,33 @@ const Setting = () => {
   const handleCustomerCarePress = () => {
     // Handle customer care
     console.log('Customer care pressed');
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clearStorage();
+              router.replace('/(auth)/signIn');
+            } catch (error) {
+              console.error('Error during logout:', error);
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -81,6 +109,19 @@ const Setting = () => {
             onPress={handleCustomerCarePress}
           />
         </View>
+
+        {/* Logout Button */}
+        <View style={styles.logoutContainer}>
+          <Pressable 
+            style={({ pressed }) => [
+              styles.logoutButton,
+              pressed && styles.logoutButtonPressed
+            ]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.logoutText}>Logout</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -129,5 +170,34 @@ const styles = StyleSheet.create({
   },
   settingsList: {
     gap: 16,
+  },
+  logoutContainer: {
+    paddingHorizontal: 20,
+    marginTop: 40,
+  },
+  logoutButton: {
+    backgroundColor: '#FF3B30',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  logoutButtonPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
+  },
+  logoutText: {
+    fontFamily: 'Poppins',
+    fontSize: 16,
+    fontWeight: '600',
+    color: neutral.neutral6,
   },
 });

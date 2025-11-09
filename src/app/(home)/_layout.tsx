@@ -9,7 +9,7 @@ const RootLayout = () => {
         tabBar={(props : any) => customTabs(props)}
         screenOptions={{headerShown: false}}>
         <Tabs.Screen name="index" options={{title: "Home"}} />
-        <Tabs.Screen name="message" options={{title: "Messages"}} />
+        <Tabs.Screen name="notification" options={{title: "Notifications"}} />
         <Tabs.Screen name="search" options={{title: "Search"}} />
         <Tabs.Screen name="setting" options={{title: "Settings"}} />
     </Tabs>

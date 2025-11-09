@@ -81,8 +81,8 @@ const CustomNavBar = ({
     switch (routeName) {
       case "index":
         return <Feather name="home" size={18} color={color} />;
-      case "message":
-        return <Feather name="message-circle" size={18} color={color} />;
+      case "notification":
+        return <Feather name="bell" size={18} color={color} />;
       case "search":
         return <Feather name="search" size={18} color={color} />;
       case "setting":
