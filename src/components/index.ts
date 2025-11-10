@@ -4,3 +4,4 @@ export * from './layouts';
 export * from './cards';
 export * from './decorative';
 export * from './user';
+export * from './notifications';

@@ -10,9 +10,11 @@ import {
   BankCard,
   CategoryCard,
 } from '@/components'
+import { useNotifications } from '@/contexts'
 
 const Home = () => {
   const router = useRouter();
+  const { unreadCount } = useNotifications();
 
   const categories = [
     { id: 1, title: 'Account\nand Card', icon: 'wallet' },
@@ -125,7 +127,10 @@ const Home = () => {
               <Text style={styles.greeting}>Push Puttichai</Text>
             </View>
           </View>
-          <NotificationBell count={3} />
+          <NotificationBell 
+            count={unreadCount} 
+            onPress={() => router.push('/(home)/notification')}
+          />
         </View>
       </LinearGradient>
 

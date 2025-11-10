@@ -1,12 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Tabs } from 'expo-router'
-import customTabs from "../../components/common/customTabs"
+import { CustomNavBar } from "@/components/layouts"
 
 const RootLayout = () => {
   return (
     <Tabs 
-        tabBar={(props : any) => customTabs(props)}
+        tabBar={(props : any) => <CustomNavBar {...props} />}
         screenOptions={{headerShown: false}}>
         <Tabs.Screen name="index" options={{title: "Home"}} />
         <Tabs.Screen name="notification" options={{title: "Notifications"}} />

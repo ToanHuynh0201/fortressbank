@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -8,7 +8,8 @@ import Animated, {
   LinearTransition,
 } from "react-native-reanimated";
 import Entypo from '@expo/vector-icons/Entypo';
-import { neutral, primary } from "@/constants";
+import { neutral, primary, semantic } from "@/constants";
+import { useNotifications } from "@/contexts";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -16,11 +17,45 @@ const AnimatedTouchableOpacity =
 const PRIMARY_COLOR = neutral.neutral6;
 const SECONDARY_COLOR = primary.primary1;
 
+const getIconByRouteName = (routeName: string, color: string, badgeCount?: number) => {
+  const iconSize = 18;
+  
+  const renderIcon = () => {
+    switch (routeName) {
+      case "index":
+        return <Feather name="home" size={iconSize} color={color} />;
+      case "notification":
+        return <Feather name="bell" size={iconSize} color={color} />;
+      case "search":
+        return <Feather name="search" size={iconSize} color={color} />;
+      case "setting":
+        return <Ionicons name="settings-outline" size={iconSize} color={color} />;
+      default:
+        return <Feather name="home" size={iconSize} color={color} />;
+    }
+  };
+
+  if (routeName === "notification" && badgeCount && badgeCount > 0) {
+    return (
+      <View style={styles.iconContainer}>
+        {renderIcon()}
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{badgeCount > 99 ? '99+' : badgeCount}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  return renderIcon();
+};
+
 const CustomNavBar = ({
   state,
   descriptors,
   navigation,
 } : BottomTabBarProps) => {
+  const { unreadCount } = useNotifications();
+  
   return (
     <View style={styles.container}>
       {state.routes.map((route, index) => {
@@ -60,7 +95,8 @@ const CustomNavBar = ({
           >
             {getIconByRouteName(
               route.name,
-              isFocused ? PRIMARY_COLOR : SECONDARY_COLOR
+              isFocused ? PRIMARY_COLOR : SECONDARY_COLOR,
+              route.name === "notification" ? unreadCount : undefined
             )}
             {isFocused && (
               <Animated.Text
@@ -76,21 +112,6 @@ const CustomNavBar = ({
       })}
     </View>
   );
-
-  function getIconByRouteName(routeName: string, color: string) {
-    switch (routeName) {
-      case "index":
-        return <Feather name="home" size={18} color={color} />;
-      case "notification":
-        return <Feather name="bell" size={18} color={color} />;
-      case "search":
-        return <Feather name="search" size={18} color={color} />;
-      case "setting":
-        return <Ionicons name="settings-outline" size={18} color={color} />;
-      default:
-        return <Feather name="home" size={18} color={color} />;
-    }
-  }
 };
 
 const styles = StyleSheet.create({
@@ -123,6 +144,30 @@ const styles = StyleSheet.create({
     color: PRIMARY_COLOR,
     marginLeft: 8,
     fontWeight: "500",
+  },
+  iconContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: -8,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: semantic.error,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    fontSize: 9,
+    fontFamily: 'Poppins',
+    fontWeight: '700',
+    color: neutral.neutral6,
+    lineHeight: 12,
   },
 });
 
