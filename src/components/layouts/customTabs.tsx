@@ -26,8 +26,8 @@ const getIconByRouteName = (routeName: string, color: string, badgeCount?: numbe
         return <Feather name="home" size={iconSize} color={color} />;
       case "notification":
         return <Feather name="bell" size={iconSize} color={color} />;
-      case "search":
-        return <Feather name="search" size={iconSize} color={color} />;
+      case "history":
+        return <Feather name="clock" size={iconSize} color={color} />;
       case "setting":
         return <Ionicons name="settings-outline" size={iconSize} color={color} />;
       default:

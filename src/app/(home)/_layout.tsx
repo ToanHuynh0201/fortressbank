@@ -10,7 +10,7 @@ const RootLayout = () => {
         screenOptions={{headerShown: false}}>
         <Tabs.Screen name="index" options={{title: "Home"}} />
         <Tabs.Screen name="notification" options={{title: "Notifications"}} />
-        <Tabs.Screen name="search" options={{title: "Search"}} />
+        <Tabs.Screen name="history" options={{title: "History"}} />
         <Tabs.Screen name="setting" options={{title: "Settings"}} />
     </Tabs>
   )
