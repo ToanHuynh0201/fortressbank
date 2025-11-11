@@ -1,15 +1,44 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+  FadeIn,
+} from 'react-native-reanimated';
 import { AppHeader } from '@/components/common';
 import { NotificationItem } from '@/components/notifications';
 import { primary, neutral, semantic } from '@/constants/colors';
 import { useNotifications } from '@/contexts';
 import { CheckCircle } from 'phosphor-react-native';
 
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
+
 const Notification = () => {
   const { notifications, deleteNotification, markAsRead, markAllAsRead, unreadCount } = useNotifications();
+  
+  const contentOpacity = useSharedValue(0);
+  const contentTranslateY = useSharedValue(15);
+
+  useEffect(() => {
+    contentOpacity.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+    });
+    contentTranslateY.value = withSpring(0, {
+      damping: 20,
+      stiffness: 90,
+    });
+  }, []);
+
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+    transform: [{ translateY: contentTranslateY.value }],
+  }));
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -21,14 +50,17 @@ const Notification = () => {
           textColor={neutral.neutral6}
         />
 
-        <ScrollView 
-          style={styles.content}
+        <AnimatedScrollView 
+          style={[styles.content, contentAnimatedStyle]}
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
           {/* Mark All as Read Button */}
           {unreadCount > 0 && (
-            <View style={styles.actionContainer}>
+            <Animated.View 
+              entering={FadeIn.delay(100).duration(400)}
+              style={styles.actionContainer}
+            >
               <TouchableOpacity 
                 style={styles.markAllButton}
                 onPress={markAllAsRead}
@@ -39,10 +71,13 @@ const Notification = () => {
                   Mark all as read ({unreadCount})
                 </Text>
               </TouchableOpacity>
-            </View>
+            </Animated.View>
           )}
 
-          <View style={styles.notificationsList}>
+          <Animated.View 
+            entering={FadeIn.delay(150).duration(400)}
+            style={styles.notificationsList}
+          >
             {notifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
@@ -55,8 +90,8 @@ const Notification = () => {
                 onDelete={() => deleteNotification(notification.id)}
               />
             ))}
-          </View>
-        </ScrollView>
+          </Animated.View>
+        </AnimatedScrollView>
       </SafeAreaView>
     </GestureHandlerRootView>
   );

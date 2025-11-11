@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,20 @@ import {
   StatusBar,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+  FadeIn,
+} from 'react-native-reanimated';
 import { CaretLeft, Eye, EyeSlash } from 'phosphor-react-native';
 import colors from '@/constants/colors';
 import { ScreenContainer, PrimaryButton, CheckboxWithLabel, CustomInput } from '@/components';
 import { useForm } from '@/hooks';
+
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 interface TransferOption {
   id: string;
@@ -40,6 +50,35 @@ const Transfer = () => {
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [showAccountNumbers, setShowAccountNumbers] = useState(false);
+  
+  const headerOpacity = useSharedValue(0);
+  const contentOpacity = useSharedValue(0);
+  const contentTranslateY = useSharedValue(15);
+
+  useEffect(() => {
+    headerOpacity.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+    });
+    
+    contentOpacity.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+    });
+    contentTranslateY.value = withSpring(0, {
+      damping: 20,
+      stiffness: 90,
+    });
+  }, []);
+
+  const headerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+  }));
+
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+    transform: [{ translateY: contentTranslateY.value }],
+  }));
   
   // Form fields managed by useForm hook
   const { values, handleChange, setFieldValue } = useForm({
@@ -100,7 +139,7 @@ const Transfer = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       {/* Navigation Header */}
-      <View style={styles.header}>
+      <Animated.View style={[styles.header, headerAnimatedStyle]}>
         <TouchableOpacity 
           onPress={() => router.back()}
           style={styles.backButton}
@@ -108,16 +147,19 @@ const Transfer = () => {
           <CaretLeft size={16} color={colors.neutral.neutral1} weight="regular" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Transfer</Text>
-      </View>
+      </Animated.View>
 
       {/* Content */}
-      <ScrollView
-        style={styles.scrollView}
+      <AnimatedScrollView
+        style={[styles.scrollView, contentAnimatedStyle]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Account Selection */}
-        <View style={styles.section}>
+        <Animated.View 
+          entering={FadeIn.delay(100).duration(400)}
+          style={styles.section}
+        >
           <View style={styles.accountSelectorWrapper}>
             <TouchableOpacity 
               style={styles.accountSelector}
@@ -214,10 +256,13 @@ const Transfer = () => {
               </TouchableOpacity>
             </View>
           )}
-        </View>
+        </Animated.View>
 
         {/* Choose Transaction */}
-        <View style={styles.section}>
+        <Animated.View 
+          entering={FadeIn.delay(150).duration(400)}
+          style={styles.section}
+        >
           <Text style={styles.sectionTitle}>Choose transaction</Text>
           <View style={styles.optionsGrid}>
             {transferOptions.map((option) => (
@@ -239,10 +284,13 @@ const Transfer = () => {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
         {/* Choose Beneficiary */}
-        <View style={styles.section}>
+        <Animated.View 
+          entering={FadeIn.delay(200).duration(400)}
+          style={styles.section}
+        >
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Choose beneficiary</Text>
             <TouchableOpacity>
@@ -287,10 +335,13 @@ const Transfer = () => {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
 
         {/* Transfer Form */}
-        <View style={styles.formCard}>
+        <Animated.View 
+          entering={FadeIn.delay(250).duration(400)}
+          style={styles.formCard}
+        >
           <CustomInput
             placeholder="Name"
             value={values.name}
@@ -340,8 +391,8 @@ const Transfer = () => {
             disabled={!isFormValid}
             style={styles.confirmButton}
           />
-        </View>
-      </ScrollView>
+        </Animated.View>
+      </AnimatedScrollView>
 
       {/* Bottom Indicator */}
       <View style={styles.bottomIndicator}>

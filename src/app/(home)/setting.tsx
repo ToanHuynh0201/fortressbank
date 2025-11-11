@@ -1,16 +1,61 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+  FadeIn,
+} from 'react-native-reanimated';
 import { AppHeader } from '@/components/common';
 import { SettingRow } from '@/components/settings';
 import { primary, neutral } from '@/constants/colors';
 import { UserAvatar } from '@/components';
 import { clearStorage } from '@/utils/storage';
 
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
+
 const Setting = () => {
   const router = useRouter();
+
+  const profileOpacity = useSharedValue(0);
+  const profileScale = useSharedValue(0.9);
+  const contentOpacity = useSharedValue(0);
+  const contentTranslateY = useSharedValue(15);
+
+  useEffect(() => {
+    profileOpacity.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+    });
+    profileScale.value = withSpring(1, {
+      damping: 20,
+      stiffness: 90,
+    });
+    
+    contentOpacity.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+    });
+    contentTranslateY.value = withSpring(0, {
+      damping: 20,
+      stiffness: 90,
+    });
+  }, []);
+
+  const profileAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: profileOpacity.value,
+    transform: [{ scale: profileScale.value }],
+  }));
+
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+    transform: [{ translateY: contentTranslateY.value }],
+  }));
 
   const handlePasswordPress = () => {
     router.push('/(auth)/changePassword');
@@ -71,22 +116,25 @@ const Setting = () => {
         textColor={neutral.neutral6}
       />
 
-      <ScrollView 
+      <AnimatedScrollView 
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
         {/* User Profile Section */}
-        <View style={styles.profileSection}>
+        <Animated.View style={[styles.profileSection, profileAnimatedStyle]}>
           <UserAvatar
               imageUri="https://i.pravatar.cc/150?img=12"
               size={90}
             />
           <Text style={styles.userName}>Push Puttichai</Text>
-        </View>
+        </Animated.View>
 
         {/* Settings List */}
-        <View style={styles.settingsList}>
+        <Animated.View 
+          entering={FadeIn.delay(100).duration(400)}
+          style={styles.settingsList}
+        >
           <SettingRow 
             title="Password"
             onPress={handlePasswordPress}
@@ -108,10 +156,13 @@ const Setting = () => {
             subtitle="19008989"
             onPress={handleCustomerCarePress}
           />
-        </View>
+        </Animated.View>
 
         {/* Logout Button */}
-        <View style={styles.logoutContainer}>
+        <Animated.View 
+          entering={FadeIn.delay(150).duration(400)}
+          style={styles.logoutContainer}
+        >
           <Pressable 
             style={({ pressed }) => [
               styles.logoutButton,
@@ -121,8 +172,8 @@ const Setting = () => {
           >
             <Text style={styles.logoutText}>Logout</Text>
           </Pressable>
-        </View>
-      </ScrollView>
+        </Animated.View>
+      </AnimatedScrollView>
     </SafeAreaView>
   );
 };

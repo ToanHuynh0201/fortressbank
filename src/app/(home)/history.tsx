@@ -103,17 +103,17 @@ const History = () => {
   const [transactions, setTransactions] = useState(mockTransactions);
   const [filter, setFilter] = useState<'all' | 'sent' | 'received'>('all');
 
-  const headerScale = useSharedValue(0.9);
+  const headerScale = useSharedValue(0.96);
   const headerOpacity = useSharedValue(0);
 
   useEffect(() => {
     headerScale.value = withSpring(1, {
-      damping: 15,
-      stiffness: 150,
+      damping: 20,
+      stiffness: 100,
     });
     headerOpacity.value = withTiming(1, {
-      duration: 600,
-      easing: Easing.out(Easing.cubic),
+      duration: 400,
+      easing: Easing.out(Easing.ease),
     });
   }, []);
 
@@ -183,7 +183,7 @@ const History = () => {
       <View style={styles.content}>
         {/* Filter Buttons */}
         <Animated.View 
-          entering={FadeIn.delay(200).duration(500)}
+          entering={FadeIn.delay(150).duration(400)}
           style={styles.filterContainer}
         >
           <TouchableOpacity
@@ -243,7 +243,7 @@ const History = () => {
             ))
           ) : (
             <Animated.View 
-              entering={FadeIn.delay(300).duration(500)}
+              entering={FadeIn.delay(200).duration(400)}
               style={styles.emptyState}
             >
               <Calendar size={64} color={neutral.neutral4} weight="thin" />

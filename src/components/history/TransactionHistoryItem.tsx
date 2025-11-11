@@ -33,25 +33,25 @@ const TransactionHistoryItem: React.FC<TransactionHistoryItemProps> = ({
   onPress,
   index = 0,
 }) => {
-  const scale = useSharedValue(0.8);
+  const scale = useSharedValue(0.95);
   const opacity = useSharedValue(0);
-  const translateY = useSharedValue(20);
+  const translateY = useSharedValue(10);
 
   useEffect(() => {
-    const delay = index * 80;
+    const delay = index * 50;
     
     setTimeout(() => {
       scale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 150,
+        damping: 20,
+        stiffness: 100,
       });
       opacity.value = withTiming(1, {
-        duration: 400,
-        easing: Easing.out(Easing.cubic),
+        duration: 300,
+        easing: Easing.out(Easing.ease),
       });
       translateY.value = withSpring(0, {
-        damping: 12,
-        stiffness: 100,
+        damping: 18,
+        stiffness: 90,
       });
     }, delay);
   }, [index]);

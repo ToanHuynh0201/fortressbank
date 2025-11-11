@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,14 @@ import {
   StatusBar,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+  FadeIn,
+} from 'react-native-reanimated';
 import { CaretLeft } from 'phosphor-react-native';
 import colors from '@/constants/colors';
 import {
@@ -16,6 +24,8 @@ import {
   AccountCardItem,
   CreditCardItem,
 } from '@/components';
+
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 interface AccountCardData {
   id: string;
@@ -101,6 +111,45 @@ const AccountCard = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'account' | 'card'>('account');
 
+  const headerOpacity = useSharedValue(0);
+  const userOpacity = useSharedValue(0);
+  const userScale = useSharedValue(0.9);
+  const contentOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    headerOpacity.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+    });
+    
+    userOpacity.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+    });
+    userScale.value = withSpring(1, {
+      damping: 20,
+      stiffness: 90,
+    });
+    
+    contentOpacity.value = withTiming(1, {
+      duration: 500,
+      easing: Easing.out(Easing.ease),
+    });
+  }, []);
+
+  const headerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+  }));
+
+  const userAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: userOpacity.value,
+    transform: [{ scale: userScale.value }],
+  }));
+
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+  }));
+
   const renderAccountCard = (account: AccountCardData) => (
     <AccountCardItem
       key={account.id}
@@ -133,7 +182,7 @@ const AccountCard = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       {/* Navigation Header */}
-      <View style={styles.header}>
+      <Animated.View style={[styles.header, headerAnimatedStyle]}>
         <TouchableOpacity 
           onPress={() => router.back()}
           style={styles.backButton}
@@ -141,10 +190,13 @@ const AccountCard = () => {
           <CaretLeft size={16} color={colors.neutral.neutral1} weight="regular" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Account and card</Text>
-      </View>
+      </Animated.View>
 
       {/* Tabs */}
-      <View style={styles.tabsContainer}>
+      <Animated.View 
+        entering={FadeIn.delay(100).duration(400)}
+        style={styles.tabsContainer}
+      >
         <TouchableOpacity
           style={[
             styles.tab,
@@ -178,10 +230,10 @@ const AccountCard = () => {
             Card
           </Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {/* User Avatar and Name */}
-      <View style={styles.userSection}>
+      <Animated.View style={[styles.userSection, userAnimatedStyle]}>
         <UserAvatar
           initials="PP"
           size={100}
@@ -189,11 +241,11 @@ const AccountCard = () => {
           textColor={colors.neutral.neutral6}
         />
         <Text style={styles.userName}>Push Puttichai</Text>
-      </View>
+      </Animated.View>
 
       {/* Account Cards List */}
-      <ScrollView
-        style={styles.scrollView}
+      <AnimatedScrollView
+        style={[styles.scrollView, contentAnimatedStyle]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -202,7 +254,7 @@ const AccountCard = () => {
         ) : (
           cardsData.map((card) => renderBankCard(card))
         )}
-      </ScrollView>
+      </AnimatedScrollView>
 
       {/* Bottom Indicator */}
       <View style={styles.bottomIndicator}>
