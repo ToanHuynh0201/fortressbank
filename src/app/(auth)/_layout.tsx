@@ -6,35 +6,39 @@ const RootLayout = () => {
   return (
         <Stack screenOptions={{
             headerShown: false,
-            animation: 'slide_from_right',
-            animationDuration: 300,
+            animation: 'fade',
+            animationDuration: 400,
         }}>
             <Stack.Screen 
                 name="signIn" 
                 options={{
                     title: "Sign In",
                     animation: 'fade',
+                    animationDuration: 400,
                 }} 
             />
             <Stack.Screen 
                 name="signUp" 
                 options={{
                     title: "Sign Up",
-                    animation: 'slide_from_right',
+                    animation: 'fade',
+                    animationDuration: 400,
                 }} 
             />
             <Stack.Screen 
                 name="forgotPassword" 
                 options={{
                     title: "Forgot Password",
-                    animation: 'slide_from_right',
+                    animation: 'fade',
+                    animationDuration: 400,
                 }} 
             />
             <Stack.Screen 
                 name="changePassword" 
                 options={{
                     title: "Change Password",
-                    animation: 'slide_from_right',
+                    animation: 'fade',
+                    animationDuration: 400,
                 }} 
             />
         </Stack>

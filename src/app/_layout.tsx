@@ -13,14 +13,15 @@ const RootLayout = () => {
                     name="index"
                     options={{
                         headerShown: false,
-                        animation: 'fade',
+                        animation: 'slide_from_right',
                     }}
                 />
                 <Stack.Screen 
                     name="(auth)" 
                     options={{
                         headerShown: false,
-                        animation: 'slide_from_right',
+                        animation: 'fade',
+                        animationDuration: 400,
                     }} 
                 />
                 <Stack.Screen 

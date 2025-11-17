@@ -1,14 +1,13 @@
-import { StyleSheet, Text, View, ScrollView, Image } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
-import { primary, neutral } from '@/constants'
+import { primary, neutral, semantic } from '@/constants'
 import { useRouter } from 'expo-router'
 import {
   UserAvatar,
   NotificationBell,
   BankCard,
-  CategoryCard,
 } from '@/components'
 import { useNotifications } from '@/contexts'
 
@@ -16,25 +15,39 @@ const Home = () => {
   const router = useRouter();
   const { unreadCount } = useNotifications();
 
-  const categories = [
-    { id: 1, title: 'Account\nand Card', icon: 'wallet' },
-    { id: 2, title: 'Transfer', icon: 'transfer' },
-    { id: 3, title: 'Withdraw', icon: 'withdraw' },
-    { id: 4, title: 'Mobile\nprepaid', icon: 'mobile' },
-    { id: 5, title: 'Pay the\nbill', icon: 'bill' },
-    { id: 6, title: 'Save\nonline', icon: 'save' },
-    { id: 7, title: 'Credit\ncard', icon: 'credit' },
-    { id: 8, title: 'Transaction\nreport', icon: 'report' },
-    { id: 9, title: 'Beneficiary', icon: 'beneficiary' },
+  const mainFeatures = [
+    { 
+      id: 1, 
+      title: 'Account and Card', 
+      description: 'Manage your accounts and cards',
+      icon: 'wallet',
+      route: '(account)/accountCard'
+    },
+    { 
+      id: 2, 
+      title: 'Transfer', 
+      description: 'Send money quickly and securely',
+      icon: 'transfer',
+      route: '(transfer)/transfer'
+    },
+    { 
+      id: 3, 
+      title: 'Transaction Report', 
+      description: 'View your transaction history',
+      icon: 'report',
+      route: '(home)/history'
+    },
   ]
 
-  const getIcon = (iconName: string) => {
+  const getIcon = (iconName: string, large?: boolean) => {
+    const size = large ? 48 : 28;
+    
     switch (iconName) {
       case 'wallet':
         return (
           <Image 
             source={require('../../../assets/icons/wallet.png')} 
-            style={{ width: 28, height: 28 }}
+            style={{ width: size, height: size }}
             resizeMode="contain"
           />
         )
@@ -42,47 +55,7 @@ const Home = () => {
         return (
           <Image 
             source={require('../../../assets/icons/transfer.png')} 
-            style={{ width: 28, height: 28 }}
-            resizeMode="contain"
-          />
-        )
-      case 'withdraw':
-        return (
-          <Image 
-            source={require('../../../assets/icons/withdraw.png')} 
-            style={{ width: 28, height: 28 }}
-            resizeMode="contain"
-          />
-        )
-      case 'mobile':
-        return (
-          <Image 
-            source={require('../../../assets/icons/mobile.png')} 
-            style={{ width: 28, height: 28 }}
-            resizeMode="contain"
-          />
-        )
-      case 'bill':
-        return (
-          <Image 
-            source={require('../../../assets/icons/bill.png')} 
-            style={{ width: 28, height: 28 }}
-            resizeMode="contain"
-          />
-        )
-      case 'save':
-        return (
-          <Image 
-            source={require('../../../assets/icons/save.png')} 
-            style={{ width: 28, height: 28 }}
-            resizeMode="contain"
-          />
-        )
-      case 'credit':
-        return (
-          <Image 
-            source={require('../../../assets/icons/credit.png')} 
-            style={{ width: 28, height: 28 }}
+            style={{ width: size, height: size }}
             resizeMode="contain"
           />
         )
@@ -90,15 +63,7 @@ const Home = () => {
         return (
           <Image 
             source={require('../../../assets/icons/reports.png')} 
-            style={{ width: 28, height: 28 }}
-            resizeMode="contain"
-          />
-        )
-      case 'beneficiary':
-        return (
-          <Image 
-            source={require('../../../assets/icons/beneficiary.png')} 
-            style={{ width: 28, height: 28 }}
+            style={{ width: size, height: size }}
             resizeMode="contain"
           />
         )
@@ -150,23 +115,39 @@ const Home = () => {
             />
           </View>
 
-          {/* Categories Grid */}
-          <View style={styles.categoriesGrid}>
-            {categories.map((category) => (
-              <CategoryCard
-                key={category.id}
-                title={category.title}
-                icon={getIcon(category.icon)}
-                onPress={() => {
-                  if (category.icon === 'transfer') {
-                    router.push('(transfer)/transfer');
-                  } else if (category.icon === 'wallet') {
-                    router.push('(account)/accountCard');
-                  } else {
-                    router.push('(account)/accountCard');
-                  }
-                }}
-              />
+          {/* Main Features Title */}
+          <Text style={styles.sectionTitle}>Main Features</Text>
+
+          {/* Main Features - Large Cards */}
+          <View style={styles.featuresContainer}>
+            {mainFeatures.map((feature, index) => (
+              <TouchableOpacity
+                key={feature.id}
+                style={[
+                  styles.featureCard,
+                  index === mainFeatures.length - 1 && styles.featureCardLast
+                ]}
+                onPress={() => router.push(feature.route as any)}
+                activeOpacity={0.7}
+              >
+                <LinearGradient
+                  colors={[primary.primary1, primary.primary2]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.featureGradient}
+                >
+                  <View style={styles.featureIconContainer}>
+                    {getIcon(feature.icon, true)}
+                  </View>
+                  <View style={styles.featureContent}>
+                    <Text style={styles.featureTitle}>{feature.title}</Text>
+                    <Text style={styles.featureDescription}>{feature.description}</Text>
+                  </View>
+                  <View style={styles.featureArrow}>
+                    <Text style={styles.arrowIcon}>→</Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
@@ -231,10 +212,71 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginBottom: 32,
   },
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: neutral.neutral1,
+    marginBottom: 20,
+    fontFamily: 'Poppins',
+  },
+  featuresContainer: {
     gap: 16,
-    justifyContent: 'space-between',
+  },
+  featureCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: primary.primary1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  featureCardLast: {
+    marginBottom: 20,
+  },
+  featureGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    minHeight: 100,
+  },
+  featureIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  featureContent: {
+    flex: 1,
+  },
+  featureTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: neutral.neutral6,
+    marginBottom: 6,
+    fontFamily: 'Poppins',
+  },
+  featureDescription: {
+    fontSize: 13,
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.85)',
+    lineHeight: 18,
+    fontFamily: 'Poppins',
+  },
+  featureArrow: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arrowIcon: {
+    fontSize: 20,
+    color: neutral.neutral6,
+    fontWeight: 'bold',
   },
 })

@@ -5,20 +5,22 @@ export default function AccountLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: 'slide_from_right',
-        animationDuration: 300,
+        animation: 'fade',
+        animationDuration: 400,
       }}
     >
       <Stack.Screen 
         name="accountCard" 
         options={{
-          animation: 'slide_from_right',
+          animation: 'fade',
+          animationDuration: 400,
         }}
       />
       <Stack.Screen 
         name="cardDetail" 
         options={{
           animation: 'slide_from_right',
+          animationDuration: 350,
         }}
       />
     </Stack>
