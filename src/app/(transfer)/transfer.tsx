@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, {
@@ -18,38 +20,32 @@ import Animated, {
 } from 'react-native-reanimated';
 import { CaretLeft, Eye, EyeSlash } from 'phosphor-react-native';
 import colors from '@/constants/colors';
-import { ScreenContainer, PrimaryButton, CheckboxWithLabel, CustomInput } from '@/components';
+import { 
+  ScreenContainer, 
+  PrimaryButton, 
+  CustomInput, 
+  AccountNumberInput,
+  CurrencyInput 
+} from '@/components';
 import { useForm } from '@/hooks';
+import { parseCurrency } from '@/utils/currency';
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
-
-interface TransferOption {
-  id: string;
-  title: string;
-  icon: string;
-}
-
-interface Beneficiary {
-  id: string;
-  name: string;
-  avatar: string;
-}
 
 interface Account {
   id: string;
   label: string;
   fullNumber: string;
   maskedNumber: string;
-  balance: string;
+  balance: number;
 }
 
 const Transfer = () => {
   const router = useRouter();
-  const [selectedOption, setSelectedOption] = useState<string>('card');
-  const [selectedBeneficiary, setSelectedBeneficiary] = useState<string>('');
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [showAccountNumbers, setShowAccountNumbers] = useState(false);
+  const [beneficiaryName, setBeneficiaryName] = useState<string>('');
   
   const headerOpacity = useSharedValue(0);
   const contentOpacity = useSharedValue(0);
@@ -82,24 +78,10 @@ const Transfer = () => {
   
   // Form fields managed by useForm hook
   const { values, handleChange, setFieldValue } = useForm({
-    name: '',
-    cardNumber: '',
+    accountNumber: '',
     amount: '',
     content: '',
-    saveToBeneficiary: false,
   });
-
-  const transferOptions: TransferOption[] = [
-    { id: 'card', title: 'Transfer via\ncard number', icon: '💳' },
-    { id: 'same_bank', title: 'Transfer to\nthe same bank', icon: '🏦' },
-    { id: 'other_bank', title: 'Transfer to\nanother bank', icon: '🔄' },
-  ];
-
-  const beneficiaries: Beneficiary[] = [
-    { id: '1', name: 'Emma', avatar: '👩' },
-    { id: '2', name: 'Justin', avatar: '👨' },
-    { id: '3', name: 'Amanda', avatar: '👩' },
-  ];
 
   const accounts: Account[] = [
     { 
@@ -107,32 +89,46 @@ const Transfer = () => {
       label: 'VISA', 
       fullNumber: '4532 1234 5678 1234',
       maskedNumber: '**** **** **** 1234',
-      balance: '10,000$' 
+      balance: 10000 
     },
     { 
       id: '2', 
       label: 'Account', 
       fullNumber: '1234 5678 5689',
       maskedNumber: '**** **** 5689',
-      balance: '10,000$' 
+      balance: 10000 
     },
     { 
       id: '3', 
       label: 'MasterCard', 
       fullNumber: '5412 3456 7890 8765',
       maskedNumber: '**** **** **** 8765',
-      balance: '5,500$' 
+      balance: 5500 
     },
     { 
       id: '4', 
       label: 'Savings Account', 
       fullNumber: '9876 5432 1098',
       maskedNumber: '**** **** 1098',
-      balance: '25,000$' 
+      balance: 25000 
     },
   ];
 
-  const isFormValid = values.name && values.cardNumber && values.amount && values.content;
+  // Get selected account balance
+  const selectedAccountData = accounts.find(a => a.id === selectedAccount);
+  const availableBalance = selectedAccountData?.balance || 0;
+
+  // Parse amount for validation
+  const numericAmount = parseCurrency(values.amount);
+
+  // Form validation
+  const isFormValid = 
+    selectedAccount &&
+    values.accountNumber &&
+    beneficiaryName && // Must have found beneficiary
+    values.amount &&
+    numericAmount > 0 &&
+    numericAmount <= availableBalance;
 
   return (
     <ScreenContainer backgroundColor={colors.neutral.neutral6}>
@@ -149,12 +145,18 @@ const Transfer = () => {
         <Text style={styles.headerTitle}>Transfer</Text>
       </Animated.View>
 
-      {/* Content */}
-      <AnimatedScrollView
-        style={[styles.scrollView, contentAnimatedStyle]}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
+        {/* Content */}
+        <AnimatedScrollView
+          style={[styles.scrollView, contentAnimatedStyle]}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
         {/* Account Selection */}
         <Animated.View 
           entering={FadeIn.delay(100).duration(400)}
@@ -177,7 +179,7 @@ const Transfer = () => {
                         }
                       </Text>
                       <Text style={styles.balanceLabel}>
-                        Available balance : {accounts.find(a => a.id === selectedAccount)?.balance}
+                        Available balance : {selectedAccountData?.balance.toLocaleString()}$
                       </Text>
                     </>
                   ) : (
@@ -228,7 +230,7 @@ const Transfer = () => {
                         {showAccountNumbers ? account.fullNumber : account.maskedNumber}
                       </Text>
                       <Text style={styles.dropdownItemBalance}>
-                        Available balance: {account.balance}
+                        Available balance: {account.balance.toLocaleString()}$
                       </Text>
                     </View>
                     {selectedAccount === account.id && (
@@ -258,133 +260,51 @@ const Transfer = () => {
           )}
         </Animated.View>
 
-        {/* Choose Transaction */}
-        <Animated.View 
-          entering={FadeIn.delay(150).duration(400)}
-          style={styles.section}
-        >
-          <Text style={styles.sectionTitle}>Choose transaction</Text>
-          <View style={styles.optionsGrid}>
-            {transferOptions.map((option) => (
-              <TouchableOpacity
-                key={option.id}
-                style={[
-                  styles.optionCard,
-                  selectedOption === option.id && styles.optionCardSelected,
-                ]}
-                onPress={() => setSelectedOption(option.id)}
-              >
-                <Text style={styles.optionIcon}>{option.icon}</Text>
-                <Text style={[
-                  styles.optionTitle,
-                  selectedOption === option.id && styles.optionTitleSelected,
-                ]}>
-                  {option.title}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Animated.View>
-
-        {/* Choose Beneficiary */}
-        <Animated.View 
-          entering={FadeIn.delay(200).duration(400)}
-          style={styles.section}
-        >
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Choose beneficiary</Text>
-            <TouchableOpacity>
-              <Text style={styles.findLink}>Find beneficiary</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            style={styles.beneficiariesScroll}
-          >
-            {/* Add New Button */}
-            <TouchableOpacity style={styles.beneficiaryCard}>
-              <View style={styles.addBeneficiaryCircle}>
-                <Text style={styles.addBeneficiaryIcon}>+</Text>
-              </View>
-            </TouchableOpacity>
-
-            {/* Beneficiaries */}
-            {beneficiaries.map((beneficiary) => (
-              <TouchableOpacity
-                key={beneficiary.id}
-                style={[
-                  styles.beneficiaryCard,
-                  selectedBeneficiary === beneficiary.id && styles.beneficiaryCardSelected,
-                ]}
-                onPress={() => setSelectedBeneficiary(beneficiary.id)}
-              >
-                <View style={[
-                  styles.beneficiaryAvatar,
-                  selectedBeneficiary === beneficiary.id && styles.beneficiaryAvatarSelected,
-                ]}>
-                  <Text style={styles.beneficiaryAvatarText}>{beneficiary.avatar}</Text>
-                </View>
-                <Text style={[
-                  styles.beneficiaryName,
-                  selectedBeneficiary === beneficiary.id && styles.beneficiaryNameSelected,
-                ]}>
-                  {beneficiary.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </Animated.View>
-
         {/* Transfer Form */}
         <Animated.View 
-          entering={FadeIn.delay(250).duration(400)}
+          entering={FadeIn.delay(200).duration(400)}
           style={styles.formCard}
         >
-          <CustomInput
-            placeholder="Name"
-            value={values.name}
-            onChangeText={(text) => handleChange('name', text)}
-            containerStyle={styles.input}
+          <Text style={styles.formTitle}>Transfer within FortressBank</Text>
+          <Text style={styles.formSubtitle}>Enter recipient information</Text>
+
+          {/* Account Number Input with Auto-fetch */}
+          <AccountNumberInput
+            value={values.accountNumber}
+            onChangeText={(text) => handleChange('accountNumber', text)}
+            onBeneficiaryFound={(name) => setBeneficiaryName(name)}
+            onBeneficiaryNotFound={() => setBeneficiaryName('')}
+            placeholder="Recipient account number"
           />
 
-          <CustomInput
-            placeholder="Card number"
-            value={values.cardNumber}
-            onChangeText={(text) => handleChange('cardNumber', text)}
-            keyboardType="numeric"
-            containerStyle={styles.input}
-          />
-
-          <CustomInput
-            placeholder="Amount"
+          {/* Amount Input */}
+          <CurrencyInput
             value={values.amount}
-            onChangeText={(text) => handleChange('amount', text)}
-            keyboardType="numeric"
-            containerStyle={styles.input}
+            onChangeText={(formatted, numeric) => {
+              handleChange('amount', formatted);
+            }}
+            placeholder="0"
+            currencySymbol="$"
+            showBalance={!!selectedAccount}
+            availableBalance={availableBalance}
+            maxAmount={availableBalance}
           />
 
+          {/* Transfer Content */}
           <CustomInput
-            placeholder="Content"
+            placeholder="Transfer content"
             value={values.content}
             onChangeText={(text) => handleChange('content', text)}
             containerStyle={styles.input}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+            style={{ paddingTop: 12, height: 80 }}
           />
-
-          {/* Checkbox */}
-          <View style={styles.checkboxContainer}>
-            <CheckboxWithLabel
-              checked={values.saveToBeneficiary}
-              onPress={() => setFieldValue('saveToBeneficiary', !values.saveToBeneficiary)}
-              label="Save to directory of beneficiary"
-              labelStyle={styles.checkboxLabel}
-            />
-          </View>
 
           {/* Confirm Button */}
           <PrimaryButton
-            title="Confirm"
+            title="Continue"
             onPress={() => {
               router.push('(transfer)/transferConfirmation');
             }}
@@ -392,12 +312,8 @@ const Transfer = () => {
             style={styles.confirmButton}
           />
         </Animated.View>
-      </AnimatedScrollView>
-
-      {/* Bottom Indicator */}
-      <View style={styles.bottomIndicator}>
-        <View style={styles.indicator} />
-      </View>
+      </AnimatedScrollView>     
+      </KeyboardAvoidingView>
     </ScreenContainer>
   );
 };
@@ -429,17 +345,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 24,
   },
   section: {
     paddingHorizontal: 24,
     marginBottom: 32,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    marginTop: 24,
   },
   sectionTitle: {
     fontFamily: 'Poppins',
@@ -447,13 +358,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 16,
     color: colors.neutral.neutral3,
-  },
-  findLink: {
-    fontFamily: 'Poppins',
-    fontSize: 12,
-    fontWeight: '600',
-    lineHeight: 16,
-    color: colors.primary.primary1,
   },
   accountSelectorWrapper: {
     position: 'relative',
@@ -591,139 +495,36 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.neutral.neutral1,
   },
-  optionsGrid: {
-    flexDirection: 'row',
-    gap: 16,
-    marginTop: 16,
-  },
-  optionCard: {
-    flex: 1,
-    height: 100,
-    backgroundColor: colors.neutral.neutral5,
-    borderRadius: 15,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.05,
-    shadowRadius: 30,
-    elevation: 3,
-  },
-  optionCardSelected: {
-    backgroundColor: colors.primary.primary1,
-  },
-  optionIcon: {
-    fontSize: 28,
-    marginBottom: 8,
-  },
-  optionTitle: {
-    fontFamily: 'Poppins',
-    fontSize: 12,
-    fontWeight: '500',
-    lineHeight: 16,
-    color: colors.neutral.neutral6,
-  },
-  optionTitleSelected: {
-    color: colors.neutral.neutral6,
-  },
-  beneficiariesScroll: {
-    marginTop: 12,
-  },
-  beneficiaryCard: {
-    width: 100,
-    height: 120,
-    backgroundColor: colors.neutral.neutral6,
-    borderRadius: 15,
-    padding: 16,
-    marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.05,
-    shadowRadius: 30,
-    elevation: 3,
-  },
-  beneficiaryCardSelected: {
-    backgroundColor: colors.primary.primary1,
-  },
-  addBeneficiaryCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primary.primary4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  addBeneficiaryIcon: {
-    fontSize: 32,
-    color: colors.primary.primary1,
-  },
-  beneficiaryAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primary.primary4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  beneficiaryAvatarSelected: {
-    backgroundColor: colors.neutral.neutral6,
-  },
-  beneficiaryAvatarText: {
-    fontSize: 32,
-  },
-  beneficiaryName: {
-    fontFamily: 'Poppins',
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.neutral.neutral1,
-  },
-  beneficiaryNameSelected: {
-    color: colors.neutral.neutral6,
-  },
   formCard: {
-    marginHorizontal: 24,
+    marginHorizontal: 7,
     backgroundColor: colors.neutral.neutral6,
     borderRadius: 15,
-    padding: 16,
+    padding: 20,
     shadowColor: 'rgba(54, 41, 183, 0.07)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 30,
     elevation: 5,
   },
-  input: {
-    marginBottom: 24,
-  },
-  checkboxContainer: {
-    marginBottom: 24,
-  },
-  checkboxLabel: {
+  formTitle: {
     fontFamily: 'Poppins',
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#979797',
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.neutral.neutral1,
+    marginBottom: 4,
+  },
+  formSubtitle: {
+    fontFamily: 'Poppins',
+    fontSize: 13,
+    fontWeight: '400',
+    color: colors.neutral.neutral3,
+    marginBottom: 20,
+  },
+  input: {
+    marginBottom: 0,
   },
   confirmButton: {
     marginTop: 8,
-  },
-  bottomIndicator: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 34,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.neutral.neutral6,
-  },
-  indicator: {
-    width: 134,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: colors.neutral.neutral4,
   },
 });
 

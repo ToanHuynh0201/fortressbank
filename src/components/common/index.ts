@@ -7,3 +7,5 @@ export { default as LinkText } from './LinkText';
 export { default as CheckboxWithLabel } from './CheckboxWithLabel';
 export { default as InfoRow } from './InfoRow';
 export { default as FormField } from './FormField';
+export { default as AccountNumberInput } from './AccountNumberInput';
+export { default as CurrencyInput } from './CurrencyInput';
