@@ -53,6 +53,20 @@ const RootLayout = () => {
 						animation: "slide_from_bottom",
 					}}
 				/>
+				<Stack.Screen
+					name="beneficiaries"
+					options={{
+						headerShown: false,
+						animation: "slide_from_right",
+					}}
+				/>
+				<Stack.Screen
+					name="addBeneficiary"
+					options={{
+						headerShown: false,
+						animation: "slide_from_right",
+					}}
+				/>
 			</Stack>
 		</NotificationProvider>
 	);

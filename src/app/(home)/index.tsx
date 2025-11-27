@@ -35,6 +35,13 @@ const Home = () => {
 		},
 		{
 			id: 3,
+			title: "Beneficiaries",
+			description: "Manage saved recipients",
+			icon: "beneficiaries",
+			route: "/beneficiaries",
+		},
+		{
+			id: 4,
 			title: "Transaction Report",
 			description: "View your transaction history",
 			icon: "report",
@@ -60,6 +67,14 @@ const Home = () => {
 						source={require("../../../assets/icons/transfer.png")}
 						style={{ width: size, height: size }}
 						resizeMode="contain"
+					/>
+				);
+			case "beneficiaries":
+				return (
+					<Feather
+						name="users"
+						size={size}
+						color="#FFFFFF"
 					/>
 				);
 			case "report":
@@ -212,23 +227,23 @@ const styles = StyleSheet.create({
 		backgroundColor: neutral.neutral6,
 		borderTopLeftRadius: 30,
 		borderTopRightRadius: 30,
-		paddingTop: 24,
+		paddingTop: 16,
 		paddingHorizontal: 24,
-		paddingBottom: 120,
+		paddingBottom: 20,
 		minHeight: "100%",
 	},
 	cardContainer: {
-		marginBottom: 10,
+		marginBottom: 6,
 	},
 	sectionTitle: {
 		fontSize: 20,
 		fontWeight: "700",
 		color: neutral.neutral1,
-		marginBottom: 10,
+		marginBottom: 6,
 		fontFamily: "Poppins",
 	},
 	featuresContainer: {
-		gap: 16,
+		gap: 10,
 	},
 	featureCard: {
 		borderRadius: 16,
@@ -245,17 +260,17 @@ const styles = StyleSheet.create({
 	featureGradient: {
 		flexDirection: "row",
 		alignItems: "center",
-		padding: 20,
-		minHeight: 100,
+		padding: 14,
+		minHeight: 82,
 	},
 	featureIconContainer: {
-		width: 64,
-		height: 64,
-		borderRadius: 16,
+		width: 56,
+		height: 56,
+		borderRadius: 14,
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 16,
+		marginRight: 14,
 	},
 	featureContent: {
 		flex: 1,
