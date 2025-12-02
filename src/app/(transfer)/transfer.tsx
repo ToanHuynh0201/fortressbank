@@ -17,8 +17,18 @@ import Animated, {
 	withSpring,
 	Easing,
 	FadeIn,
+	FadeInDown,
 } from "react-native-reanimated";
-import { CaretLeft, Eye, EyeSlash, UserList } from "phosphor-react-native";
+import {
+	CaretLeft,
+	Eye,
+	EyeSlash,
+	UserList,
+	User,
+	CurrencyDollar,
+	FileText,
+	Bank,
+} from "phosphor-react-native";
 import colors from "@/constants/colors";
 import {
 	ScreenContainer,
@@ -151,13 +161,20 @@ const Transfer = () => {
 				<TouchableOpacity
 					onPress={() => router.back()}
 					style={styles.backButton}>
-					<CaretLeft
-						size={16}
-						color={colors.neutral.neutral1}
-						weight="regular"
-					/>
+					<View style={styles.backButtonCircle}>
+						<CaretLeft
+							size={20}
+							color={colors.neutral.neutral1}
+							weight="bold"
+						/>
+					</View>
 				</TouchableOpacity>
-				<Text style={styles.headerTitle}>Transfer</Text>
+				<View style={styles.headerTitleContainer}>
+					<Text style={styles.headerTitle}>Transfer Money</Text>
+					<Text style={styles.headerSubtitle}>
+						Send money securely
+					</Text>
+				</View>
 			</Animated.View>
 
 			<KeyboardAvoidingView
@@ -172,8 +189,9 @@ const Transfer = () => {
 					keyboardDismissMode="on-drag">
 					{/* Account Selection */}
 					<Animated.View
-						entering={FadeIn.delay(100).duration(400)}
+						entering={FadeInDown.delay(100).duration(500)}
 						style={styles.section}>
+						<Text style={styles.sectionLabel}>From Account</Text>
 						<View style={styles.accountSelectorWrapper}>
 							<TouchableOpacity
 								style={styles.accountSelector}
@@ -181,6 +199,13 @@ const Transfer = () => {
 									setShowAccountDropdown(!showAccountDropdown)
 								}>
 								<View style={styles.accountSelectorContent}>
+									<View style={styles.accountIconContainer}>
+										<Bank
+											size={24}
+											color={colors.primary.primary1}
+											weight="duotone"
+										/>
+									</View>
 									<View style={styles.accountTextContainer}>
 										{selectedAccount ? (
 											<>
@@ -194,7 +219,12 @@ const Transfer = () => {
 																a.id ===
 																selectedAccount,
 														)?.label
-													}{" "}
+													}
+												</Text>
+												<Text
+													style={
+														styles.accountNumber
+													}>
 													{showAccountNumbers
 														? accounts.find(
 																(a) =>
@@ -207,17 +237,39 @@ const Transfer = () => {
 																	selectedAccount,
 														  )?.maskedNumber}
 												</Text>
-												<Text
-													style={styles.balanceLabel}>
-													Available balance :{" "}
-													{selectedAccountData?.balance.toLocaleString()}
-													$
-												</Text>
+												<View
+													style={
+														styles.balanceContainer
+													}>
+													<Text
+														style={
+															styles.balanceLabel
+														}>
+														Balance:{" "}
+													</Text>
+													<Text
+														style={
+															styles.balanceAmount
+														}>
+														$
+														{selectedAccountData?.balance.toLocaleString()}
+													</Text>
+												</View>
 											</>
 										) : (
-											<Text style={styles.accountLabel}>
-												Choose account
-											</Text>
+											<>
+												<Text
+													style={styles.accountLabel}>
+													Select your account
+												</Text>
+												<Text
+													style={
+														styles.accountPlaceholder
+													}>
+													Choose an account to
+													transfer from
+												</Text>
+											</>
 										)}
 									</View>
 									<View style={styles.accountSelectorIcons}>
@@ -236,7 +288,7 @@ const Transfer = () => {
 															colors.primary
 																.primary1
 														}
-														weight="regular"
+														weight="bold"
 													/>
 												) : (
 													<EyeSlash
@@ -250,9 +302,23 @@ const Transfer = () => {
 												)}
 											</TouchableOpacity>
 										)}
-										<Text style={styles.dropdownIcon}>
-											▼
-										</Text>
+										<View
+											style={styles.dropdownIconWrapper}>
+											<CaretLeft
+												size={16}
+												color={colors.neutral.neutral3}
+												weight="bold"
+												style={{
+													transform: [
+														{
+															rotate: showAccountDropdown
+																? "-90deg"
+																: "90deg",
+														},
+													],
+												}}
+											/>
+										</View>
 									</View>
 								</View>
 							</TouchableOpacity>
@@ -348,15 +414,15 @@ const Transfer = () => {
 
 					{/* Transfer Form */}
 					<Animated.View
-						entering={FadeIn.delay(200).duration(400)}
+						entering={FadeInDown.delay(200).duration(500)}
 						style={styles.formCard}>
 						<View style={styles.formHeaderRow}>
 							<View style={styles.formHeaderText}>
 								<Text style={styles.formTitle}>
-									Transfer within FortressBank
+									Recipient Details
 								</Text>
 								<Text style={styles.formSubtitle}>
-									Enter recipient information
+									Enter transfer information
 								</Text>
 							</View>
 
@@ -367,60 +433,98 @@ const Transfer = () => {
 									setShowBeneficiarySelector(true)
 								}>
 								<UserList
-									size={20}
+									size={22}
 									color={colors.primary.primary1}
-									weight="regular"
+									weight="bold"
 								/>
 							</TouchableOpacity>
 						</View>
 
-						{/* Account Number Input with Auto-fetch */}
-						<AccountNumberInput
-							value={values.accountNumber}
-							onChangeText={(text) =>
-								handleChange("accountNumber", text)
-							}
-							onBeneficiaryFound={(name) =>
-								setBeneficiaryName(name)
-							}
-							onBeneficiaryNotFound={() => setBeneficiaryName("")}
-							placeholder="Recipient account number"
-						/>
+						{/* Recipient Account Section */}
+						<View style={styles.inputSection}>
+							<View style={styles.inputLabelRow}>
+								<User
+									size={18}
+									color={colors.primary.primary1}
+									weight="bold"
+								/>
+								<Text style={styles.inputLabel}>
+									Recipient Account
+								</Text>
+							</View>
+							<AccountNumberInput
+								value={values.accountNumber}
+								onChangeText={(text) =>
+									handleChange("accountNumber", text)
+								}
+								onBeneficiaryFound={(name) =>
+									setBeneficiaryName(name)
+								}
+								onBeneficiaryNotFound={() =>
+									setBeneficiaryName("")
+								}
+								placeholder="Enter account number"
+							/>
+						</View>
 
-						{/* Amount Input */}
-						<CurrencyInput
-							value={values.amount}
-							onChangeText={(formatted, numeric) => {
-								handleChange("amount", formatted);
-							}}
-							placeholder="0"
-							currencySymbol="$"
-							showBalance={!!selectedAccount}
-							availableBalance={availableBalance}
-							maxAmount={availableBalance}
-						/>
+						{/* Amount Section */}
+						<View style={styles.inputSection}>
+							<View style={styles.inputLabelRow}>
+								<CurrencyDollar
+									size={18}
+									color={colors.primary.primary1}
+									weight="bold"
+								/>
+								<Text style={styles.inputLabel}>
+									Transfer Amount
+								</Text>
+							</View>
+							<CurrencyInput
+								value={values.amount}
+								onChangeText={(formatted, numeric) => {
+									handleChange("amount", formatted);
+								}}
+								placeholder="0.00"
+								currencySymbol="$"
+								showBalance={!!selectedAccount}
+								availableBalance={availableBalance}
+								maxAmount={availableBalance}
+							/>
+						</View>
 
-						{/* Transfer Content */}
-						<CustomInput
-							placeholder="Transfer content"
-							value={values.content}
-							onChangeText={(text) =>
-								handleChange("content", text)
-							}
-							containerStyle={styles.input}
-							multiline
-							numberOfLines={3}
-							textAlignVertical="top"
-							style={{ paddingTop: 12, height: 80 }}
-						/>
+						{/* Transfer Content Section */}
+						<View style={styles.inputSection}>
+							<View style={styles.inputLabelRow}>
+								<FileText
+									size={18}
+									color={colors.primary.primary1}
+									weight="bold"
+								/>
+								<Text style={styles.inputLabel}>
+									Message (Optional)
+								</Text>
+							</View>
+							<CustomInput
+								placeholder="Add a note for this transfer"
+								value={values.content}
+								onChangeText={(text) =>
+									handleChange("content", text)
+								}
+								containerStyle={styles.input}
+								multiline
+								numberOfLines={3}
+								textAlignVertical="top"
+								style={{ paddingTop: 12, height: 80 }}
+							/>
+						</View>
 
 						{/* Confirm Button */}
 						<PrimaryButton
-							title="Continue"
+							title="Continue to Confirmation"
 							onPress={() => {
 								router.push("(transfer)/transferConfirmation");
 							}}
-							disabled={!isFormValid}
+							// disabled={!isFormValid}
 							style={styles.confirmButton}
 						/>
 					</Animated.View>
@@ -442,34 +546,61 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		paddingHorizontal: 24,
-		paddingVertical: 16,
-		height: 53,
+		paddingTop: 16,
+		paddingBottom: 20,
 		backgroundColor: colors.neutral.neutral6,
+		borderBottomWidth: 1,
+		borderBottomColor: colors.neutral.neutral5,
 	},
 	backButton: {
-		width: 16,
-		height: 16,
+		marginRight: 16,
+	},
+	backButtonCircle: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 16,
+	},
+	headerTitleContainer: {
+		flex: 1,
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
-		fontWeight: "600",
+		fontSize: 22,
+		fontWeight: "700",
 		lineHeight: 28,
 		color: colors.neutral.neutral1,
+		marginBottom: 2,
+	},
+	headerSubtitle: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "400",
+		color: colors.neutral.neutral3,
+		lineHeight: 18,
 	},
 	scrollView: {
 		flex: 1,
 	},
 	scrollContent: {
-		paddingBottom: 24,
+		paddingBottom: 32,
 	},
 	section: {
 		paddingHorizontal: 24,
-		marginBottom: 32,
+		marginBottom: 24,
 		marginTop: 24,
+	},
+	sectionLabel: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "700",
+		lineHeight: 18,
+		color: colors.neutral.neutral1,
+		marginBottom: 12,
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
 	},
 	sectionTitle: {
 		fontFamily: "Poppins",
@@ -482,91 +613,145 @@ const styles = StyleSheet.create({
 		position: "relative",
 	},
 	accountSelector: {
-		minHeight: 44,
-		borderWidth: 1,
-		borderColor: colors.neutral.neutral4,
-		borderRadius: 15,
-		paddingHorizontal: 12,
-		paddingVertical: 8,
+		minHeight: 88,
+		borderWidth: 2,
+		borderColor: colors.primary.primary4,
+		borderRadius: 20,
+		paddingHorizontal: 16,
+		paddingVertical: 16,
 		backgroundColor: colors.neutral.neutral6,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.08,
+		shadowRadius: 12,
+		elevation: 4,
 	},
 	accountSelectorContent: {
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
 	},
+	accountIconContainer: {
+		width: 48,
+		height: 48,
+		borderRadius: 24,
+		backgroundColor: colors.primary.primary4,
+		justifyContent: "center",
+		alignItems: "center",
+		marginRight: 12,
+	},
 	accountTextContainer: {
 		flex: 1,
-		marginRight: 8,
+		marginRight: 12,
 	},
 	accountSelectorIcons: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
+		gap: 12,
 	},
 	eyeButton: {
-		padding: 4,
+		padding: 6,
+		borderRadius: 8,
+		backgroundColor: colors.primary.primary4,
 	},
 	accountLabel: {
 		fontFamily: "Poppins",
-		fontSize: 14,
-		fontWeight: "500",
+		fontSize: 15,
+		fontWeight: "600",
+		color: colors.neutral.neutral3,
+		marginBottom: 4,
+	},
+	accountPlaceholder: {
+		fontFamily: "Poppins",
+		fontSize: 12,
+		fontWeight: "400",
 		color: colors.neutral.neutral4,
+		marginTop: 2,
 	},
 	accountLabelSelected: {
 		fontFamily: "Poppins",
-		fontSize: 14,
-		fontWeight: "500",
+		fontSize: 16,
+		fontWeight: "700",
 		color: colors.neutral.neutral1,
+		marginBottom: 4,
+	},
+	accountNumber: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+		marginBottom: 6,
+	},
+	balanceContainer: {
+		flexDirection: "row",
+		alignItems: "center",
+		backgroundColor: colors.primary.primary4,
+		paddingHorizontal: 10,
+		paddingVertical: 4,
+		borderRadius: 8,
+		alignSelf: "flex-start",
 	},
 	balanceLabel: {
 		fontFamily: "Poppins",
-		fontSize: 12,
-		fontWeight: "600",
-		color: colors.primary.primary1,
-		marginTop: 4,
+		fontSize: 11,
+		fontWeight: "500",
+		color: colors.neutral.neutral2,
 	},
-	dropdownIcon: {
+	balanceAmount: {
+		fontFamily: "Poppins",
 		fontSize: 12,
-		color: colors.neutral.neutral4,
+		fontWeight: "700",
+		color: colors.primary.primary1,
+	},
+	dropdownIconWrapper: {
+		width: 28,
+		height: 28,
+		borderRadius: 14,
+		backgroundColor: colors.neutral.neutral5,
+		justifyContent: "center",
+		alignItems: "center",
 	},
 	dropdownMenu: {
-		marginTop: 8,
+		marginTop: 12,
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 15,
-		borderWidth: 1,
-		borderColor: colors.neutral.neutral5,
-		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.1,
-		shadowRadius: 12,
-		elevation: 5,
+		borderRadius: 20,
+		borderWidth: 2,
+		borderColor: colors.primary.primary4,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 6 },
+		shadowOpacity: 0.12,
+		shadowRadius: 16,
+		elevation: 8,
 		overflow: "hidden",
 	},
 	dropdownItem: {
-		paddingVertical: 12,
+		paddingVertical: 14,
 		paddingHorizontal: 16,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
 	dropdownItemSelected: {
 		backgroundColor: colors.primary.primary4,
+		borderLeftWidth: 4,
+		borderLeftColor: colors.primary.primary1,
 	},
 	dropdownItemContent: {
 		flexDirection: "row",
 		alignItems: "center",
 	},
 	cardIcon: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: 44,
+		height: 44,
+		borderRadius: 22,
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 12,
+		marginRight: 14,
+		borderWidth: 2,
+		borderColor: colors.primary.primary3,
 	},
 	cardIconText: {
-		fontSize: 20,
+		fontSize: 22,
 	},
 	dropdownItemInfo: {
 		flex: 1,
@@ -585,15 +770,20 @@ const styles = StyleSheet.create({
 		color: colors.neutral.neutral3,
 	},
 	checkIcon: {
-		width: 24,
-		height: 24,
-		borderRadius: 12,
+		width: 28,
+		height: 28,
+		borderRadius: 14,
 		backgroundColor: colors.primary.primary1,
 		justifyContent: "center",
 		alignItems: "center",
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.3,
+		shadowRadius: 4,
+		elevation: 3,
 	},
 	checkIconText: {
-		fontSize: 16,
+		fontSize: 18,
 		color: colors.neutral.neutral6,
 		fontWeight: "bold",
 	},
@@ -601,66 +791,100 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingVertical: 12,
+		paddingVertical: 14,
 		paddingHorizontal: 16,
-		gap: 8,
-		backgroundColor: colors.neutral.neutral6,
-		borderTopWidth: 1,
+		gap: 10,
+		backgroundColor: colors.primary.primary4,
+		borderTopWidth: 2,
 		borderTopColor: colors.neutral.neutral5,
 	},
 	dropdownEyeText: {
 		fontFamily: "Poppins",
-		fontSize: 12,
-		fontWeight: "500",
-		color: colors.neutral.neutral1,
+		fontSize: 13,
+		fontWeight: "600",
+		color: colors.primary.primary1,
 	},
 	formCard: {
-		marginHorizontal: 7,
+		marginHorizontal: 24,
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 15,
-		padding: 20,
-		shadowColor: "rgba(54, 41, 183, 0.07)",
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 1,
-		shadowRadius: 30,
-		elevation: 5,
+		borderRadius: 24,
+		padding: 24,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 8 },
+		shadowOpacity: 0.1,
+		shadowRadius: 24,
+		elevation: 8,
+		borderWidth: 1,
+		borderColor: colors.neutral.neutral5,
 	},
 	formHeaderRow: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "flex-start",
-		marginBottom: 20,
+		marginBottom: 24,
+		paddingBottom: 20,
+		borderBottomWidth: 1,
+		borderBottomColor: colors.neutral.neutral5,
 	},
 	formHeaderText: {
 		flex: 1,
 	},
 	formTitle: {
 		fontFamily: "Poppins",
-		fontSize: 18,
-		fontWeight: "600",
+		fontSize: 20,
+		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 4,
+		marginBottom: 6,
 	},
 	formSubtitle: {
 		fontFamily: "Poppins",
 		fontSize: 13,
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
+		lineHeight: 18,
 	},
 	beneficiaryButton: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: 48,
+		height: 48,
+		borderRadius: 24,
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
 		marginLeft: 12,
+		borderWidth: 2,
+		borderColor: colors.primary.primary3,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.15,
+		shadowRadius: 6,
+		elevation: 3,
+	},
+	inputSection: {
+		marginBottom: 24,
+	},
+	inputLabelRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		marginBottom: 10,
+		gap: 8,
+	},
+	inputLabel: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "600",
+		color: colors.neutral.neutral1,
+		letterSpacing: 0.3,
 	},
 	input: {
 		marginBottom: 0,
 	},
 	confirmButton: {
-		marginTop: 8,
+		marginTop: 12,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.3,
+		shadowRadius: 8,
+		elevation: 6,
 	},
 });
 

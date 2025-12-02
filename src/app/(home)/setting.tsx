@@ -7,6 +7,7 @@ import {
 	Image,
 	Alert,
 	Pressable,
+	TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -16,9 +17,21 @@ import Animated, {
 	useAnimatedStyle,
 	withTiming,
 	withSpring,
+	withSequence,
+	withDelay,
 	Easing,
 	FadeIn,
+	FadeInDown,
 } from "react-native-reanimated";
+import {
+	Lock,
+	Fingerprint,
+	Globe,
+	Info,
+	Phone,
+	SignOut,
+	PencilSimple,
+} from "phosphor-react-native";
 import { AppHeader } from "@/components/common";
 import { SettingRow } from "@/components/settings";
 import { primary, neutral } from "@/constants/colors";
@@ -31,33 +44,55 @@ const Setting = () => {
 	const router = useRouter();
 
 	const profileOpacity = useSharedValue(0);
-	const profileScale = useSharedValue(0.9);
+	const profileScale = useSharedValue(0.8);
+	const avatarScale = useSharedValue(0.5);
 	const contentOpacity = useSharedValue(0);
-	const contentTranslateY = useSharedValue(15);
+	const contentTranslateY = useSharedValue(20);
 
 	useEffect(() => {
+		// Profile card animation
 		profileOpacity.value = withTiming(1, {
-			duration: 400,
+			duration: 500,
 			easing: Easing.out(Easing.ease),
 		});
-		profileScale.value = withSpring(1, {
-			damping: 20,
-			stiffness: 90,
-		});
+		profileScale.value = withSequence(
+			withSpring(1.05, { damping: 12, stiffness: 100 }),
+			withSpring(1, { damping: 15, stiffness: 120 }),
+		);
 
-		contentOpacity.value = withTiming(1, {
-			duration: 400,
-			easing: Easing.out(Easing.ease),
-		});
-		contentTranslateY.value = withSpring(0, {
-			damping: 20,
-			stiffness: 90,
-		});
+		// Avatar animation with bounce
+		avatarScale.value = withDelay(
+			150,
+			withSequence(
+				withSpring(1.15, { damping: 8, stiffness: 90 }),
+				withSpring(1, { damping: 12, stiffness: 110 }),
+			),
+		);
+
+		// Content animation
+		contentOpacity.value = withDelay(
+			200,
+			withTiming(1, {
+				duration: 500,
+				easing: Easing.out(Easing.ease),
+			}),
+		);
+		contentTranslateY.value = withDelay(
+			200,
+			withSpring(0, {
+				damping: 20,
+				stiffness: 90,
+			}),
+		);
 	}, []);
 
 	const profileAnimatedStyle = useAnimatedStyle(() => ({
 		opacity: profileOpacity.value,
 		transform: [{ scale: profileScale.value }],
+	}));
+
+	const avatarAnimatedStyle = useAnimatedStyle(() => ({
+		transform: [{ scale: avatarScale.value }],
 	}));
 
 	const contentAnimatedStyle = useAnimatedStyle(() => ({
@@ -132,44 +167,112 @@ const Setting = () => {
 				style={styles.content}
 				contentContainerStyle={styles.contentContainer}
 				showsVerticalScrollIndicator={false}>
-				{/* User Profile Section */}
+				{/* User Profile Card */}
 				<Animated.View
-					style={[styles.profileSection, profileAnimatedStyle]}>
-					<UserAvatar
-						imageUri="https://i.pravatar.cc/150?img=12"
-						size={90}
-					/>
-					<Text style={styles.userName}>Push Puttichai</Text>
+					style={[styles.profileCard, profileAnimatedStyle]}>
+					<Animated.View style={avatarAnimatedStyle}>
+						<UserAvatar
+							imageUri="https://i.pravatar.cc/150?img=12"
+							size={80}
+						/>
+					</Animated.View>
+					<View style={styles.profileInfo}>
+						<Text style={styles.userName}>Push Puttichai</Text>
+						<Text style={styles.userEmail}>
+							push.puttichai@email.com
+						</Text>
+					</View>
+					<TouchableOpacity style={styles.editButton}>
+						<PencilSimple
+							size={18}
+							color={primary.primary1}
+							weight="bold"
+						/>
+					</TouchableOpacity>
 				</Animated.View>
-				{/* Settings List */}
+
+				{/* Security Section */}
 				<Animated.View
-					entering={FadeIn.delay(100).duration(400)}
-					style={styles.settingsList}>
+					entering={FadeInDown.delay(100).duration(500)}
+					style={styles.section}>
+					<Text style={styles.sectionTitle}>Security</Text>
 					<SettingRow
 						title="Password"
+						icon={
+							<Lock
+								size={20}
+								color={primary.primary1}
+								weight="bold"
+							/>
+						}
 						onPress={handlePasswordPress}
 					/>
 					<SettingRow
 						title="Touch ID"
+						icon={
+							<Fingerprint
+								size={20}
+								color={primary.primary1}
+								weight="bold"
+							/>
+						}
 						onPress={handleTouchIDPress}
 					/>
+				</Animated.View>
+
+				{/* General Section */}
+				<Animated.View
+					entering={FadeInDown.delay(150).duration(500)}
+					style={styles.section}>
+					<Text style={styles.sectionTitle}>General</Text>
 					<SettingRow
 						title="Languages"
+						subtitle="English"
+						icon={
+							<Globe
+								size={20}
+								color={primary.primary1}
+								weight="bold"
+							/>
+						}
 						onPress={handleLanguagesPress}
 					/>
 					<SettingRow
 						title="App information"
+						subtitle="Version 1.0.0"
+						icon={
+							<Info
+								size={20}
+								color={primary.primary1}
+								weight="bold"
+							/>
+						}
 						onPress={handleAppInfoPress}
 					/>
+				</Animated.View>
+
+				{/* Support Section */}
+				<Animated.View
+					entering={FadeInDown.delay(200).duration(500)}
+					style={styles.section}>
+					<Text style={styles.sectionTitle}>Support</Text>
 					<SettingRow
 						title="Customer care"
 						subtitle="19008989"
+						icon={
+							<Phone
+								size={20}
+								color={primary.primary1}
+								weight="bold"
+							/>
+						}
 						onPress={handleCustomerCarePress}
 					/>
 				</Animated.View>
+
 				{/* Logout Button */}
 				<Animated.View
-					entering={FadeIn.delay(150).duration(400)}
+					entering={FadeInDown.delay(250).duration(500)}
 					style={styles.logoutContainer}>
 					<Pressable
 						style={({ pressed }) => [
@@ -177,6 +280,13 @@ const Setting = () => {
 							pressed && styles.logoutButtonPressed,
 						]}
 						onPress={handleLogout}>
+						<View style={styles.logoutIconContainer}>
+							<SignOut
+								size={20}
+								color={neutral.neutral6}
+								weight="bold"
+							/>
+						</View>
 						<Text style={styles.logoutText}>Logout</Text>
 					</Pressable>
 				</Animated.View>
@@ -195,68 +305,101 @@ const styles = StyleSheet.create({
 	content: {
 		flex: 1,
 		backgroundColor: neutral.neutral6,
-		borderTopLeftRadius: 0,
-		borderTopRightRadius: 0,
 	},
 	contentContainer: {
-		paddingTop: 24,
-		paddingBottom: 32,
+		paddingTop: 20,
+		paddingBottom: 130,
 	},
-	profileSection: {
+	profileCard: {
+		flexDirection: "row",
 		alignItems: "center",
-		marginBottom: 32,
+		marginHorizontal: 24,
+		marginBottom: 24,
+		backgroundColor: neutral.neutral6,
+		borderRadius: 20,
+		padding: 16,
+		shadowColor: primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.1,
+		shadowRadius: 12,
+		elevation: 5,
+		borderWidth: 1,
+		borderColor: neutral.neutral5,
 	},
-	avatarContainer: {
-		width: 90,
-		height: 90,
-		borderRadius: 45,
-		overflow: "hidden",
-		marginBottom: 12,
-		backgroundColor: neutral.neutral5,
-	},
-	avatar: {
-		width: "100%",
-		height: "100%",
-		resizeMode: "cover",
+	profileInfo: {
+		flex: 1,
+		marginLeft: 16,
 	},
 	userName: {
 		fontFamily: "Poppins",
-		fontSize: 16,
-		fontWeight: "600",
+		fontSize: 18,
+		fontWeight: "700",
 		lineHeight: 24,
-		color: primary.primary1,
+		color: neutral.neutral1,
+		marginBottom: 2,
 	},
-	settingsList: {
-		gap: 16,
+	userEmail: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "500",
+		lineHeight: 18,
+		color: neutral.neutral3,
+	},
+	editButton: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: primary.primary4,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	section: {
+		marginBottom: 24,
+	},
+	sectionTitle: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "700",
+		lineHeight: 20,
+		color: neutral.neutral2,
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
+		marginBottom: 12,
+		marginLeft: 24,
 	},
 	logoutContainer: {
-		paddingHorizontal: 20,
-		marginTop: 40,
+		paddingHorizontal: 24,
+		marginTop: 16,
+		marginBottom: 8,
 	},
 	logoutButton: {
 		backgroundColor: "#FF3B30",
-		paddingVertical: 16,
-		borderRadius: 12,
+		height: 56,
+		borderRadius: 20,
+		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		shadowColor: "#000",
-		shadowOffset: {
-			width: 0,
-			height: 2,
-		},
-		shadowOpacity: 0.1,
-		shadowRadius: 4,
-		elevation: 3,
+		shadowColor: "#FF3B30",
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.3,
+		shadowRadius: 8,
+		elevation: 6,
+		gap: 8,
 	},
 	logoutButtonPressed: {
-		opacity: 0.7,
+		opacity: 0.8,
 		transform: [{ scale: 0.98 }],
+	},
+	logoutIconContainer: {
+		width: 24,
+		height: 24,
+		justifyContent: "center",
+		alignItems: "center",
 	},
 	logoutText: {
 		fontFamily: "Poppins",
 		fontSize: 16,
-		fontWeight: "600",
+		fontWeight: "700",
 		color: neutral.neutral6,
 	},
 });
-

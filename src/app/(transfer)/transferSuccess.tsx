@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,57 @@ import {
   StatusBar,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CheckCircle, Download, Share } from 'phosphor-react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withSequence,
+  withDelay,
+  Easing,
+  FadeInDown,
+} from 'react-native-reanimated';
+import { CheckCircle, Download, Share, House, ArrowCounterClockwise } from 'phosphor-react-native';
 import colors from '@/constants/colors';
 import { ScreenContainer, PrimaryButton } from '@/components';
 
 const TransferSuccess = () => {
   const router = useRouter();
+
+  // Animation values
+  const iconScale = useSharedValue(0);
+  const iconOpacity = useSharedValue(0);
+  const checkmarkScale = useSharedValue(0);
+
+  useEffect(() => {
+    // Icon container animation
+    iconOpacity.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+    });
+    iconScale.value = withSequence(
+      withSpring(1.2, { damping: 8, stiffness: 100 }),
+      withSpring(1, { damping: 12, stiffness: 150 })
+    );
+
+    // Checkmark animation with delay
+    checkmarkScale.value = withDelay(
+      200,
+      withSequence(
+        withSpring(1.3, { damping: 6, stiffness: 120 }),
+        withSpring(1, { damping: 10, stiffness: 140 })
+      )
+    );
+  }, []);
+
+  const iconAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: iconOpacity.value,
+    transform: [{ scale: iconScale.value }],
+  }));
+
+  const checkmarkAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: checkmarkScale.value }],
+  }));
 
   const transferInfo = [
     { label: 'Transaction ID', value: 'TXN123456789' },
@@ -26,63 +71,90 @@ const TransferSuccess = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       <View style={styles.content}>
-        {/* Success Icon */}
-        <View style={styles.iconContainer}>
-          <CheckCircle size={100} color={colors.primary.primary1} weight="fill" />
-        </View>
+        {/* Success Icon with Animation */}
+        <Animated.View style={[styles.iconContainer, iconAnimatedStyle]}>
+          <View style={styles.iconBackground}>
+            <Animated.View style={checkmarkAnimatedStyle}>
+              <CheckCircle size={80} color={colors.primary.primary1} weight="fill" />
+            </Animated.View>
+          </View>
+        </Animated.View>
 
         {/* Success Message */}
-        <Text style={styles.title}>Transfer Successful!</Text>
-        <Text style={styles.subtitle}>
-          Your money has been transferred successfully
-        </Text>
+        <Animated.View
+          entering={FadeInDown.delay(100).duration(500)}
+          style={styles.messageContainer}>
+          <Text style={styles.title}>Transfer Successful!</Text>
+          <Text style={styles.subtitle}>
+            Your money has been transferred successfully
+          </Text>
+        </Animated.View>
 
         {/* Transaction Details */}
-        <View style={styles.detailsCard}>
+        <Animated.View
+          entering={FadeInDown.delay(200).duration(500)}
+          style={styles.detailsCard}>
           {transferInfo.map((info, index) => (
-            <View key={index} style={styles.infoRow}>
+            <View
+              key={index}
+              style={[
+                styles.infoRow,
+                index === transferInfo.length - 1 && styles.infoRowLast
+              ]}>
               <Text style={styles.infoLabel}>{info.label}</Text>
               <Text style={styles.infoValue}>{info.value}</Text>
             </View>
           ))}
-        </View>
+        </Animated.View>
 
         {/* Action Buttons */}
-        <View style={styles.actionButtons}>
+        <Animated.View
+          entering={FadeInDown.delay(300).duration(500)}
+          style={styles.actionButtons}>
           <TouchableOpacity style={styles.actionButton}>
-            <Download size={24} color={colors.primary.primary1} weight="regular" />
+            <View style={styles.actionIconContainer}>
+              <Download size={22} color={colors.primary.primary1} weight="bold" />
+            </View>
             <Text style={styles.actionButtonText}>Download</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.actionButton}>
-            <Share size={24} color={colors.primary.primary1} weight="regular" />
+            <View style={styles.actionIconContainer}>
+              <Share size={22} color={colors.primary.primary1} weight="bold" />
+            </View>
             <Text style={styles.actionButtonText}>Share</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
-        {/* Done Button */}
-        <PrimaryButton
-          title="Done"
-          onPress={() => {
-            router.replace('(home)');
-          }}
-          style={styles.doneButton}
-        />
+        {/* Buttons Container */}
+        <Animated.View
+          entering={FadeInDown.delay(400).duration(500)}
+          style={styles.buttonsContainer}>
+          {/* Back to Home Button */}
+          <PrimaryButton
+            title="Back to Home"
+            onPress={() => {
+              router.replace('(home)');
+            }}
+            style={styles.homeButton}
+          />
 
-        {/* Make Another Transfer */}
-        <TouchableOpacity
-          style={styles.anotherTransferButton}
-          onPress={() => {
-            router.replace('(transfer)/transfer');
-          }}
-        >
-          <Text style={styles.anotherTransferText}>Make Another Transfer</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Bottom Indicator */}
-      <View style={styles.bottomIndicator}>
-        <View style={styles.indicator} />
+          {/* Make Another Transfer */}
+          <TouchableOpacity
+            style={styles.anotherTransferButton}
+            onPress={() => {
+              router.replace('(transfer)/transfer');
+            }}
+          >
+            <ArrowCounterClockwise
+              size={20}
+              color={colors.neutral.neutral2}
+              weight="bold"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.anotherTransferText}>Make Another Transfer</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </ScreenContainer>
   );
@@ -92,120 +164,148 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 100,
-    justifyContent: 'center',
+    paddingTop: 40,
+    paddingBottom: 32,
+    justifyContent: 'space-between',
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 20,
+  },
+  iconBackground: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: colors.primary.primary4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: colors.primary.primary1,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  messageContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
   },
   title: {
     fontFamily: 'Poppins',
-    fontSize: 28,
-    fontWeight: '600',
-    lineHeight: 36,
+    fontSize: 24,
+    fontWeight: '700',
+    lineHeight: 32,
     color: colors.neutral.neutral1,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   subtitle: {
     fontFamily: 'Poppins',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '400',
-    lineHeight: 24,
+    lineHeight: 20,
     color: colors.neutral.neutral3,
     textAlign: 'center',
-    marginBottom: 40,
   },
   detailsCard: {
     backgroundColor: colors.neutral.neutral6,
-    borderRadius: 15,
-    padding: 20,
-    shadowColor: 'rgba(54, 41, 183, 0.07)',
+    borderRadius: 20,
+    padding: 18,
+    shadowColor: colors.primary.primary1,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 30,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
     elevation: 5,
-    marginBottom: 32,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.neutral.neutral5,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.neutral.neutral5,
   },
+  infoRowLast: {
+    borderBottomWidth: 0,
+  },
   infoLabel: {
     fontFamily: 'Poppins',
-    fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 21,
+    fontSize: 13,
+    fontWeight: '500',
+    lineHeight: 18,
     color: colors.neutral.neutral3,
   },
   infoValue: {
     fontFamily: 'Poppins',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    lineHeight: 21,
+    lineHeight: 18,
     color: colors.neutral.neutral1,
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 16,
-    marginBottom: 32,
+    gap: 12,
+    marginBottom: 20,
   },
   actionButton: {
     flex: 1,
-    height: 60,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: colors.primary.primary1,
+    height: 56,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: colors.primary.primary4,
     backgroundColor: colors.neutral.neutral6,
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
     gap: 8,
+    shadowColor: colors.primary.primary1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  actionIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary.primary4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   actionButtonText: {
     fontFamily: 'Poppins',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
     color: colors.primary.primary1,
   },
-  doneButton: {
-    height: 48,
-    marginBottom: 16,
+  buttonsContainer: {
+    gap: 12,
+  },
+  homeButton: {
+    height: 52,
+    shadowColor: colors.primary.primary1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   anotherTransferButton: {
-    height: 48,
-    borderRadius: 15,
+    height: 52,
+    borderRadius: 20,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: colors.neutral.neutral4,
+    backgroundColor: colors.neutral.neutral6,
   },
   anotherTransferText: {
     fontFamily: 'Poppins',
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.neutral.neutral1,
-  },
-  bottomIndicator: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 34,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.neutral.neutral6,
-  },
-  indicator: {
-    width: 134,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: colors.neutral.neutral4,
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.neutral.neutral2,
   },
 });
 

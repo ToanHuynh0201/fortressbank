@@ -156,7 +156,7 @@ const SignIn = () => {
 					<PrimaryButton
 						title="Sign in"
 						onPress={handleSignIn}
-						disabled={!values.email || !values.password}
+						// disabled={!values.email || !values.password}
 						style={styles.signInButton}
 					/>
 				</Animated.View>

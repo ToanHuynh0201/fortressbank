@@ -5,6 +5,7 @@ import {
 	ScrollView,
 	Image,
 	TouchableOpacity,
+	Alert,
 } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,10 +14,42 @@ import { primary, neutral, semantic } from "@/constants";
 import { useRouter } from "expo-router";
 import { UserAvatar, NotificationBell, BankCard } from "@/components";
 import { useNotifications } from "@/contexts";
+import { SignOut } from "phosphor-react-native";
+import { clearStorage } from "@/utils/storage";
 import Feather from "@expo/vector-icons/Feather";
 const Home = () => {
 	const router = useRouter();
 	const { unreadCount } = useNotifications();
+
+	const handleLogout = () => {
+		Alert.alert(
+			"Logout",
+			"Are you sure you want to logout?",
+			[
+				{
+					text: "Cancel",
+					style: "cancel",
+				},
+				{
+					text: "Logout",
+					style: "destructive",
+					onPress: async () => {
+						try {
+							await clearStorage();
+							router.replace("/(auth)/signIn");
+						} catch (error) {
+							console.error("Error during logout:", error);
+							Alert.alert(
+								"Error",
+								"Failed to logout. Please try again.",
+							);
+						}
+					},
+				},
+			],
+			{ cancelable: true },
+		);
+	};
 
 	const mainFeatures = [
 		{
@@ -113,10 +146,18 @@ const Home = () => {
 							<Text style={styles.greeting}>Push Puttichai</Text>
 						</View>
 					</View>
-					<NotificationBell
-						count={unreadCount}
-						onPress={() => router.push("/(home)/notification")}
-					/>
+					<View style={styles.headerRight}>
+						<NotificationBell
+							count={unreadCount}
+							onPress={() => router.push("/(home)/notification")}
+						/>
+						<TouchableOpacity
+							style={styles.logoutButton}
+							onPress={handleLogout}
+							activeOpacity={0.7}>
+							<SignOut size={20} color={neutral.neutral6} weight="bold" />
+						</TouchableOpacity>
+					</View>
 				</View>
 			</LinearGradient>
 
@@ -219,6 +260,21 @@ const styles = StyleSheet.create({
 		fontWeight: "600",
 		color: neutral.neutral6,
 		lineHeight: 24,
+	},
+	headerRight: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+	},
+	logoutButton: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: "rgba(255, 255, 255, 0.2)",
+		justifyContent: "center",
+		alignItems: "center",
+		borderWidth: 1.5,
+		borderColor: "rgba(255, 255, 255, 0.3)",
 	},
 	scrollView: {
 		flex: 1,

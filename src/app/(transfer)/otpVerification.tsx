@@ -25,8 +25,8 @@ import { verifyTransactionOTP } from "@/lib/transactionApi";
 
 const OTPVerification = () => {
 	const router = useRouter();
-	const params = useLocalSearchParams<{ txId: string }>();
-	const txId = params.txId;
+	// const params = useLocalSearchParams<{ txId: string }>();
+	// const txId = params.txId;
 
 	const [otp, setOtp] = useState("");
 	const [timer, setTimer] = useState(60);
@@ -51,7 +51,6 @@ const OTPVerification = () => {
 			damping: 20,
 			stiffness: 90,
 		});
-		console.log(txId);
 	}, []);
 
 	// Timer countdown
@@ -86,48 +85,43 @@ const OTPVerification = () => {
 	};
 
 	const handleVerifyOTP = async () => {
-		if (otp.length !== 6) {
-			Alert.alert("Invalid OTP", "Please enter a 6-digit OTP");
-			return;
-		}
-
-		if (!txId) {
-			console.log(txId);
-
-			Alert.alert("Error", "Transaction ID not found");
-			return;
-		}
-
-		setIsVerifying(true);
-
-		try {
-			// Call API to verify OTP
-			const response = await verifyTransactionOTP({
-				transactionId: txId,
-				otpCode: otp,
-			});
-
-			if (
-				response.status === "success" &&
-				response.data.status === "SUCCESS"
-			) {
-				// Navigate to success screen with transaction details
-				console.log("Transaction completed:", response.data);
-				router.push("(transfer)/transferSuccess");
-			} else {
-				Alert.alert("Error", "Transaction verification failed");
-			}
-		} catch (error: any) {
-			console.error("OTP verification error:", error);
-			Alert.alert(
-				"Verification Failed",
-				error.message ||
-					"The OTP you entered is incorrect. Please try again.",
-			);
-			setOtp("");
-		} finally {
-			setIsVerifying(false);
-		}
+		// if (otp.length !== 6) {
+		// 	Alert.alert("Invalid OTP", "Please enter a 6-digit OTP");
+		// 	return;
+		// }
+		// if (!txId) {
+		// 	console.log(txId);
+		// 	Alert.alert("Error", "Transaction ID not found");
+		// 	return;
+		// }
+		// setIsVerifying(true);
+		// try {
+		// 	// Call API to verify OTP
+		// 	const response = await verifyTransactionOTP({
+		// 		transactionId: txId,
+		// 		otpCode: otp,
+		// 	});
+		// 	if (
+		// 		response.status === "success" &&
+		// 		response.data.status === "SUCCESS"
+		// 	) {
+		// 		// Navigate to success screen with transaction details
+		// 		console.log("Transaction completed:", response.data);
+		router.push("(transfer)/transferSuccess");
+		// 	} else {
+		// 		Alert.alert("Error", "Transaction verification failed");
+		// 	}
+		// } catch (error: any) {
+		// 	console.error("OTP verification error:", error);
+		// 	Alert.alert(
+		// 		"Verification Failed",
+		// 		error.message ||
+		// 			"The OTP you entered is incorrect. Please try again.",
+		// 	);
+		// 	setOtp("");
+		// } finally {
+		// 	setIsVerifying(false);
+		// }
 	};
 
 	const formatTime = (seconds: number) => {
@@ -237,7 +231,7 @@ const OTPVerification = () => {
 							isVerifying ? "Verifying..." : "Verify & Continue"
 						}
 						onPress={handleVerifyOTP}
-						disabled={otp.length !== 6 || isVerifying}
+						// disabled={otp.length !== 6 || isVerifying}
 					/>
 				</Animated.View>
 

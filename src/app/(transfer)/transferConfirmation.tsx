@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	View,
 	Text,
@@ -8,7 +8,25 @@ import {
 	Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { CaretLeft, Check } from "phosphor-react-native";
+import Animated, {
+	useSharedValue,
+	useAnimatedStyle,
+	withTiming,
+	withSpring,
+	withSequence,
+	Easing,
+	FadeInDown,
+	FadeIn,
+} from "react-native-reanimated";
+import {
+	CaretLeft,
+	CheckCircle,
+	User,
+	CreditCard,
+	CurrencyDollar,
+	Bank,
+	ArrowRight,
+} from "phosphor-react-native";
 import colors from "@/constants/colors";
 import { ScreenContainer, PrimaryButton } from "@/components";
 import { createTransfer, CreateTransferRequest } from "@/lib/transactionApi";
@@ -16,6 +34,49 @@ import { createTransfer, CreateTransferRequest } from "@/lib/transactionApi";
 const TransferConfirmation = () => {
 	const router = useRouter();
 	const [isProcessing, setIsProcessing] = useState(false);
+
+	// Animation values
+	const headerOpacity = useSharedValue(0);
+	const iconScale = useSharedValue(0.5);
+	const iconOpacity = useSharedValue(0);
+	const contentOpacity = useSharedValue(0);
+
+	useEffect(() => {
+		// Header animation
+		headerOpacity.value = withTiming(1, {
+			duration: 400,
+			easing: Easing.out(Easing.ease),
+		});
+
+		// Icon animation with bounce
+		iconOpacity.value = withTiming(1, {
+			duration: 500,
+			easing: Easing.out(Easing.ease),
+		});
+		iconScale.value = withSequence(
+			withSpring(1.1, { damping: 10, stiffness: 100 }),
+			withSpring(1, { damping: 15, stiffness: 150 }),
+		);
+
+		// Content animation
+		contentOpacity.value = withTiming(1, {
+			duration: 500,
+			easing: Easing.out(Easing.ease),
+		});
+	}, []);
+
+	const headerAnimatedStyle = useAnimatedStyle(() => ({
+		opacity: headerOpacity.value,
+	}));
+
+	const iconAnimatedStyle = useAnimatedStyle(() => ({
+		opacity: iconOpacity.value,
+		transform: [{ scale: iconScale.value }],
+	}));
+
+	const contentAnimatedStyle = useAnimatedStyle(() => ({
+		opacity: contentOpacity.value,
+	}));
 
 	// TODO: Get these values from route params or context
 	const transferData: CreateTransferRequest = {
@@ -26,13 +87,19 @@ const TransferConfirmation = () => {
 		description: "Test transfer from Postman",
 	};
 
-	const transferDetails = [
-		{ label: "To", value: "Capi Creative Design" },
-		{ label: "Account", value: "0123 4567 8910 9" },
-		{ label: "Amount", value: "$1,000" },
-		{ label: "From", value: "VISA **** 1234" },
-		{ label: "Total", value: "$1,000", highlight: true },
-	];
+	const recipientInfo = {
+		name: "Capi Creative Design",
+		accountNumber: "0123 4567 8910 9",
+	};
+
+	const senderInfo = {
+		accountType: "VISA Checking",
+		accountNumber: "**** **** 1234",
+	};
+
+	const transferAmount = "$1,000.00";
+	const transferFee = "$0.00";
+	const totalAmount = "$1,000.00";
 
 	return (
 		<ScreenContainer backgroundColor={colors.neutral.neutral6}>
@@ -42,118 +109,152 @@ const TransferConfirmation = () => {
 			/>
 
 			{/* Navigation Header */}
-			<View style={styles.header}>
+			<Animated.View style={[styles.header, headerAnimatedStyle]}>
 				<TouchableOpacity
 					onPress={() => router.back()}
 					style={styles.backButton}>
-					<CaretLeft
-						size={16}
-						color={colors.neutral.neutral1}
-						weight="regular"
-					/>
+					<View style={styles.backButtonCircle}>
+						<CaretLeft
+							size={20}
+							color={colors.neutral.neutral1}
+							weight="bold"
+						/>
+					</View>
 				</TouchableOpacity>
-				<Text style={styles.headerTitle}>Confirmation</Text>
-			</View>
+				<View style={styles.headerTitleContainer}>
+					<Text style={styles.headerTitle}>
+						Transfer Confirmation
+					</Text>
+					<Text style={styles.headerSubtitle}>
+						Review your transfer details
+					</Text>
+				</View>
+			</Animated.View>
 
 			{/* Content */}
 			<View style={styles.content}>
 				{/* Success Icon */}
-				<View style={styles.iconContainer}>
+				<Animated.View
+					style={[styles.iconContainer, iconAnimatedStyle]}>
 					<View style={styles.successIcon}>
-						<Check
-							size={32}
-							color={colors.neutral.neutral6}
+						<CheckCircle
+							size={48}
+							color={colors.primary.primary1}
+							weight="fill"
+						/>
+					</View>
+				</Animated.View>
+
+				{/* Title & Subtitle */}
+				<Animated.View
+					entering={FadeInDown.delay(100).duration(500)}
+					style={styles.titleContainer}>
+					<Text style={styles.title}>Review Transfer</Text>
+					<Text style={styles.subtitle}>
+						Please verify all details before confirming
+					</Text>
+				</Animated.View>
+
+				{/* Amount Card - Highlighted */}
+				<Animated.View
+					entering={FadeInDown.delay(150).duration(500)}
+					style={styles.amountCard}>
+					<Text style={styles.amountLabel}>Transfer Amount</Text>
+					<Text style={styles.amountValue}>{transferAmount}</Text>
+				</Animated.View>
+
+				{/* Transfer Details Card */}
+				<Animated.View
+					entering={FadeInDown.delay(200).duration(500)}
+					style={styles.detailsCard}>
+					{/* From Section */}
+					<View style={styles.detailSection}>
+						<View style={styles.detailHeader}>
+							<Bank
+								size={18}
+								color={colors.primary.primary1}
+								weight="bold"
+							/>
+							<Text style={styles.detailTitle}>From</Text>
+						</View>
+						<Text style={styles.detailValue}>
+							{senderInfo.accountType}
+						</Text>
+						<Text style={styles.detailSubValue}>
+							{senderInfo.accountNumber}
+						</Text>
+					</View>
+
+					{/* Arrow Divider */}
+					<View style={styles.arrowDivider}>
+						<ArrowRight
+							size={20}
+							color={colors.primary.primary1}
 							weight="bold"
 						/>
 					</View>
-				</View>
 
-				{/* Title */}
-				<Text style={styles.title}>Confirm Transfer</Text>
-
-				{/* Details Card */}
-				<View style={styles.detailsCard}>
-					{transferDetails.map((detail, index) => (
-						<View key={index}>
-							<View style={styles.detailRow}>
-								<Text style={styles.detailLabel}>
-									{detail.label}
-								</Text>
-								<Text
-									style={[
-										styles.detailValue,
-										detail.highlight &&
-											styles.detailValueHighlight,
-									]}>
-									{detail.value}
-								</Text>
-							</View>
-							{index < transferDetails.length - 1 && (
-								<View style={styles.divider} />
-							)}
+					{/* To Section */}
+					<View style={styles.detailSection}>
+						<View style={styles.detailHeader}>
+							<User
+								size={18}
+								color={colors.primary.primary1}
+								weight="bold"
+							/>
+							<Text style={styles.detailTitle}>To</Text>
 						</View>
-					))}
-				</View>
+						<Text style={styles.detailValue}>
+							{recipientInfo.name}
+						</Text>
+						<Text style={styles.detailSubValue}>
+							{recipientInfo.accountNumber}
+						</Text>
+					</View>
+				</Animated.View>
+
+				{/* Summary Section */}
+				<Animated.View
+					entering={FadeInDown.delay(250).duration(500)}
+					style={styles.summaryCard}>
+					<View style={styles.summaryRow}>
+						<Text style={styles.summaryLabel}>Transfer Fee</Text>
+						<Text style={styles.summaryValue}>{transferFee}</Text>
+					</View>
+
+					<View style={styles.summaryDivider} />
+
+					<View style={styles.summaryRow}>
+						<Text style={styles.summaryTotalLabel}>
+							Total Amount
+						</Text>
+						<Text style={styles.summaryTotalValue}>
+							{totalAmount}
+						</Text>
+					</View>
+				</Animated.View>
 
 				{/* Buttons */}
-				<View style={styles.buttonsContainer}>
+				<Animated.View
+					entering={FadeInDown.delay(400).duration(500)}
+					style={styles.buttonsContainer}>
 					<PrimaryButton
 						title={
 							isProcessing ? "Processing..." : "Confirm Transfer"
 						}
-						onPress={async () => {
-							if (isProcessing) return;
-
-							setIsProcessing(true);
-							try {
-								// Call API to create transfer
-								const response = await createTransfer(
-									transferData,
-								);
-
-								if (
-									response.status === "success" &&
-									response.data.txId
-								) {
-									// Navigate to OTP verification with txId
-									console.log(
-										"Transaction created:",
-										response.data.txId,
-									);
-									router.push(
-										`(transfer)/otpVerification?txId=${response.data.txId}`,
-									);
-								} else {
-									Alert.alert(
-										"Error",
-										"Failed to create transaction",
-									);
-								}
-							} catch (error: any) {
-								console.error("Transfer error:", error);
-								Alert.alert(
-									"Transfer Failed",
-									error.message ||
-										"Unable to process transfer. Please try again.",
-								);
-							} finally {
-								setIsProcessing(false);
-							}
-						}}
+						onPress={() =>
+							router.push(`(transfer)/otpVerification`)
+						}
 						style={styles.confirmButton}
 						disabled={isProcessing}
 					/>
 					<TouchableOpacity
 						style={styles.cancelButton}
-						onPress={() => router.back()}>
+						onPress={() => router.back()}
+						disabled={isProcessing}>
 						<Text style={styles.cancelButtonText}>Cancel</Text>
 					</TouchableOpacity>
-				</View>
-			</View>
-
-			{/* Bottom Indicator */}
-			<View style={styles.bottomIndicator}>
-				<View style={styles.indicator} />
+				</Animated.View>
 			</View>
 		</ScreenContainer>
 	);
@@ -164,128 +265,242 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		paddingHorizontal: 24,
-		paddingVertical: 16,
-		height: 53,
+		paddingTop: 16,
+		paddingBottom: 20,
 		backgroundColor: colors.neutral.neutral6,
+		borderBottomWidth: 1,
+		borderBottomColor: colors.neutral.neutral5,
 	},
 	backButton: {
-		width: 16,
-		height: 16,
+		marginRight: 16,
+	},
+	backButtonCircle: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 16,
+	},
+	headerTitleContainer: {
+		flex: 1,
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
-		fontWeight: "600",
+		fontSize: 22,
+		fontWeight: "700",
 		lineHeight: 28,
 		color: colors.neutral.neutral1,
+		marginBottom: 2,
+	},
+	headerSubtitle: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "400",
+		color: colors.neutral.neutral3,
+		lineHeight: 18,
 	},
 	content: {
 		flex: 1,
 		paddingHorizontal: 24,
 		paddingTop: 16,
-		paddingBottom: 60,
+		paddingBottom: 20,
+		justifyContent: "space-between",
 	},
 	iconContainer: {
 		alignItems: "center",
-		marginBottom: 16,
+		marginBottom: 12,
 	},
 	successIcon: {
-		width: 56,
-		height: 56,
-		borderRadius: 28,
-		backgroundColor: colors.primary.primary1,
+		width: 60,
+		height: 60,
+		borderRadius: 30,
+		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
+	},
+	titleContainer: {
+		alignItems: "center",
+		marginBottom: 16,
 	},
 	title: {
 		fontFamily: "Poppins",
 		fontSize: 20,
-		fontWeight: "600",
+		fontWeight: "700",
 		lineHeight: 28,
 		color: colors.neutral.neutral1,
 		textAlign: "center",
-		marginBottom: 20,
+		marginBottom: 4,
+	},
+	subtitle: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "400",
+		lineHeight: 18,
+		color: colors.neutral.neutral3,
+		textAlign: "center",
+	},
+	amountCard: {
+		backgroundColor: colors.primary.primary4,
+		borderRadius: 20,
+		paddingVertical: 16,
+		paddingHorizontal: 20,
+		alignItems: "center",
+		marginBottom: 16,
+		borderWidth: 2,
+		borderColor: colors.primary.primary3,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.12,
+		shadowRadius: 12,
+		elevation: 5,
+	},
+	amountLabel: {
+		fontFamily: "Poppins",
+		fontSize: 12,
+		fontWeight: "600",
+		color: colors.neutral.neutral2,
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
+		marginBottom: 6,
+	},
+	amountValue: {
+		fontFamily: "Poppins",
+		fontSize: 28,
+		fontWeight: "700",
+		color: colors.primary.primary1,
+		lineHeight: 36,
 	},
 	detailsCard: {
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 15,
-		padding: 16,
-		shadowColor: "rgba(54, 41, 183, 0.07)",
+		borderRadius: 20,
+		padding: 18,
+		marginBottom: 16,
+		borderWidth: 1,
+		borderColor: colors.neutral.neutral5,
+		shadowColor: colors.primary.primary1,
 		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 1,
-		shadowRadius: 30,
-		elevation: 5,
-		marginBottom: 20,
-	},
-	detailRow: {
+		shadowOpacity: 0.06,
+		shadowRadius: 12,
+		elevation: 3,
 		flexDirection: "row",
+		alignItems: "center",
 		justifyContent: "space-between",
-		alignItems: "flex-start",
-		paddingVertical: 8,
 	},
-	detailLabel: {
-		fontFamily: "Poppins",
-		fontSize: 14,
-		fontWeight: "400",
-		lineHeight: 21,
-		color: colors.neutral.neutral3,
+	detailSection: {
 		flex: 1,
+	},
+	detailHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+		marginBottom: 8,
+	},
+	detailTitle: {
+		fontFamily: "Poppins",
+		fontSize: 12,
+		fontWeight: "700",
+		color: colors.neutral.neutral1,
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
 	},
 	detailValue: {
 		fontFamily: "Poppins",
 		fontSize: 14,
 		fontWeight: "600",
-		lineHeight: 21,
 		color: colors.neutral.neutral1,
-		textAlign: "right",
-		flex: 1,
+		lineHeight: 20,
+		marginBottom: 2,
 	},
-	detailValueHighlight: {
-		color: colors.primary.primary1,
-		fontSize: 16,
+	detailSubValue: {
+		fontFamily: "Poppins",
+		fontSize: 12,
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+		lineHeight: 16,
 	},
-	divider: {
-		height: 1,
-		backgroundColor: colors.neutral.neutral5,
-	},
-	buttonsContainer: {
-		gap: 16,
-	},
-	confirmButton: {
-		height: 48,
-	},
-	cancelButton: {
-		height: 48,
-		borderRadius: 15,
+	arrowDivider: {
+		width: 32,
+		height: 32,
+		borderRadius: 16,
+		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		borderWidth: 1,
+		marginHorizontal: 8,
+	},
+	summaryCard: {
+		backgroundColor: colors.neutral.neutral6,
+		borderRadius: 20,
+		padding: 16,
+		marginBottom: 16,
+		borderWidth: 2,
+		borderColor: colors.primary.primary4,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.08,
+		shadowRadius: 12,
+		elevation: 5,
+	},
+	summaryDivider: {
+		height: 1,
+		backgroundColor: colors.neutral.neutral5,
+		marginVertical: 8,
+	},
+	summaryRow: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		paddingVertical: 4,
+	},
+	summaryLabel: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+	},
+	summaryValue: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "600",
+		color: colors.neutral.neutral1,
+	},
+	summaryTotalLabel: {
+		fontFamily: "Poppins",
+		fontSize: 16,
+		fontWeight: "700",
+		color: colors.neutral.neutral1,
+	},
+	summaryTotalValue: {
+		fontFamily: "Poppins",
+		fontSize: 18,
+		fontWeight: "700",
+		color: colors.primary.primary1,
+	},
+	buttonsContainer: {
+		gap: 12,
+	},
+	confirmButton: {
+		height: 52,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.3,
+		shadowRadius: 8,
+		elevation: 6,
+	},
+	cancelButton: {
+		height: 52,
+		borderRadius: 20,
+		justifyContent: "center",
+		alignItems: "center",
+		borderWidth: 2,
 		borderColor: colors.neutral.neutral4,
+		backgroundColor: colors.neutral.neutral6,
 	},
 	cancelButtonText: {
 		fontFamily: "Poppins",
-		fontSize: 16,
-		fontWeight: "500",
-		color: colors.neutral.neutral1,
-	},
-	bottomIndicator: {
-		position: "absolute",
-		bottom: 0,
-		left: 0,
-		right: 0,
-		height: 34,
-		justifyContent: "center",
-		alignItems: "center",
-		backgroundColor: colors.neutral.neutral6,
-	},
-	indicator: {
-		width: 134,
-		height: 5,
-		borderRadius: 2.5,
-		backgroundColor: colors.neutral.neutral4,
+		fontSize: 15,
+		fontWeight: "600",
+		color: colors.neutral.neutral2,
 	},
 });
 
