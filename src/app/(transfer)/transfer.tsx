@@ -90,31 +90,31 @@ const Transfer = () => {
 	const accounts: Account[] = [
 		{
 			id: "1",
-			label: "VISA",
-			fullNumber: "4532 1234 5678 1234",
-			maskedNumber: "**** **** **** 1234",
+			label: "Checking Account",
+			fullNumber: "1234 5678 9012",
+			maskedNumber: "**** **** 9012",
 			balance: 10000,
 		},
 		{
 			id: "2",
-			label: "Account",
+			label: "Savings Account",
 			fullNumber: "1234 5678 5689",
 			maskedNumber: "**** **** 5689",
-			balance: 10000,
+			balance: 25000,
 		},
 		{
 			id: "3",
-			label: "MasterCard",
-			fullNumber: "5412 3456 7890 8765",
-			maskedNumber: "**** **** **** 8765",
+			label: "Investment Account",
+			fullNumber: "5412 3456 7890",
+			maskedNumber: "**** **** 7890",
 			balance: 5500,
 		},
 		{
 			id: "4",
-			label: "Savings Account",
+			label: "Business Account",
 			fullNumber: "9876 5432 1098",
 			maskedNumber: "**** **** 1098",
-			balance: 25000,
+			balance: 15000,
 		},
 	];
 
@@ -216,7 +216,7 @@ const Transfer = () => {
 											</>
 										) : (
 											<Text style={styles.accountLabel}>
-												Choose account / card
+												Choose account
 											</Text>
 										)}
 									</View>
@@ -278,7 +278,7 @@ const Transfer = () => {
 											<View style={styles.cardIcon}>
 												<Text
 													style={styles.cardIconText}>
-													💳
+													🏦
 												</Text>
 											</View>
 											<View
