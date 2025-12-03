@@ -16,12 +16,7 @@ import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
 	withTiming,
-	withSpring,
-	withSequence,
-	withDelay,
 	Easing,
-	FadeIn,
-	FadeInDown,
 } from "react-native-reanimated";
 import {
 	Lock,
@@ -50,40 +45,31 @@ const Setting = () => {
 	const contentTranslateY = useSharedValue(20);
 
 	useEffect(() => {
-		// Profile card animation
+		// Profile card animation - simple fade
 		profileOpacity.value = withTiming(1, {
-			duration: 500,
+			duration: 300,
 			easing: Easing.out(Easing.ease),
 		});
-		profileScale.value = withSequence(
-			withSpring(1.05, { damping: 12, stiffness: 100 }),
-			withSpring(1, { damping: 15, stiffness: 120 }),
-		);
+		profileScale.value = withTiming(1, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
 
-		// Avatar animation with bounce
-		avatarScale.value = withDelay(
-			150,
-			withSequence(
-				withSpring(1.15, { damping: 8, stiffness: 90 }),
-				withSpring(1, { damping: 12, stiffness: 110 }),
-			),
-		);
+		// Avatar animation - simple scale
+		avatarScale.value = withTiming(1, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
 
-		// Content animation
-		contentOpacity.value = withDelay(
-			200,
-			withTiming(1, {
-				duration: 500,
-				easing: Easing.out(Easing.ease),
-			}),
-		);
-		contentTranslateY.value = withDelay(
-			200,
-			withSpring(0, {
-				damping: 20,
-				stiffness: 90,
-			}),
-		);
+		// Content animation - simple fade
+		contentOpacity.value = withTiming(1, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
+		contentTranslateY.value = withTiming(0, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
 	}, []);
 
 	const profileAnimatedStyle = useAnimatedStyle(() => ({
@@ -192,9 +178,7 @@ const Setting = () => {
 				</Animated.View>
 
 				{/* Security Section */}
-				<Animated.View
-					entering={FadeInDown.delay(100).duration(500)}
-					style={styles.section}>
+				<View style={styles.section}>
 					<Text style={styles.sectionTitle}>Security</Text>
 					<SettingRow
 						title="Password"
@@ -218,12 +202,10 @@ const Setting = () => {
 						}
 						onPress={handleTouchIDPress}
 					/>
-				</Animated.View>
+				</View>
 
 				{/* General Section */}
-				<Animated.View
-					entering={FadeInDown.delay(150).duration(500)}
-					style={styles.section}>
+				<View style={styles.section}>
 					<Text style={styles.sectionTitle}>General</Text>
 					<SettingRow
 						title="Languages"
@@ -249,12 +231,10 @@ const Setting = () => {
 						}
 						onPress={handleAppInfoPress}
 					/>
-				</Animated.View>
+				</View>
 
 				{/* Support Section */}
-				<Animated.View
-					entering={FadeInDown.delay(200).duration(500)}
-					style={styles.section}>
+				<View style={styles.section}>
 					<Text style={styles.sectionTitle}>Support</Text>
 					<SettingRow
 						title="Customer care"
@@ -268,12 +248,10 @@ const Setting = () => {
 						}
 						onPress={handleCustomerCarePress}
 					/>
-				</Animated.View>
+				</View>
 
 				{/* Logout Button */}
-				<Animated.View
-					entering={FadeInDown.delay(250).duration(500)}
-					style={styles.logoutContainer}>
+				<View style={styles.logoutContainer}>
 					<Pressable
 						style={({ pressed }) => [
 							styles.logoutButton,
@@ -289,7 +267,7 @@ const Setting = () => {
 						</View>
 						<Text style={styles.logoutText}>Logout</Text>
 					</Pressable>
-				</Animated.View>
+				</View>
 			</AnimatedScrollView>
 		</SafeAreaView>
 	);

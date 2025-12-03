@@ -1,5 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { CreditCard, Sparkle } from 'phosphor-react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { neutral, primary } from '@/constants/colors';
 
 interface CreditCardItemProps {
@@ -14,6 +17,19 @@ interface CreditCardItemProps {
   onPress?: () => void;
 }
 
+const getCardGradient = (cardType: string) => {
+  switch (cardType) {
+    case 'Visa':
+      return ['#1E3A8A', '#3B82F6', '#60A5FA'];
+    case 'Mastercard':
+      return ['#DC2626', '#EF4444', '#F87171'];
+    case 'American Express':
+      return ['#059669', '#10B981', '#34D399'];
+    default:
+      return ['#4A3FDB', '#6B5FE8', '#8B7FF5'];
+  }
+};
+
 const CreditCardItem: React.FC<CreditCardItemProps> = ({
   cardName,
   cardNumber,
@@ -26,49 +42,54 @@ const CreditCardItem: React.FC<CreditCardItemProps> = ({
   onPress,
 }) => {
   const CardContent = () => (
-    <View style={[styles.bankCardContainer, containerStyle]}>
-      <View style={styles.bankCardGradient}>
-        {/* Card Type Badge */}
-        <View style={styles.cardTypeBadge}>
-          <Text style={styles.cardTypeText}>{cardType}</Text>
+    <Animated.View
+      entering={FadeInDown.duration(400).springify()}
+      style={[styles.bankCardContainer, containerStyle]}
+    >
+      <LinearGradient
+        colors={['#4A3FDB', '#6B5FE8', '#8B7FF5']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.bankCardGradient}
+      >
+        {/* Decorative Elements */}
+        <View style={styles.decorativeCircle1} />
+        <View style={styles.decorativeCircle2} />
+
+        {/* Chip Design */}
+        <View style={styles.chipContainer}>
+          <View style={styles.chip}>
+            <View style={styles.chipInner} />
+          </View>
         </View>
-        
-        {/* Card Name */}
-        <Text style={styles.cardName}>{cardName}</Text>
-        
+
         {/* Card Number */}
         <Text style={styles.cardNumberLarge}>{cardNumber}</Text>
-        
+
         {/* Card Details Row */}
         <View style={styles.cardDetailsRow}>
           <View style={styles.cardDetailItem}>
-            <Text style={styles.cardDetailLabel}>Card Holder</Text>
+            <Text style={styles.cardDetailLabel}>CARD HOLDER</Text>
             <Text style={styles.cardDetailValue}>{cardHolder}</Text>
           </View>
           <View style={styles.cardDetailItem}>
-            <Text style={styles.cardDetailLabel}>Expires</Text>
+            <Text style={styles.cardDetailLabel}>EXPIRES</Text>
             <Text style={styles.cardDetailValue}>{expiryDate}</Text>
           </View>
         </View>
-        
-        {/* Card Credit Info */}
-        <View style={styles.cardCreditInfo}>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Card Limit</Text>
-            <Text style={styles.value}>{cardLimit}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Available Credit</Text>
-            <Text style={[styles.value, styles.creditValue]}>{availableCredit}</Text>
-          </View>
+
+        {/* Card Network Logo */}
+        <View style={styles.cardLogoContainer}>
+          <View style={styles.cardLogoCircle1} />
+          <View style={styles.cardLogoCircle2} />
         </View>
-      </View>
-    </View>
+      </LinearGradient>
+    </Animated.View>
   );
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
         <CardContent />
       </TouchableOpacity>
     );
@@ -79,108 +100,115 @@ const CreditCardItem: React.FC<CreditCardItemProps> = ({
 
 const styles = StyleSheet.create({
   bankCardContainer: {
-    borderRadius: 15,
-    marginBottom: 20,
-    shadowColor: primary.primary1,
+    borderRadius: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 30,
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
     elevation: 8,
   },
   bankCardGradient: {
-    backgroundColor: primary.primary1,
-    borderRadius: 15,
+    borderRadius: 16,
     padding: 20,
     minHeight: 200,
+    overflow: 'hidden',
   },
-  cardTypeBadge: {
+  decorativeCircle1: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    top: -50,
+    right: -40,
+  },
+  decorativeCircle2: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    bottom: -30,
+    left: -30,
+  },
+  chipContainer: {
+    marginBottom: 24,
+    zIndex: 1,
+  },
+  chip: {
+    width: 48,
+    height: 36,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 8,
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  cardTypeText: {
-    fontFamily: 'Poppins',
-    fontSize: 10,
-    fontWeight: '600',
-    color: neutral.neutral6,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  cardName: {
-    fontFamily: 'Poppins',
-    fontSize: 18,
-    fontWeight: '600',
-    lineHeight: 27,
-    color: neutral.neutral6,
-    marginBottom: 20,
+  chipInner: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   cardNumberLarge: {
     fontFamily: 'Poppins',
     fontSize: 20,
-    fontWeight: '600',
-    lineHeight: 30,
+    fontWeight: '700',
+    lineHeight: 28,
     color: neutral.neutral6,
-    letterSpacing: 2,
-    marginBottom: 20,
+    letterSpacing: 2.5,
+    marginBottom: 24,
+    zIndex: 1,
   },
   cardDetailsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    zIndex: 1,
   },
   cardDetailItem: {
     flex: 1,
   },
   cardDetailLabel: {
     fontFamily: 'Poppins',
-    fontSize: 10,
-    fontWeight: '500',
-    lineHeight: 15,
+    fontSize: 9,
+    fontWeight: '600',
+    lineHeight: 12,
     color: 'rgba(255, 255, 255, 0.7)',
     textTransform: 'uppercase',
-    marginBottom: 4,
+    marginBottom: 6,
+    letterSpacing: 0.5,
   },
   cardDetailValue: {
     fontFamily: 'Poppins',
     fontSize: 14,
-    fontWeight: '600',
-    lineHeight: 21,
+    fontWeight: '700',
+    lineHeight: 20,
     color: neutral.neutral6,
   },
-  cardCreditInfo: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 10,
-    padding: 12,
-    gap: 8,
-  },
-  infoRow: {
+  cardLogoContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  label: {
-    fontFamily: 'Poppins',
-    fontSize: 12,
-    fontWeight: '500',
-    lineHeight: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+  cardLogoCircle1: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginRight: -10,
   },
-  value: {
-    fontFamily: 'Poppins',
-    fontSize: 12,
-    fontWeight: '600',
-    lineHeight: 16,
-    color: neutral.neutral6,
-  },
-  creditValue: {
-    color: neutral.neutral6,
+  cardLogoCircle2: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
 });
 

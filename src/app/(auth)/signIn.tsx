@@ -1,21 +1,13 @@
 import React, { useEffect } from "react";
-import {
-	StyleSheet,
-	Text,
-	View,
-	Pressable,
-	KeyboardAvoidingView,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
 	withTiming,
-	withSpring,
-	withDelay,
 	Easing,
 } from "react-native-reanimated";
-import { primary, neutral, commonStyles } from "@/constants";
+import { primary, neutral } from "@/constants";
 import {
 	AuthLayout,
 	CustomInput,
@@ -25,7 +17,6 @@ import {
 	DecorativeIllustration,
 } from "@/components";
 import { useForm } from "@/hooks";
-import { validationRules } from "@/utils";
 
 const SignIn = () => {
 	const router = useRouter();
@@ -35,54 +26,49 @@ const SignIn = () => {
 	});
 
 	const welcomeOpacity = useSharedValue(0);
-	const welcomeTranslateY = useSharedValue(20);
-	const illustrationScale = useSharedValue(0.8);
+	const welcomeTranslateY = useSharedValue(30);
+	const illustrationScale = useSharedValue(0.7);
 	const illustrationOpacity = useSharedValue(0);
 	const formOpacity = useSharedValue(0);
-	const formTranslateY = useSharedValue(20);
+	const formTranslateY = useSharedValue(25);
+	const fingerprintScale = useSharedValue(0.5);
 
 	useEffect(() => {
-		// Welcome section
+		// Welcome section - simple fade
 		welcomeOpacity.value = withTiming(1, {
-			duration: 500,
+			duration: 300,
 			easing: Easing.out(Easing.ease),
 		});
-		welcomeTranslateY.value = withSpring(0, {
-			damping: 20,
-			stiffness: 90,
+		welcomeTranslateY.value = withTiming(0, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
 		});
 
-		// Illustration
-		illustrationOpacity.value = withDelay(
-			150,
-			withTiming(1, {
-				duration: 500,
-				easing: Easing.out(Easing.ease),
-			}),
-		);
-		illustrationScale.value = withDelay(
-			150,
-			withSpring(1, {
-				damping: 18,
-				stiffness: 90,
-			}),
-		);
+		// Illustration - simple fade
+		illustrationOpacity.value = withTiming(1, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
+		illustrationScale.value = withTiming(1, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
 
-		// Form
-		formOpacity.value = withDelay(
-			250,
-			withTiming(1, {
-				duration: 500,
-				easing: Easing.out(Easing.ease),
-			}),
-		);
-		formTranslateY.value = withDelay(
-			250,
-			withSpring(0, {
-				damping: 20,
-				stiffness: 90,
-			}),
-		);
+		// Form - simple fade
+		formOpacity.value = withTiming(1, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
+		formTranslateY.value = withTiming(0, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
+
+		// Fingerprint - simple scale
+		fingerprintScale.value = withTiming(1, {
+			duration: 300,
+			easing: Easing.out(Easing.ease),
+		});
 	}, []);
 
 	const welcomeAnimatedStyle = useAnimatedStyle(() => ({
@@ -100,6 +86,10 @@ const SignIn = () => {
 		transform: [{ translateY: formTranslateY.value }],
 	}));
 
+	const fingerprintAnimatedStyle = useAnimatedStyle(() => ({
+		transform: [{ scale: fingerprintScale.value }],
+	}));
+
 	const handleSignIn = () => {
 		router.replace("/(home)");
 	};
@@ -110,9 +100,9 @@ const SignIn = () => {
 			showBackButton={false}>
 			<Animated.View
 				style={[styles.welcomeSection, welcomeAnimatedStyle]}>
-				<Text style={styles.title}>Welcome Back</Text>
+				<Text style={styles.title}>Welcome Back!</Text>
 				<Text style={styles.subtitle}>
-					Hello there, sign in to continue
+					Sign in to continue to your account
 				</Text>
 			</Animated.View>
 
@@ -124,61 +114,73 @@ const SignIn = () => {
 				]}>
 				<DecorativeIllustration />
 			</Animated.View>
-			<KeyboardAvoidingView>
-				<Animated.View
-					style={[styles.inputContainer, formAnimatedStyle]}>
-					<CustomInput
-						placeholder="Email"
-						value={values.email}
-						onChangeText={(text) => handleChange("email", text)}
-						keyboardType="email-address"
-						autoCapitalize="none"
-						containerStyle={styles.input}
-					/>
 
-					<PasswordInput
-						placeholder="Password"
-						value={values.password}
-						onChangeText={(text) => handleChange("password", text)}
-						containerStyle={styles.input}
-					/>
+			<Animated.View style={[styles.inputContainer, formAnimatedStyle]}>
+				<CustomInput
+					placeholder="Email address"
+					value={values.email}
+					onChangeText={(text) => handleChange("email", text)}
+					keyboardType="email-address"
+					autoCapitalize="none"
+					containerStyle={styles.input}
+				/>
 
-					<Pressable
-						onPress={() => router.push("/(auth)/forgotPassword")}>
-						<Text style={styles.forgotPassword}>
-							Forgot your password ?
-						</Text>
-					</Pressable>
-				</Animated.View>
+				<PasswordInput
+					placeholder="Password"
+					value={values.password}
+					onChangeText={(text) => handleChange("password", text)}
+					containerStyle={styles.input}
+				/>
 
-				{/* Sign In Button */}
-				<Animated.View style={formAnimatedStyle}>
-					<PrimaryButton
-						title="Sign in"
-						onPress={handleSignIn}
-						// disabled={!values.email || !values.password}
-						style={styles.signInButton}
-					/>
-				</Animated.View>
+				<TouchableOpacity
+					onPress={() => router.push("/(auth)/forgotPassword")}
+					activeOpacity={0.7}>
+					<Text style={styles.forgotPassword}>Forgot password?</Text>
+				</TouchableOpacity>
+			</Animated.View>
 
-				{/* Fingerprint */}
-				<Animated.View
-					style={[styles.fingerprintContainer, formAnimatedStyle]}>
-					<View style={styles.fingerprint}>
-						<Text style={styles.fingerprintIcon}>🔒</Text>
+			{/* Sign In Button */}
+			<Animated.View style={formAnimatedStyle}>
+				<PrimaryButton
+					title="Sign In"
+					onPress={handleSignIn}
+					// disabled={!values.email || !values.password}
+					style={styles.signInButton}
+				/>
+			</Animated.View>
+
+			{/* Divider */}
+			<Animated.View style={[styles.dividerContainer, formAnimatedStyle]}>
+				<View style={styles.divider} />
+				<Text style={styles.dividerText}>or continue with</Text>
+				<View style={styles.divider} />
+			</Animated.View>
+
+			{/* Fingerprint */}
+			<Animated.View
+				style={[styles.fingerprintContainer, fingerprintAnimatedStyle]}>
+				<TouchableOpacity
+					style={styles.fingerprint}
+					activeOpacity={0.7}
+					onPress={() => {
+						// Handle biometric auth
+						console.log("Biometric auth");
+					}}>
+					<View style={styles.fingerprintIconContainer}>
+						<Text style={styles.fingerprintIcon}>🔐</Text>
 					</View>
-				</Animated.View>
+					<Text style={styles.fingerprintText}>Biometric Login</Text>
+				</TouchableOpacity>
+			</Animated.View>
 
-				{/* Sign Up Link */}
-				<Animated.View style={formAnimatedStyle}>
-					<LinkText
-						normalText="Don't have an account? "
-						linkText="Sign Up"
-						onPress={() => router.navigate("(auth)/signUp")}
-					/>
-				</Animated.View>
-			</KeyboardAvoidingView>
-			{/* Input Fields */}
+			{/* Sign Up Link */}
+			<Animated.View style={[styles.signUpContainer, formAnimatedStyle]}>
+				<LinkText
+					normalText="Don't have an account? "
+					linkText="Sign Up"
+					onPress={() => router.navigate("(auth)/signUp")}
+				/>
+			</Animated.View>
 		</AuthLayout>
 	);
 };
@@ -187,51 +189,104 @@ export default SignIn;
 
 const styles = StyleSheet.create({
 	welcomeSection: {
-		marginBottom: 32,
+		marginBottom: 28,
 	},
 	title: {
-		fontSize: 24,
-		fontWeight: "600",
+		fontFamily: "Poppins",
+		fontSize: 28,
+		fontWeight: "700",
 		color: primary.primary1,
-		marginBottom: 4,
+		marginBottom: 6,
+		lineHeight: 36,
 	},
 	subtitle: {
-		fontSize: 12,
-		fontWeight: "500",
-		color: neutral.neutral1,
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "400",
+		color: neutral.neutral2,
+		lineHeight: 20,
 	},
 	illustrationContainer: {
 		alignItems: "center",
 		marginBottom: 32,
 	},
 	inputContainer: {
-		marginBottom: 24,
+		marginBottom: 20,
 	},
 	input: {
 		marginBottom: 16,
 	},
 	forgotPassword: {
-		fontSize: 12,
-		fontWeight: "500",
-		color: neutral.neutral4,
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "600",
+		color: primary.primary1,
 		textAlign: "right",
+		marginTop: 4,
 	},
 	signInButton: {
-		marginBottom: 24,
+		marginBottom: 20,
+		shadowColor: primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.3,
+		shadowRadius: 8,
+		elevation: 6,
+	},
+	dividerContainer: {
+		flexDirection: "row",
+		alignItems: "center",
+		marginBottom: 20,
+		gap: 12,
+	},
+	divider: {
+		flex: 1,
+		height: 1,
+		backgroundColor: neutral.neutral5,
+	},
+	dividerText: {
+		fontFamily: "Poppins",
+		fontSize: 12,
+		fontWeight: "500",
+		color: neutral.neutral3,
 	},
 	fingerprintContainer: {
 		alignItems: "center",
-		marginBottom: 24,
+		marginBottom: 28,
 	},
 	fingerprint: {
-		width: 64,
-		height: 64,
-		borderRadius: 32,
+		paddingVertical: 14,
+		paddingHorizontal: 24,
+		borderRadius: 16,
 		backgroundColor: primary.primary4,
+		borderWidth: 2,
+		borderColor: primary.primary3,
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 10,
+		shadowColor: primary.primary1,
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.1,
+		shadowRadius: 8,
+		elevation: 3,
+	},
+	fingerprintIconContainer: {
+		width: 36,
+		height: 36,
+		borderRadius: 18,
+		backgroundColor: neutral.neutral6,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	fingerprintIcon: {
-		fontSize: 32,
+		fontSize: 20,
+	},
+	fingerprintText: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "600",
+		color: primary.primary1,
+	},
+	signUpContainer: {
+		alignItems: "center",
 	},
 });

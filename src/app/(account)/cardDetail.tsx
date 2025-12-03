@@ -9,7 +9,8 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { CaretLeft } from 'phosphor-react-native';
+import { CaretLeft, User, CreditCard, Calendar, Wallet, Trash } from 'phosphor-react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import colors from '@/constants/colors';
 import { ScreenContainer } from '@/components';
 
@@ -58,17 +59,38 @@ const CardDetail = () => {
     );
   };
 
-  const InfoRow = ({ label, value }: { label: string; value: string }) => (
-    <View style={styles.infoRow}>
-      <Text style={styles.label}>{label}</Text>
+  const getIcon = (label: string) => {
+    switch (label) {
+      case 'Name':
+        return <User size={20} color={colors.primary.primary1} weight="duotone" />;
+      case 'Card number':
+        return <CreditCard size={20} color={colors.primary.primary1} weight="duotone" />;
+      case 'Valid from':
+      case 'Good thru':
+        return <Calendar size={20} color={colors.primary.primary1} weight="duotone" />;
+      case 'Available balance':
+        return <Wallet size={20} color={colors.primary.primary1} weight="duotone" />;
+      default:
+        return null;
+    }
+  };
+
+  const InfoRow = ({ label, value, index }: { label: string; value: string; index: number }) => (
+    <Animated.View
+      entering={FadeInDown.delay(index * 100).duration(400).springify()}
+      style={styles.infoRow}
+    >
+      <View style={styles.infoRowHeader}>
+        <View style={styles.iconContainer}>
+          {getIcon(label)}
+        </View>
+        <Text style={styles.label}>{label}</Text>
+      </View>
       <View style={styles.valueContainer}>
         <Text style={styles.value}>{value}</Text>
-        <View style={styles.iconContainer}>
-          <CaretLeft size={16} color={colors.neutral.neutral5} weight="regular" style={styles.icon} />
-        </View>
+        <CaretLeft size={18} color={colors.primary.primary2} weight="bold" style={styles.chevron} />
       </View>
-      <View style={styles.divider} />
-    </View>
+    </Animated.View>
   );
 
   return (
@@ -94,21 +116,24 @@ const CardDetail = () => {
       >
         {/* Card Information Rows */}
         <View style={styles.infoSection}>
-          <InfoRow label="Name" value={cardData.name} />
-          <InfoRow label="Card number" value={cardData.cardNumber} />
-          <InfoRow label="Valid from" value={cardData.validFrom} />
-          <InfoRow label="Good thru" value={cardData.goodThru} />
-          <InfoRow label="Available balance" value={cardData.availableBalance} />
+          <InfoRow label="Name" value={cardData.name} index={0} />
+          <InfoRow label="Card number" value={cardData.cardNumber} index={1} />
+          <InfoRow label="Valid from" value={cardData.validFrom} index={2} />
+          <InfoRow label="Good thru" value={cardData.goodThru} index={3} />
+          <InfoRow label="Available balance" value={cardData.availableBalance} index={4} />
         </View>
 
         {/* Delete Card Button */}
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={handleDeleteCard}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.deleteButtonText}>Delete card</Text>
-        </TouchableOpacity>
+        <Animated.View entering={FadeInDown.delay(600).duration(400).springify()}>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleDeleteCard}
+            activeOpacity={0.7}
+          >
+            <Trash size={20} color="#FF4267" weight="bold" />
+            <Text style={styles.deleteButtonText}>Delete card</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
 
       {/* Bottom Indicator */}
@@ -147,66 +172,96 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingTop: 16,
     paddingBottom: 120,
   },
   infoSection: {
-    marginBottom: 295,
+    marginBottom: 40,
   },
   infoRow: {
-    marginBottom: 20,
+    backgroundColor: colors.neutral.neutral6,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 12,
+    shadowColor: colors.primary.primary1,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(74, 63, 219, 0.08)',
+  },
+  infoRowHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: 'rgba(74, 63, 219, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   label: {
     fontFamily: 'Poppins',
-    fontSize: 16,
-    fontWeight: '500',
-    lineHeight: 24,
+    fontSize: 14,
+    fontWeight: '600',
+    lineHeight: 20,
     color: '#979797',
-    marginBottom: 0,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   valueContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 0,
+    paddingLeft: 52,
   },
   value: {
     fontFamily: 'Poppins',
-    fontSize: 16,
-    fontWeight: '600',
-    lineHeight: 24,
+    fontSize: 18,
+    fontWeight: '700',
+    lineHeight: 26,
     color: colors.primary.primary1,
     flex: 1,
   },
-  iconContainer: {
-    width: 16,
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  icon: {
+  chevron: {
     transform: [{ rotate: '180deg' }],
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#ECECEC',
-    marginTop: 12,
+    marginLeft: 8,
   },
   deleteButton: {
-    height: 44,
+    height: 54,
     backgroundColor: colors.neutral.neutral6,
-    borderRadius: 15,
+    borderRadius: 18,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#FF4267',
+    gap: 10,
+    shadowColor: '#FF4267',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
   deleteButtonText: {
     fontFamily: 'Poppins',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '700',
     lineHeight: 24,
     color: '#FF4267',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   bottomIndicator: {
     position: 'absolute',
