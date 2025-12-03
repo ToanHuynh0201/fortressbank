@@ -21,12 +21,12 @@ import Animated, {
 import { CaretLeft, ShieldCheck } from "phosphor-react-native";
 import colors from "@/constants/colors";
 import { PrimaryButton, OTPInput } from "@/components";
-import { verifyTransactionOTP } from "@/lib/transactionApi";
+import { transferService } from "@/services";
 
 const OTPVerification = () => {
 	const router = useRouter();
-	// const params = useLocalSearchParams<{ txId: string }>();
-	// const txId = params.txId;
+	const params = useLocalSearchParams<{ txId: string }>();
+	const txId = params.txId;
 
 	const [otp, setOtp] = useState("");
 	const [timer, setTimer] = useState(60);
@@ -74,54 +74,62 @@ const OTPVerification = () => {
 		transform: [{ translateY: contentTranslateY.value }],
 	}));
 
-	const handleResendOTP = () => {
-		if (!canResend) return;
+	const handleResendOTP = async () => {
+		if (!canResend || !txId) return;
 
-		// Simulate resending OTP
-		setTimer(60);
-		setCanResend(false);
-		setOtp("");
-		Alert.alert("OTP Sent", "A new OTP has been sent to your phone");
+		try {
+			await transferService.resendOTP(txId);
+			setTimer(60);
+			setCanResend(false);
+			setOtp("");
+			Alert.alert("OTP Sent", "A new OTP has been sent to your phone");
+		} catch (error: any) {
+			console.error("Resend OTP error:", error);
+			Alert.alert(
+				"Error",
+				error.message || "Failed to resend OTP. Please try again.",
+			);
+		}
 	};
 
 	const handleVerifyOTP = async () => {
-		// if (otp.length !== 6) {
-		// 	Alert.alert("Invalid OTP", "Please enter a 6-digit OTP");
-		// 	return;
-		// }
-		// if (!txId) {
-		// 	console.log(txId);
-		// 	Alert.alert("Error", "Transaction ID not found");
-		// 	return;
-		// }
-		// setIsVerifying(true);
-		// try {
-		// 	// Call API to verify OTP
-		// 	const response = await verifyTransactionOTP({
-		// 		transactionId: txId,
-		// 		otpCode: otp,
-		// 	});
-		// 	if (
-		// 		response.status === "success" &&
-		// 		response.data.status === "SUCCESS"
-		// 	) {
-		// 		// Navigate to success screen with transaction details
-		// 		console.log("Transaction completed:", response.data);
-		router.push("(transfer)/transferSuccess");
-		// 	} else {
-		// 		Alert.alert("Error", "Transaction verification failed");
-		// 	}
-		// } catch (error: any) {
-		// 	console.error("OTP verification error:", error);
-		// 	Alert.alert(
-		// 		"Verification Failed",
-		// 		error.message ||
-		// 			"The OTP you entered is incorrect. Please try again.",
-		// 	);
-		// 	setOtp("");
-		// } finally {
-		// 	setIsVerifying(false);
-		// }
+		if (otp.length !== 6) {
+			Alert.alert("Invalid OTP", "Please enter a 6-digit OTP");
+			return;
+		}
+		if (!txId) {
+			console.log(txId);
+			Alert.alert("Error", "Transaction ID not found");
+			return;
+		}
+		setIsVerifying(true);
+		try {
+			// Call API to verify OTP
+			const response = await transferService.verifyOTP({
+				transactionId: txId,
+				otpCode: otp,
+			});
+			if (
+				response.status === "success" &&
+				response.data.status === "SUCCESS"
+			) {
+				// Navigate to success screen with transaction details
+				console.log("Transaction completed:", response.data);
+				router.push("(transfer)/transferSuccess");
+			} else {
+				Alert.alert("Error", "Transaction verification failed");
+			}
+		} catch (error: any) {
+			console.error("OTP verification error:", error);
+			Alert.alert(
+				"Verification Failed",
+				error.message ||
+					"The OTP you entered is incorrect. Please try again.",
+			);
+			setOtp("");
+		} finally {
+			setIsVerifying(false);
+		}
 	};
 
 	const formatTime = (seconds: number) => {

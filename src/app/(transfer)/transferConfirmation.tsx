@@ -22,14 +22,12 @@ import {
 	CaretLeft,
 	CheckCircle,
 	User,
-	CreditCard,
-	CurrencyDollar,
 	Bank,
 	ArrowRight,
 } from "phosphor-react-native";
 import colors from "@/constants/colors";
 import { ScreenContainer, PrimaryButton } from "@/components";
-import { createTransfer, CreateTransferRequest } from "@/lib/transactionApi";
+import { transferService, TransferRequest } from "@/services";
 
 const TransferConfirmation = () => {
 	const router = useRouter();
@@ -79,7 +77,7 @@ const TransferConfirmation = () => {
 	}));
 
 	// TODO: Get these values from route params or context
-	const transferData: CreateTransferRequest = {
+	const transferData: TransferRequest = {
 		fromAccountId: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
 		toAccountId: "fedcba98-7654-3210-fedc-ba9876543210",
 		amount: 10.0,
@@ -100,6 +98,35 @@ const TransferConfirmation = () => {
 	const transferAmount = "$1,000.00";
 	const transferFee = "$0.00";
 	const totalAmount = "$1,000.00";
+
+	const createTransfer = () => async () => {
+		if (isProcessing) return;
+
+		setIsProcessing(true);
+		try {
+			// Call API to create transfer
+			const response = await transferService.createTransfer(transferData);
+
+			if (response.status === "success" && response.data.txId) {
+				// Navigate to OTP verification with txId
+				console.log("Transaction created:", response.data.txId);
+				router.push(
+					`(transfer)/otpVerification?txId=${response.data.txId}`,
+				);
+			} else {
+				Alert.alert("Error", "Failed to create transaction");
+			}
+		} catch (error: any) {
+			console.error("Transfer error:", error);
+			Alert.alert(
+				"Transfer Failed",
+				error.message ||
+					"Unable to process transfer. Please try again.",
+			);
+		} finally {
+			setIsProcessing(false);
+		}
+	};
 
 	return (
 		<ScreenContainer backgroundColor={colors.neutral.neutral6}>
@@ -242,9 +269,7 @@ const TransferConfirmation = () => {
 						title={
 							isProcessing ? "Processing..." : "Confirm Transfer"
 						}
-						onPress={() =>
-							router.push(`(transfer)/otpVerification`)
-						}
+						onPress={() => createTransfer()}
 						style={styles.confirmButton}
 						disabled={isProcessing}
 					/>
