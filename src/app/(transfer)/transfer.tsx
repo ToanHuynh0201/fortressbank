@@ -52,6 +52,13 @@ interface Account {
 	balance: number;
 }
 
+interface Bank {
+	id: string;
+	name: string;
+	code: string;
+	logo: string;
+}
+
 const Transfer = () => {
 	const router = useRouter();
 	const [selectedAccount, setSelectedAccount] = useState<string>("");
@@ -60,6 +67,8 @@ const Transfer = () => {
 	const [beneficiaryName, setBeneficiaryName] = useState<string>("");
 	const [showBeneficiarySelector, setShowBeneficiarySelector] =
 		useState(false);
+	const [selectedBank, setSelectedBank] = useState<string>("");
+	const [showBankDropdown, setShowBankDropdown] = useState(false);
 
 	const headerOpacity = useSharedValue(0);
 	const contentOpacity = useSharedValue(0);
@@ -128,6 +137,57 @@ const Transfer = () => {
 		},
 	];
 
+	const banks: Bank[] = [
+		{
+			id: "1",
+			name: "Vietcombank",
+			code: "VCB",
+			logo: "🏦",
+		},
+		{
+			id: "2",
+			name: "VietinBank",
+			code: "CTG",
+			logo: "🏦",
+		},
+		{
+			id: "3",
+			name: "BIDV",
+			code: "BIDV",
+			logo: "🏦",
+		},
+		{
+			id: "4",
+			name: "Agribank",
+			code: "VBA",
+			logo: "🏦",
+		},
+		{
+			id: "5",
+			name: "Techcombank",
+			code: "TCB",
+			logo: "🏦",
+		},
+		{
+			id: "6",
+			name: "MB Bank",
+			code: "MB",
+			logo: "🏦",
+		},
+		{
+			id: "7",
+			name: "ACB",
+			code: "ACB",
+			logo: "🏦",
+		},
+		{
+			id: "8",
+			name: "VPBank",
+			code: "VPB",
+			logo: "🏦",
+		},
+	];
+
 	// Get selected account balance
 	const selectedAccountData = accounts.find((a) => a.id === selectedAccount);
 	const availableBalance = selectedAccountData?.balance || 0;
@@ -135,9 +195,13 @@ const Transfer = () => {
 	// Parse amount for validation
 	const numericAmount = parseCurrency(values.amount);
 
+	// Get selected bank data
+	const selectedBankData = banks.find((b) => b.id === selectedBank);
+
 	// Form validation
 	const isFormValid =
 		selectedAccount &&
+		selectedBank &&
 		values.accountNumber &&
 		beneficiaryName && // Must have found beneficiary
 		values.amount &&
@@ -440,6 +504,122 @@ const Transfer = () => {
 							</TouchableOpacity>
 						</View>
 
+						{/* Bank Selection Section */}
+						<View style={styles.inputSection}>
+							<View style={styles.inputLabelRow}>
+								<Bank
+									size={18}
+									color={colors.primary.primary1}
+									weight="bold"
+								/>
+								<Text style={styles.inputLabel}>
+									Select Bank
+								</Text>
+							</View>
+							<View style={styles.bankSelectorWrapper}>
+								<TouchableOpacity
+									style={styles.bankSelector}
+									onPress={() =>
+										setShowBankDropdown(!showBankDropdown)
+									}>
+									<View style={styles.bankSelectorContent}>
+										{selectedBank ? (
+											<>
+												<View style={styles.bankIconContainer}>
+													<Text style={styles.bankLogo}>
+														{selectedBankData?.logo}
+													</Text>
+												</View>
+												<View style={styles.bankTextContainer}>
+													<Text style={styles.bankNameSelected}>
+														{selectedBankData?.name}
+													</Text>
+													<Text style={styles.bankCode}>
+														Code: {selectedBankData?.code}
+													</Text>
+												</View>
+											</>
+										) : (
+											<>
+												<View style={styles.bankIconContainer}>
+													<Bank
+														size={24}
+														color={colors.neutral.neutral3}
+														weight="regular"
+													/>
+												</View>
+												<View style={styles.bankTextContainer}>
+													<Text style={styles.bankPlaceholder}>
+														Choose recipient's bank
+													</Text>
+												</View>
+											</>
+										)}
+										<View style={styles.dropdownIconWrapper}>
+											<CaretLeft
+												size={16}
+												color={colors.neutral.neutral3}
+												weight="bold"
+												style={{
+													transform: [
+														{
+															rotate: showBankDropdown
+																? "-90deg"
+																: "90deg",
+														},
+													],
+												}}
+											/>
+										</View>
+									</View>
+								</TouchableOpacity>
+
+								{/* Bank Dropdown Menu */}
+								{showBankDropdown && (
+									<View style={styles.bankDropdownMenu}>
+										<ScrollView
+											style={styles.bankDropdownScroll}
+											nestedScrollEnabled={true}>
+											{banks.map((bank) => (
+												<TouchableOpacity
+													key={bank.id}
+													style={[
+														styles.bankDropdownItem,
+														selectedBank === bank.id &&
+															styles.bankDropdownItemSelected,
+													]}
+													onPress={() => {
+														setSelectedBank(bank.id);
+														setShowBankDropdown(false);
+													}}>
+													<View style={styles.bankIconContainer}>
+														<Text style={styles.bankLogo}>
+															{bank.logo}
+														</Text>
+													</View>
+													<View style={styles.bankDropdownItemInfo}>
+														<Text style={styles.bankDropdownItemName}>
+															{bank.name}
+														</Text>
+														<Text style={styles.bankDropdownItemCode}>
+															Code: {bank.code}
+														</Text>
+													</View>
+													{selectedBank === bank.id && (
+														<View style={styles.checkIcon}>
+															<Text style={styles.checkIconText}>
+																✓
+															</Text>
+														</View>
+													)}
+												</TouchableOpacity>
+											))}
+										</ScrollView>
+									</View>
+								)}
+							</View>
+						</View>
+
 						{/* Recipient Account Section */}
 						<View style={styles.inputSection}>
 							<View style={styles.inputLabelRow}>
@@ -512,9 +692,9 @@ const Transfer = () => {
 								}
 								containerStyle={styles.input}
 								multiline
-								numberOfLines={3}
+								numberOfLines={2}
 								textAlignVertical="top"
-								style={{ paddingTop: 12, height: 80 }}
+								style={{ paddingTop: 10, height: 60 }}
 							/>
 						</View>
 
@@ -585,12 +765,12 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	scrollContent: {
-		paddingBottom: 32,
+		paddingBottom: 20,
 	},
 	section: {
 		paddingHorizontal: 24,
-		marginBottom: 24,
-		marginTop: 24,
+		marginBottom: 16,
+		marginTop: 16,
 	},
 	sectionLabel: {
 		fontFamily: "Poppins",
@@ -613,18 +793,18 @@ const styles = StyleSheet.create({
 		position: "relative",
 	},
 	accountSelector: {
-		minHeight: 88,
-		borderWidth: 2,
+		minHeight: 72,
+		borderWidth: 1.5,
 		borderColor: colors.primary.primary4,
-		borderRadius: 20,
-		paddingHorizontal: 16,
-		paddingVertical: 16,
+		borderRadius: 16,
+		paddingHorizontal: 14,
+		paddingVertical: 12,
 		backgroundColor: colors.neutral.neutral6,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.08,
-		shadowRadius: 12,
-		elevation: 4,
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.06,
+		shadowRadius: 8,
+		elevation: 3,
 	},
 	accountSelectorContent: {
 		flexDirection: "row",
@@ -632,13 +812,13 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	accountIconContainer: {
-		width: 48,
-		height: 48,
-		borderRadius: 24,
+		width: 40,
+		height: 40,
+		borderRadius: 20,
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 12,
+		marginRight: 10,
 	},
 	accountTextContainer: {
 		flex: 1,
@@ -670,17 +850,17 @@ const styles = StyleSheet.create({
 	},
 	accountLabelSelected: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: 14,
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 4,
+		marginBottom: 3,
 	},
 	accountNumber: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: 12,
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
-		marginBottom: 6,
+		marginBottom: 4,
 	},
 	balanceContainer: {
 		flexDirection: "row",
@@ -712,21 +892,21 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	dropdownMenu: {
-		marginTop: 12,
+		marginTop: 8,
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 20,
-		borderWidth: 2,
+		borderRadius: 16,
+		borderWidth: 1.5,
 		borderColor: colors.primary.primary4,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 6 },
-		shadowOpacity: 0.12,
-		shadowRadius: 16,
-		elevation: 8,
+		shadowOffset: { width: 0, height: 3 },
+		shadowOpacity: 0.1,
+		shadowRadius: 12,
+		elevation: 6,
 		overflow: "hidden",
 	},
 	dropdownItem: {
-		paddingVertical: 14,
-		paddingHorizontal: 16,
+		paddingVertical: 10,
+		paddingHorizontal: 14,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
@@ -807,13 +987,13 @@ const styles = StyleSheet.create({
 	formCard: {
 		marginHorizontal: 24,
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 24,
-		padding: 24,
+		borderRadius: 20,
+		padding: 18,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 8 },
-		shadowOpacity: 0.1,
-		shadowRadius: 24,
-		elevation: 8,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.08,
+		shadowRadius: 16,
+		elevation: 6,
 		borderWidth: 1,
 		borderColor: colors.neutral.neutral5,
 	},
@@ -821,8 +1001,8 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "flex-start",
-		marginBottom: 24,
-		paddingBottom: 20,
+		marginBottom: 16,
+		paddingBottom: 14,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
@@ -831,60 +1011,163 @@ const styles = StyleSheet.create({
 	},
 	formTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: 18,
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 6,
+		marginBottom: 4,
 	},
 	formSubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: 12,
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
-		lineHeight: 18,
+		lineHeight: 16,
 	},
 	beneficiaryButton: {
-		width: 48,
-		height: 48,
-		borderRadius: 24,
+		width: 42,
+		height: 42,
+		borderRadius: 21,
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginLeft: 12,
-		borderWidth: 2,
+		marginLeft: 10,
+		borderWidth: 1.5,
 		borderColor: colors.primary.primary3,
 		shadowColor: colors.primary.primary1,
 		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.15,
-		shadowRadius: 6,
-		elevation: 3,
+		shadowOpacity: 0.12,
+		shadowRadius: 4,
+		elevation: 2,
 	},
 	inputSection: {
-		marginBottom: 24,
+		marginBottom: 16,
 	},
 	inputLabelRow: {
 		flexDirection: "row",
 		alignItems: "center",
-		marginBottom: 10,
-		gap: 8,
+		marginBottom: 8,
+		gap: 6,
 	},
 	inputLabel: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: 13,
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
-		letterSpacing: 0.3,
+		letterSpacing: 0.2,
 	},
 	input: {
 		marginBottom: 0,
 	},
 	confirmButton: {
-		marginTop: 12,
+		marginTop: 8,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.3,
-		shadowRadius: 8,
-		elevation: 6,
+		shadowOffset: { width: 0, height: 3 },
+		shadowOpacity: 0.25,
+		shadowRadius: 6,
+		elevation: 4,
+	},
+	bankSelectorWrapper: {
+		position: "relative",
+	},
+	bankSelector: {
+		minHeight: 60,
+		borderWidth: 1.5,
+		borderColor: colors.primary.primary4,
+		borderRadius: 14,
+		paddingHorizontal: 14,
+		paddingVertical: 10,
+		backgroundColor: colors.neutral.neutral6,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.04,
+		shadowRadius: 6,
+		elevation: 2,
+	},
+	bankSelectorContent: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+	},
+	bankIconContainer: {
+		width: 38,
+		height: 38,
+		borderRadius: 19,
+		backgroundColor: colors.primary.primary4,
+		justifyContent: "center",
+		alignItems: "center",
+		marginRight: 10,
+	},
+	bankLogo: {
+		fontSize: 20,
+	},
+	bankTextContainer: {
+		flex: 1,
+		marginRight: 10,
+	},
+	bankNameSelected: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "600",
+		color: colors.neutral.neutral1,
+		marginBottom: 3,
+	},
+	bankCode: {
+		fontFamily: "Poppins",
+		fontSize: 11,
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+	},
+	bankPlaceholder: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+	},
+	bankDropdownMenu: {
+		marginTop: 8,
+		backgroundColor: colors.neutral.neutral6,
+		borderRadius: 14,
+		borderWidth: 1.5,
+		borderColor: colors.primary.primary4,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 3 },
+		shadowOpacity: 0.08,
+		shadowRadius: 10,
+		elevation: 4,
+		maxHeight: 240,
+		overflow: "hidden",
+	},
+	bankDropdownScroll: {
+		maxHeight: 240,
+	},
+	bankDropdownItem: {
+		flexDirection: "row",
+		alignItems: "center",
+		paddingVertical: 10,
+		paddingHorizontal: 14,
+		borderBottomWidth: 1,
+		borderBottomColor: colors.neutral.neutral5,
+	},
+	bankDropdownItemSelected: {
+		backgroundColor: colors.primary.primary4,
+		borderLeftWidth: 4,
+		borderLeftColor: colors.primary.primary1,
+	},
+	bankDropdownItemInfo: {
+		flex: 1,
+	},
+	bankDropdownItemName: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "600",
+		color: colors.neutral.neutral1,
+		marginBottom: 4,
+	},
+	bankDropdownItemCode: {
+		fontFamily: "Poppins",
+		fontSize: 12,
+		fontWeight: "400",
+		color: colors.neutral.neutral3,
 	},
 });
 
