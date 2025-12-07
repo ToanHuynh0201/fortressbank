@@ -1,13 +1,18 @@
 import {
-	getStorageItem,
+	getAuthToken,
+	setAuthToken,
+	removeAuthToken,
+	removeUserData,
+	removeStorageItem,
 	logError,
 	parseError,
-	setStorageItem,
 	shouldLogout,
+	STORAGE_KEYS,
+	getStorageItem,
+	setStorageItem,
 } from "@/utils";
 import axios, { type AxiosInstance } from "axios";
-import { API_CONFIG, AUTH_CONFIG, ROUTES } from "../constants";
-import { clearStorageItems } from "../utils";
+import { API_CONFIG, ROUTES } from "../constants";
 import { router } from "expo-router";
 
 class ApiService {
@@ -51,9 +56,7 @@ class ApiService {
 	_setupRequestInterceptor() {
 		this.api.interceptors.request.use(
 			async (config: any) => {
-				const token = await getStorageItem(
-					AUTH_CONFIG.TOKEN_STORAGE_KEY,
-				);
+				const token = await getAuthToken();
 				if (token) {
 					config.headers.Authorization = `Bearer ${token}`;
 				}
@@ -133,9 +136,7 @@ class ApiService {
 	 * @returns {Promise<Object|false>} Retry result or false
 	 */
 	async _tryTokenRefresh(originalError: any) {
-		const refreshToken = await getStorageItem(
-			AUTH_CONFIG.REFRESH_TOKEN_STORAGE_KEY,
-		);
+		const refreshToken = await getStorageItem(STORAGE_KEYS.SESSION_DATA);
 		if (!refreshToken) {
 			return false;
 		}
@@ -148,14 +149,11 @@ class ApiService {
 			if (refreshResponse.data.status === "success") {
 				const { accessToken, refreshToken: newRefreshToken } =
 					refreshResponse.data.data;
-				await setStorageItem(
-					AUTH_CONFIG.TOKEN_STORAGE_KEY,
-					accessToken,
-				);
+				await setAuthToken(accessToken);
 
 				if (newRefreshToken) {
 					await setStorageItem(
-						AUTH_CONFIG.REFRESH_TOKEN_STORAGE_KEY,
+						STORAGE_KEYS.SESSION_DATA,
 						newRefreshToken,
 					);
 				}
@@ -199,10 +197,10 @@ class ApiService {
 	 * @private
 	 */
 	async _handleLogout() {
-		await clearStorageItems([
-			AUTH_CONFIG.TOKEN_STORAGE_KEY,
-			AUTH_CONFIG.REFRESH_TOKEN_STORAGE_KEY,
-			AUTH_CONFIG.USER_STORAGE_KEY,
+		await Promise.all([
+			removeAuthToken(),
+			removeUserData(),
+			removeStorageItem(STORAGE_KEYS.SESSION_DATA),
 		]);
 
 		// Use expo-router for navigation instead of window.location

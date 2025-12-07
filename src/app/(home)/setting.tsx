@@ -80,12 +80,6 @@ const Setting = () => {
 	const avatarAnimatedStyle = useAnimatedStyle(() => ({
 		transform: [{ scale: avatarScale.value }],
 	}));
-
-	const contentAnimatedStyle = useAnimatedStyle(() => ({
-		opacity: contentOpacity.value,
-		transform: [{ translateY: contentTranslateY.value }],
-	}));
-
 	const handlePasswordPress = () => {
 		router.push("/(auth)/changePassword");
 	};
@@ -93,15 +87,6 @@ const Setting = () => {
 	const handleTouchIDPress = () => {
 		// Handle Touch ID settings
 		console.log("Touch ID pressed");
-	};
-
-	const handleLanguagesPress = () => {
-		// Handle language settings
-		console.log("Languages pressed");
-	};
-
-	const handleAppInfoPress = () => {
-		router.push("/appInformation");
 	};
 
 	const handleCustomerCarePress = () => {
@@ -201,35 +186,6 @@ const Setting = () => {
 							/>
 						}
 						onPress={handleTouchIDPress}
-					/>
-				</View>
-
-				{/* General Section */}
-				<View style={styles.section}>
-					<Text style={styles.sectionTitle}>General</Text>
-					<SettingRow
-						title="Languages"
-						subtitle="English"
-						icon={
-							<Globe
-								size={20}
-								color={primary.primary1}
-								weight="bold"
-							/>
-						}
-						onPress={handleLanguagesPress}
-					/>
-					<SettingRow
-						title="App information"
-						subtitle="Version 1.0.0"
-						icon={
-							<Info
-								size={20}
-								color={primary.primary1}
-								weight="bold"
-							/>
-						}
-						onPress={handleAppInfoPress}
 					/>
 				</View>
 

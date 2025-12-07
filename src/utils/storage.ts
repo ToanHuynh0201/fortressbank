@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
 /**
  * Secure Storage utilities for handling encrypted data storage in React Native
@@ -14,12 +14,12 @@ import * as SecureStore from 'expo-secure-store';
  * Storage keys used throughout the app
  */
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: '@fortressbank_auth_token',
-  USER_DATA: '@fortressbank_user_data',
-  BIOMETRIC_ENABLED: '@fortressbank_biometric_enabled',
-  PIN_CODE: '@fortressbank_pin_code',
-  SESSION_DATA: '@fortressbank_session_data',
-  BENEFICIARIES: '@fortressbank_beneficiaries',
+	AUTH_TOKEN: "@fortressbank_auth_token",
+	USER_DATA: "@fortressbank_user_data",
+	BIOMETRIC_ENABLED: "@fortressbank_biometric_enabled",
+	PIN_CODE: "@fortressbank_pin_code",
+	SESSION_DATA: "@fortressbank_session_data",
+	BENEFICIARIES: "@fortressbank_beneficiaries",
 } as const;
 
 /**
@@ -29,21 +29,21 @@ export const STORAGE_KEYS = {
  * @returns {Promise<*>} Parsed value or default
  */
 export const getStorageItem = async (key: string, defaultValue: any = null) => {
-  try {
-    const item = await SecureStore.getItemAsync(key);
-    if (item) {
-      try {
-        return JSON.parse(item);
-      } catch {
-        // If parsing fails, return the raw string
-        return item;
-      }
-    }
-    return defaultValue;
-  } catch (error) {
-    console.warn(`Error reading SecureStore key "${key}":`, error);
-    return defaultValue;
-  }
+	try {
+		const item = await SecureStore.getItemAsync(key);
+		if (item) {
+			try {
+				return JSON.parse(item);
+			} catch {
+				// If parsing fails, return the raw string
+				return item;
+			}
+		}
+		return defaultValue;
+	} catch (error) {
+		console.warn(`Error reading SecureStore key "${key}":`, error);
+		return defaultValue;
+	}
 };
 
 /**
@@ -53,14 +53,15 @@ export const getStorageItem = async (key: string, defaultValue: any = null) => {
  * @returns {Promise<boolean>} Success status
  */
 export const setStorageItem = async (key: string, value: any) => {
-  try {
-    const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
-    await SecureStore.setItemAsync(key, stringValue);
-    return true;
-  } catch (error) {
-    console.warn(`Error writing to SecureStore key "${key}":`, error);
-    return false;
-  }
+	try {
+		const stringValue =
+			typeof value === "string" ? value : JSON.stringify(value);
+		await SecureStore.setItemAsync(key, stringValue);
+		return true;
+	} catch (error) {
+		console.warn(`Error writing to SecureStore key "${key}":`, error);
+		return false;
+	}
 };
 
 /**
@@ -69,13 +70,13 @@ export const setStorageItem = async (key: string, value: any) => {
  * @returns {Promise<boolean>} Success status
  */
 export const removeStorageItem = async (key: string) => {
-  try {
-    await SecureStore.deleteItemAsync(key);
-    return true;
-  } catch (error) {
-    console.warn(`Error removing SecureStore key "${key}":`, error);
-    return false;
-  }
+	try {
+		await SecureStore.deleteItemAsync(key);
+		return true;
+	} catch (error) {
+		console.warn(`Error removing SecureStore key "${key}":`, error);
+		return false;
+	}
 };
 
 /**
@@ -84,13 +85,13 @@ export const removeStorageItem = async (key: string) => {
  * @returns {Promise<boolean>} Success status
  */
 export const clearStorageItems = async (keys: string[]) => {
-  try {
-    await Promise.all(keys.map(key => SecureStore.deleteItemAsync(key)));
-    return true;
-  } catch (error) {
-    console.warn('Error clearing SecureStore items:', error);
-    return false;
-  }
+	try {
+		await Promise.all(keys.map((key) => SecureStore.deleteItemAsync(key)));
+		return true;
+	} catch (error) {
+		console.warn("Error clearing SecureStore items:", error);
+		return false;
+	}
 };
 
 /**
@@ -98,14 +99,14 @@ export const clearStorageItems = async (keys: string[]) => {
  * @returns {Promise<boolean>} Availability status
  */
 export const isStorageAvailable = async () => {
-  try {
-    const test = '__storage_test__';
-    await SecureStore.setItemAsync(test, test);
-    await SecureStore.deleteItemAsync(test);
-    return true;
-  } catch {
-    return false;
-  }
+	try {
+		const test = "__storage_test__";
+		await SecureStore.setItemAsync(test, test);
+		await SecureStore.deleteItemAsync(test);
+		return true;
+	} catch {
+		return false;
+	}
 };
 
 /**
@@ -114,14 +115,14 @@ export const isStorageAvailable = async () => {
  * @returns {Promise<boolean>} Success status
  */
 export const clearStorage = async () => {
-  try {
-    const keys = Object.values(STORAGE_KEYS);
-    await Promise.all(keys.map(key => SecureStore.deleteItemAsync(key)));
-    return true;
-  } catch (error) {
-    console.warn('Error clearing all SecureStore:', error);
-    return false;
-  }
+	try {
+		const keys = Object.values(STORAGE_KEYS);
+		await Promise.all(keys.map((key) => SecureStore.deleteItemAsync(key)));
+		return true;
+	} catch (error) {
+		console.warn("Error clearing all SecureStore:", error);
+		return false;
+	}
 };
 
 /**
@@ -130,7 +131,7 @@ export const clearStorage = async () => {
  * @returns {Promise<boolean>} Success status
  */
 export const setAuthToken = async (token: string) => {
-  return setStorageItem(STORAGE_KEYS.AUTH_TOKEN, token);
+	return setStorageItem(STORAGE_KEYS.AUTH_TOKEN, token);
 };
 
 /**
@@ -138,7 +139,7 @@ export const setAuthToken = async (token: string) => {
  * @returns {Promise<string | null>} Authentication token or null
  */
 export const getAuthToken = async (): Promise<string | null> => {
-  return getStorageItem(STORAGE_KEYS.AUTH_TOKEN, null);
+	return getStorageItem(STORAGE_KEYS.AUTH_TOKEN, null);
 };
 
 /**
@@ -146,7 +147,7 @@ export const getAuthToken = async (): Promise<string | null> => {
  * @returns {Promise<boolean>} Success status
  */
 export const removeAuthToken = async () => {
-  return removeStorageItem(STORAGE_KEYS.AUTH_TOKEN);
+	return removeStorageItem(STORAGE_KEYS.AUTH_TOKEN);
 };
 
 /**
@@ -155,7 +156,7 @@ export const removeAuthToken = async () => {
  * @returns {Promise<boolean>} Success status
  */
 export const setUserData = async (userData: any) => {
-  return setStorageItem(STORAGE_KEYS.USER_DATA, userData);
+	return setStorageItem(STORAGE_KEYS.USER_DATA, userData);
 };
 
 /**
@@ -163,7 +164,7 @@ export const setUserData = async (userData: any) => {
  * @returns {Promise<object | null>} User data or null
  */
 export const getUserData = async (): Promise<any> => {
-  return getStorageItem(STORAGE_KEYS.USER_DATA, null);
+	return getStorageItem(STORAGE_KEYS.USER_DATA, null);
 };
 
 /**
@@ -171,5 +172,5 @@ export const getUserData = async (): Promise<any> => {
  * @returns {Promise<boolean>} Success status
  */
 export const removeUserData = async () => {
-  return removeStorageItem(STORAGE_KEYS.USER_DATA);
+	return removeStorageItem(STORAGE_KEYS.USER_DATA);
 };
