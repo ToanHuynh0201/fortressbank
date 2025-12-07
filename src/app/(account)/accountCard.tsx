@@ -16,7 +16,7 @@ import Animated, {
 	Easing,
 	FadeIn,
 } from "react-native-reanimated";
-import { CaretLeft } from "phosphor-react-native";
+import { CaretLeft, CaretLeftIcon } from "phosphor-react-native";
 import colors from "@/constants/colors";
 import {
 	ScreenContainer,
@@ -191,9 +191,9 @@ const AccountCard = () => {
 				<TouchableOpacity
 					onPress={() => router.back()}
 					style={styles.backButton}>
-					<CaretLeft
+					<CaretLeftIcon
 						size={16}
-						color={colors.neutral.neutral1}
+						color="#000000"
 						weight="regular"
 					/>
 				</TouchableOpacity>

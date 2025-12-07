@@ -203,7 +203,7 @@ const AddBeneficiary = () => {
 
 			<KeyboardAvoidingView
 				style={{ flex: 1 }}
-				behavior={Platform.OS === "ios" ? "padding" : "height"}>
+				behavior={Platform.OS === "ios" ? "padding" : undefined}>
 				<AnimatedScrollView
 					style={[styles.content, contentAnimatedStyle]}
 					contentContainerStyle={styles.scrollContent}
@@ -465,5 +465,3 @@ const styles = StyleSheet.create({
 });
 
 export default AddBeneficiary;
-
-

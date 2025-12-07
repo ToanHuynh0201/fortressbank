@@ -7,12 +7,20 @@ import {
 	TouchableOpacity,
 	Alert,
 	RefreshControl,
+	StatusBar,
 } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Animated, { FadeIn } from "react-native-reanimated";
-import { Plus } from "phosphor-react-native";
-import { AppHeader } from "@/components/common";
+import Animated, {
+	FadeIn,
+	FadeInDown,
+	useSharedValue,
+	useAnimatedStyle,
+	withTiming,
+	withSpring,
+	Easing,
+} from "react-native-reanimated";
+import { Plus, CaretLeft } from "phosphor-react-native";
 import { BeneficiaryCard } from "@/components/beneficiaries";
 import { Beneficiary } from "@/types/beneficiary";
 import { getAllBeneficiaries, deleteBeneficiary } from "@/utils";
@@ -23,6 +31,51 @@ const Beneficiaries = () => {
 	const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
+
+	// Animation values
+	const headerOpacity = useSharedValue(0);
+	const contentOpacity = useSharedValue(0);
+	const contentTranslateY = useSharedValue(15);
+	const fabScale = useSharedValue(0);
+
+	useEffect(() => {
+		// Header animation
+		headerOpacity.value = withTiming(1, {
+			duration: 400,
+			easing: Easing.out(Easing.ease),
+		});
+
+		// Content animation
+		contentOpacity.value = withTiming(1, {
+			duration: 400,
+			easing: Easing.out(Easing.ease),
+		});
+		contentTranslateY.value = withSpring(0, {
+			damping: 20,
+			stiffness: 90,
+		});
+
+		// FAB animation with delay
+		setTimeout(() => {
+			fabScale.value = withSpring(1, {
+				damping: 15,
+				stiffness: 100,
+			});
+		}, 300);
+	}, []);
+
+	const headerAnimatedStyle = useAnimatedStyle(() => ({
+		opacity: headerOpacity.value,
+	}));
+
+	const contentAnimatedStyle = useAnimatedStyle(() => ({
+		opacity: contentOpacity.value,
+		transform: [{ translateY: contentTranslateY.value }],
+	}));
+
+	const fabAnimatedStyle = useAnimatedStyle(() => ({
+		transform: [{ scale: fabScale.value }],
+	}));
 
 	// Load beneficiaries on mount and when screen is focused
 	useFocusEffect(
@@ -91,21 +144,26 @@ const Beneficiaries = () => {
 
 	const renderEmpty = () => (
 		<Animated.View
-			entering={FadeIn.delay(100)}
+			entering={FadeInDown.delay(200).duration(500)}
 			style={styles.emptyContainer}>
+			<View style={styles.emptyIconContainer}>
+				<Text style={styles.emptyIcon}>👥</Text>
+			</View>
 			<Text style={styles.emptyTitle}>No Saved Beneficiaries</Text>
 			<Text style={styles.emptySubtitle}>
-				Add beneficiaries for quick and easy transfers
+				Add beneficiaries for quick and easy transfers to your favorite
+				contacts
 			</Text>
 			<TouchableOpacity
 				style={styles.emptyButton}
-				onPress={handleAdd}>
+				onPress={handleAdd}
+				activeOpacity={0.8}>
 				<Plus
-					size={20}
+					size={22}
 					color={colors.neutral.neutral6}
 					weight="bold"
 				/>
-				<Text style={styles.emptyButtonText}>Add Beneficiary</Text>
+				<Text style={styles.emptyButtonText}>Add Your First Beneficiary</Text>
 			</TouchableOpacity>
 		</Animated.View>
 	);
@@ -114,13 +172,33 @@ const Beneficiaries = () => {
 		<SafeAreaView
 			style={styles.container}
 			edges={["top"]}>
-			<AppHeader
-				title="Beneficiaries"
+			<StatusBar
+				barStyle="light-content"
 				backgroundColor={colors.primary.primary1}
-				textColor={colors.neutral.neutral6}
 			/>
 
-			<View style={styles.content}>
+			{/* Enhanced Navigation Header */}
+			<Animated.View style={[styles.header, headerAnimatedStyle]}>
+				<TouchableOpacity
+					onPress={() => router.back()}
+					style={styles.backButton}>
+					<View style={styles.backButtonCircle}>
+						<CaretLeft
+							size={20}
+							color={colors.neutral.neutral6}
+							weight="bold"
+						/>
+					</View>
+				</TouchableOpacity>
+				<View style={styles.headerTitleContainer}>
+					<Text style={styles.headerTitle}>Beneficiaries</Text>
+					<Text style={styles.headerSubtitle}>
+						Manage your saved recipients
+					</Text>
+				</View>
+			</Animated.View>
+
+			<Animated.View style={[styles.content, contentAnimatedStyle]}>
 				{!isLoading && beneficiaries.length === 0 ? (
 					renderEmpty()
 				) : (
@@ -129,8 +207,8 @@ const Beneficiaries = () => {
 						keyExtractor={(item) => item.id}
 						renderItem={({ item, index }) => (
 							<Animated.View
-								entering={FadeIn.delay(index * 50).duration(
-									400,
+								entering={FadeInDown.delay(index * 50).duration(
+									500,
 								)}>
 								<BeneficiaryCard
 									beneficiary={item}
@@ -152,19 +230,22 @@ const Beneficiaries = () => {
 					/>
 				)}
 
-				{/* Floating Add Button */}
+				{/* Enhanced Floating Add Button */}
 				{beneficiaries.length > 0 && (
-					<TouchableOpacity
-						style={styles.fab}
-						onPress={handleAdd}>
-						<Plus
-							size={24}
-							color={colors.neutral.neutral6}
-							weight="bold"
-						/>
-					</TouchableOpacity>
+					<Animated.View style={[styles.fabContainer, fabAnimatedStyle]}>
+						<TouchableOpacity
+							style={styles.fab}
+							onPress={handleAdd}
+							activeOpacity={0.8}>
+							<Plus
+								size={26}
+								color={colors.neutral.neutral6}
+								weight="bold"
+							/>
+						</TouchableOpacity>
+					</Animated.View>
 				)}
-			</View>
+			</Animated.View>
 		</SafeAreaView>
 	);
 };
@@ -174,12 +255,55 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: colors.primary.primary1,
 	},
+	header: {
+		flexDirection: "row",
+		alignItems: "center",
+		paddingHorizontal: 24,
+		paddingTop: 16,
+		paddingBottom: 20,
+		backgroundColor: colors.primary.primary1,
+	},
+	backButton: {
+		marginRight: 16,
+	},
+	backButtonCircle: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: "rgba(255, 255, 255, 0.2)",
+		justifyContent: "center",
+		alignItems: "center",
+		borderWidth: 1.5,
+		borderColor: "rgba(255, 255, 255, 0.3)",
+	},
+	headerTitleContainer: {
+		flex: 1,
+	},
+	headerTitle: {
+		fontFamily: "Poppins",
+		fontSize: 22,
+		fontWeight: "700",
+		lineHeight: 28,
+		color: colors.neutral.neutral6,
+		marginBottom: 2,
+	},
+	headerSubtitle: {
+		fontFamily: "Poppins",
+		fontSize: 13,
+		fontWeight: "400",
+		color: "rgba(255, 255, 255, 0.8)",
+		lineHeight: 18,
+	},
 	content: {
 		flex: 1,
 		backgroundColor: colors.neutral.neutral6,
+		borderTopLeftRadius: 24,
+		borderTopRightRadius: 24,
+		marginTop: -10,
 	},
 	listContent: {
 		padding: 20,
+		paddingTop: 24,
 		paddingBottom: 100,
 	},
 	emptyContainer: {
@@ -188,12 +312,29 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		paddingHorizontal: 40,
 	},
+	emptyIconContainer: {
+		width: 100,
+		height: 100,
+		borderRadius: 50,
+		backgroundColor: colors.primary.primary4,
+		justifyContent: "center",
+		alignItems: "center",
+		marginBottom: 24,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.15,
+		shadowRadius: 12,
+		elevation: 5,
+	},
+	emptyIcon: {
+		fontSize: 48,
+	},
 	emptyTitle: {
 		fontFamily: "Poppins",
-		fontSize: 18,
-		fontWeight: "600",
+		fontSize: 20,
+		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 8,
+		marginBottom: 10,
 		textAlign: "center",
 	},
 	emptySubtitle: {
@@ -202,16 +343,22 @@ const styles = StyleSheet.create({
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 		textAlign: "center",
-		marginBottom: 32,
+		marginBottom: 36,
+		lineHeight: 20,
 	},
 	emptyButton: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
+		gap: 10,
 		backgroundColor: colors.primary.primary1,
-		paddingVertical: 14,
-		paddingHorizontal: 24,
-		borderRadius: 15,
+		paddingVertical: 16,
+		paddingHorizontal: 28,
+		borderRadius: 16,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.3,
+		shadowRadius: 8,
+		elevation: 6,
 	},
 	emptyButtonText: {
 		fontFamily: "Poppins",
@@ -219,21 +366,25 @@ const styles = StyleSheet.create({
 		fontWeight: "600",
 		color: colors.neutral.neutral6,
 	},
-	fab: {
+	fabContainer: {
 		position: "absolute",
 		right: 20,
 		bottom: 20,
-		width: 56,
-		height: 56,
-		borderRadius: 28,
+	},
+	fab: {
+		width: 60,
+		height: 60,
+		borderRadius: 30,
 		backgroundColor: colors.primary.primary1,
 		justifyContent: "center",
 		alignItems: "center",
-		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.3,
-		shadowRadius: 8,
-		elevation: 8,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 6 },
+		shadowOpacity: 0.4,
+		shadowRadius: 12,
+		elevation: 10,
+		borderWidth: 2,
+		borderColor: "rgba(255, 255, 255, 0.2)",
 	},
 });
 
