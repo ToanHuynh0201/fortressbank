@@ -91,7 +91,7 @@ export const clearStorageItems = async (keys: string[]) => {
  * Check if SecureStore is available
  * @returns {Promise<boolean>} Availability status
  */
-export const isStorageAvailable = async () => {
+export const isStorageAvailable = async (): Promise<boolean> => {
 	try {
 		const test = "__storage_test__";
 		await SecureStore.setItemAsync(test, test);
@@ -124,7 +124,7 @@ export const clearStorage = async () => {
  * @returns {Promise<boolean>} Success status
  */
 export const setAuthToken = async (token: string) => {
-	return setStorageItem(STORAGE_KEYS.AUTH_TOKEN, token);
+	return await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, token);
 };
 
 /**
@@ -132,7 +132,7 @@ export const setAuthToken = async (token: string) => {
  * @returns {Promise<string | null>} Authentication token or null
  */
 export const getAuthToken = async (): Promise<string | null> => {
-	return getStorageItem(STORAGE_KEYS.AUTH_TOKEN, null);
+	return await getStorageItem(STORAGE_KEYS.AUTH_TOKEN, null);
 };
 
 /**
@@ -140,7 +140,7 @@ export const getAuthToken = async (): Promise<string | null> => {
  * @returns {Promise<boolean>} Success status
  */
 export const removeAuthToken = async () => {
-	return removeStorageItem(STORAGE_KEYS.AUTH_TOKEN);
+	return await removeStorageItem(STORAGE_KEYS.AUTH_TOKEN);
 };
 
 /**
@@ -149,7 +149,7 @@ export const removeAuthToken = async () => {
  * @returns {Promise<boolean>} Success status
  */
 export const setUserData = async (userData: any) => {
-	return setStorageItem(STORAGE_KEYS.USER_DATA, userData);
+	return await setStorageItem(STORAGE_KEYS.USER_DATA, userData);
 };
 
 /**
@@ -157,7 +157,7 @@ export const setUserData = async (userData: any) => {
  * @returns {Promise<object | null>} User data or null
  */
 export const getUserData = async (): Promise<any> => {
-	return getStorageItem(STORAGE_KEYS.USER_DATA, null);
+	return await getStorageItem(STORAGE_KEYS.USER_DATA, null);
 };
 
 /**
@@ -165,5 +165,5 @@ export const getUserData = async (): Promise<any> => {
  * @returns {Promise<boolean>} Success status
  */
 export const removeUserData = async () => {
-	return removeStorageItem(STORAGE_KEYS.USER_DATA);
+	return await removeStorageItem(STORAGE_KEYS.USER_DATA);
 };

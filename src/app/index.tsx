@@ -5,7 +5,6 @@ import { primary, neutral } from "@/constants/colors";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
 	FadeIn,
-	FadeInDown,
 	FadeInUp,
 	useAnimatedStyle,
 	useSharedValue,
