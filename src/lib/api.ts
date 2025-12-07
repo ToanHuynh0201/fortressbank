@@ -7,14 +7,11 @@ import {
 	logError,
 	parseError,
 	shouldLogout,
-	STORAGE_KEYS,
 	getStorageItem,
 	setStorageItem,
 } from "@/utils";
 import axios, { type AxiosInstance } from "axios";
-import { API_CONFIG } from "../constants";
-import { router } from "expo-router";
-
+import { API_CONFIG, STORAGE_KEYS } from "../constants";
 class ApiService {
 	private baseUrl: string;
 	private api: AxiosInstance;

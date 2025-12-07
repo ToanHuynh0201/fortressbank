@@ -1,5 +1,4 @@
 import Constants from "expo-constants";
-import { STORAGE_KEYS } from "@/utils/storage";
 
 /**
  * Application constants
@@ -19,13 +18,15 @@ export const API_CONFIG = {
 	RETRY_DELAY: 1000,
 };
 
-export const ROLES = {
-	ADMIN: "ADMIN",
-	USER: "USER",
-};
-
-// Storage Keys - re-exported from utils/storage.ts
-export { STORAGE_KEYS };
+// Storage Keys exported from utils/storage.ts
+export const STORAGE_KEYS = {
+	AUTH_TOKEN: "@fortressbank_auth_token",
+	USER_DATA: "@fortressbank_user_data",
+	BIOMETRIC_ENABLED: "@fortressbank_biometric_enabled",
+	PIN_CODE: "@fortressbank_pin_code",
+	SESSION_DATA: "@fortressbank_session_data",
+	BENEFICIARIES: "@fortressbank_beneficiaries",
+} as const;
 
 // Form Validation
 export const VALIDATION = {
@@ -89,5 +90,4 @@ export default {
 	ERROR_CODES,
 	ERROR_MESSAGES,
 	SUCCESS_MESSAGES,
-	ROLES,
 };
