@@ -12,7 +12,7 @@ import {
 	setStorageItem,
 } from "@/utils";
 import axios, { type AxiosInstance } from "axios";
-import { API_CONFIG, ROUTES } from "../constants";
+import { API_CONFIG } from "../constants";
 import { router } from "expo-router";
 
 class ApiService {
@@ -205,7 +205,7 @@ class ApiService {
 
 		// Use expo-router for navigation instead of window.location
 		try {
-			router.replace(ROUTES.LOGIN);
+			// router.replace(ROUTES.LOGIN);
 		} catch (error) {
 			console.warn("Router not available, unable to navigate to login");
 		}

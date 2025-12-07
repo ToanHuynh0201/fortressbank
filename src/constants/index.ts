@@ -1,4 +1,5 @@
 import Constants from "expo-constants";
+import { STORAGE_KEYS } from "@/utils/storage";
 
 /**
  * Application constants
@@ -23,28 +24,8 @@ export const ROLES = {
 	USER: "USER",
 };
 
-// Auth Configuration
-export const AUTH_CONFIG = {
-	TOKEN_STORAGE_KEY: "access_token",
-	REFRESH_TOKEN_STORAGE_KEY: "refresh_token",
-	USER_STORAGE_KEY: "user",
-	REQUIRED_ROLE: ROLES.ADMIN,
-};
-
-// Beneficiary Configuration
-export const BENEFICIARY_CONFIG = {
-	STORAGE_KEY: "beneficiaries",
-};
-
-// Route Paths
-export const ROUTES = {
-	LOGIN: "/login",
-	RECIPE: "/recipe",
-	HOME: "/home",
-	MENU_SUGGESTION: "/menu-suggestion",
-	PROFILE: "/profile",
-	ROOT: "/",
-};
+// Storage Keys - re-exported from utils/storage.ts
+export { STORAGE_KEYS };
 
 // Form Validation
 export const VALIDATION = {
@@ -103,8 +84,7 @@ export { commonStyles } from "./styles";
 
 export default {
 	API_CONFIG,
-	AUTH_CONFIG,
-	ROUTES,
+	STORAGE_KEYS,
 	VALIDATION,
 	ERROR_CODES,
 	ERROR_MESSAGES,

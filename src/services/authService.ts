@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { AUTH_CONFIG } from "@/constants";
+import { STORAGE_KEYS } from "@/constants";
 import {
 	getStorageItem,
 	setStorageItem,
@@ -54,9 +54,9 @@ class AuthService {
 			console.error("Logout error:", error);
 		} finally {
 			clearStorageItems([
-				AUTH_CONFIG.TOKEN_STORAGE_KEY,
-				AUTH_CONFIG.REFRESH_TOKEN_STORAGE_KEY,
-				AUTH_CONFIG.USER_STORAGE_KEY,
+				STORAGE_KEYS.AUTH_TOKEN,
+				STORAGE_KEYS.SESSION_DATA,
+				STORAGE_KEYS.USER_DATA,
 			]);
 		}
 	}
@@ -66,7 +66,7 @@ class AuthService {
 	 * @returns {Object|null} User object or null
 	 */
 	getCurrentUser() {
-		return getStorageItem(AUTH_CONFIG.USER_STORAGE_KEY);
+		return getStorageItem(STORAGE_KEYS.USER_DATA);
 	}
 
 	/**
@@ -94,7 +94,7 @@ class AuthService {
 	 * @returns {string|null} Access token or null
 	 */
 	getAccessToken() {
-		return getStorageItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
+		return getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
 	}
 
 	/**
@@ -102,7 +102,7 @@ class AuthService {
 	 * @returns {string|null} Refresh token or null
 	 */
 	getRefreshToken() {
-		return getStorageItem(AUTH_CONFIG.REFRESH_TOKEN_STORAGE_KEY);
+		return getStorageItem(STORAGE_KEYS.SESSION_DATA);
 	}
 
 	/**
@@ -165,13 +165,10 @@ class AuthService {
 			if (response.data.status === "success") {
 				const { accessToken, refreshToken: newRefreshToken } =
 					response.data.data;
-				setStorageItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, accessToken);
+				setStorageItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
 
 				if (newRefreshToken) {
-					setStorageItem(
-						AUTH_CONFIG.REFRESH_TOKEN_STORAGE_KEY,
-						newRefreshToken,
-					);
+					setStorageItem(STORAGE_KEYS.SESSION_DATA, newRefreshToken);
 				}
 
 				return true;
@@ -192,9 +189,9 @@ class AuthService {
 	 * @param {string} refreshToken - Refresh token
 	 */
 	_storeAuthData(user: any, accessToken: any, refreshToken: any) {
-		setStorageItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, accessToken);
-		setStorageItem(AUTH_CONFIG.REFRESH_TOKEN_STORAGE_KEY, refreshToken);
-		setStorageItem(AUTH_CONFIG.USER_STORAGE_KEY, user);
+		setStorageItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
+		setStorageItem(STORAGE_KEYS.SESSION_DATA, refreshToken);
+		setStorageItem(STORAGE_KEYS.USER_DATA, user);
 	}
 }
 
