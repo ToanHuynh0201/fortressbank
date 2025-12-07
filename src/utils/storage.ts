@@ -132,7 +132,7 @@ export const setAuthToken = async (token: string) => {
  * @returns {Promise<string | null>} Authentication token or null
  */
 export const getAuthToken = async (): Promise<string | null> => {
-	return await getStorageItem(STORAGE_KEYS.AUTH_TOKEN, null);
+	return getStorageItem(STORAGE_KEYS.AUTH_TOKEN, null);
 };
 
 /**
@@ -140,7 +140,7 @@ export const getAuthToken = async (): Promise<string | null> => {
  * @returns {Promise<boolean>} Success status
  */
 export const removeAuthToken = async () => {
-	return await removeStorageItem(STORAGE_KEYS.AUTH_TOKEN);
+	return removeStorageItem(STORAGE_KEYS.AUTH_TOKEN);
 };
 
 /**
@@ -149,7 +149,7 @@ export const removeAuthToken = async () => {
  * @returns {Promise<boolean>} Success status
  */
 export const setUserData = async (userData: any) => {
-	return await setStorageItem(STORAGE_KEYS.USER_DATA, userData);
+	return setStorageItem(STORAGE_KEYS.USER_DATA, userData);
 };
 
 /**
@@ -157,7 +157,7 @@ export const setUserData = async (userData: any) => {
  * @returns {Promise<object | null>} User data or null
  */
 export const getUserData = async (): Promise<any> => {
-	return await getStorageItem(STORAGE_KEYS.USER_DATA, null);
+	return getStorageItem(STORAGE_KEYS.USER_DATA, null);
 };
 
 /**
@@ -165,5 +165,5 @@ export const getUserData = async (): Promise<any> => {
  * @returns {Promise<boolean>} Success status
  */
 export const removeUserData = async () => {
-	return await removeStorageItem(STORAGE_KEYS.USER_DATA);
+	return removeStorageItem(STORAGE_KEYS.USER_DATA);
 };

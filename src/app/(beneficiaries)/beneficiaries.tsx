@@ -23,7 +23,6 @@ import Animated, {
 import { Plus, CaretLeft } from "phosphor-react-native";
 import { BeneficiaryCard } from "@/components/beneficiaries";
 import { Beneficiary } from "@/types/beneficiary";
-import { getAllBeneficiaries, deleteBeneficiary } from "@/utils";
 import colors from "@/constants/colors";
 
 const Beneficiaries = () => {
@@ -87,8 +86,8 @@ const Beneficiaries = () => {
 	const loadBeneficiaries = async () => {
 		setIsLoading(true);
 		try {
-			const data = await getAllBeneficiaries();
-			setBeneficiaries(data);
+			// const data = await getAllBeneficiaries();
+			// setBeneficiaries(data);
 		} catch (error) {
 			console.error("Error loading beneficiaries:", error);
 			Alert.alert("Error", "Failed to load beneficiaries");
@@ -127,8 +126,8 @@ const Beneficiaries = () => {
 					style: "destructive",
 					onPress: async () => {
 						try {
-							await deleteBeneficiary(beneficiary.id);
-							await loadBeneficiaries();
+							// await deleteBeneficiary(beneficiary.id);
+							// await loadBeneficiaries();
 						} catch (error) {
 							console.error("Error deleting beneficiary:", error);
 							Alert.alert(
@@ -163,7 +162,9 @@ const Beneficiaries = () => {
 					color={colors.neutral.neutral6}
 					weight="bold"
 				/>
-				<Text style={styles.emptyButtonText}>Add Your First Beneficiary</Text>
+				<Text style={styles.emptyButtonText}>
+					Add Your First Beneficiary
+				</Text>
 			</TouchableOpacity>
 		</Animated.View>
 	);
@@ -232,7 +233,8 @@ const Beneficiaries = () => {
 
 				{/* Enhanced Floating Add Button */}
 				{beneficiaries.length > 0 && (
-					<Animated.View style={[styles.fabContainer, fabAnimatedStyle]}>
+					<Animated.View
+						style={[styles.fabContainer, fabAnimatedStyle]}>
 						<TouchableOpacity
 							style={styles.fab}
 							onPress={handleAdd}

@@ -30,7 +30,6 @@ import {
 import colors from "@/constants/colors";
 import { PrimaryButton, CustomInput, AccountNumberInput } from "@/components";
 import { useForm } from "@/hooks";
-import { addBeneficiary, updateBeneficiary, getBeneficiaryById } from "@/utils";
 import { BeneficiaryFormData } from "@/types/beneficiary";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
@@ -73,37 +72,6 @@ const AddBeneficiary = () => {
 		});
 	}, []);
 
-	useEffect(() => {
-		if (beneficiaryId) {
-			loadBeneficiary();
-		}
-	}, [beneficiaryId]);
-
-	const loadBeneficiary = async () => {
-		if (!beneficiaryId) return;
-
-		setIsLoading(true);
-		try {
-			const beneficiary = await getBeneficiaryById(beneficiaryId);
-			if (beneficiary) {
-				setFieldValue("accountNumber", beneficiary.accountNumber);
-				setFieldValue("accountName", beneficiary.accountName);
-				setFieldValue(
-					"bankName",
-					beneficiary.bankName || "FortressBank",
-				);
-				setFieldValue("nickname", beneficiary.nickname || "");
-				setBeneficiaryName(beneficiary.accountName);
-				setIsEditing(true);
-			}
-		} catch (error) {
-			console.error("Error loading beneficiary:", error);
-			Alert.alert("Error", "Failed to load beneficiary information");
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
 	const headerAnimatedStyle = useAnimatedStyle(() => ({
 		opacity: headerOpacity.value,
 	}));
@@ -121,49 +89,6 @@ const AddBeneficiary = () => {
 	const handleBeneficiaryNotFound = () => {
 		setBeneficiaryName("");
 		setFieldValue("accountName", "");
-	};
-
-	const handleSave = async () => {
-		// Validation
-		if (!values.accountNumber || !beneficiaryName) {
-			Alert.alert(
-				"Validation Error",
-				"Please enter a valid account number",
-			);
-			return;
-		}
-
-		setIsSaving(true);
-		try {
-			if (isEditing && beneficiaryId) {
-				// Update existing
-				await updateBeneficiary(beneficiaryId, {
-					accountNumber: values.accountNumber,
-					accountName: values.accountName,
-					bankName: values.bankName || "FortressBank",
-					nickname: values.nickname,
-				});
-				Alert.alert("Success", "Beneficiary updated successfully", [
-					{ text: "OK", onPress: () => router.back() },
-				]);
-			} else {
-				// Add new
-				await addBeneficiary({
-					accountNumber: values.accountNumber,
-					accountName: values.accountName,
-					bankName: values.bankName || "FortressBank",
-					nickname: values.nickname,
-				});
-				Alert.alert("Success", "Beneficiary added successfully", [
-					{ text: "OK", onPress: () => router.back() },
-				]);
-			}
-		} catch (error: any) {
-			console.error("Error saving beneficiary:", error);
-			Alert.alert("Error", error.message || "Failed to save beneficiary");
-		} finally {
-			setIsSaving(false);
-		}
 	};
 
 	const isFormValid =
@@ -329,7 +254,7 @@ const AddBeneficiary = () => {
 									? "Update Beneficiary"
 									: "Save Beneficiary"
 							}
-							onPress={handleSave}
+							onPress={() => console.log("Pressed")}
 							disabled={!isFormValid || isSaving}
 						/>
 					</Animated.View>
