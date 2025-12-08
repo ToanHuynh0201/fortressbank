@@ -7,7 +7,7 @@ import {
 	TouchableOpacity,
 	Alert,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { primary, neutral, semantic } from "@/constants";
@@ -17,6 +17,7 @@ import { useNotifications } from "@/contexts";
 import { SignOut } from "phosphor-react-native";
 import { clearStorage } from "@/utils/storage";
 import Feather from "@expo/vector-icons/Feather";
+import { authService } from "@/services";
 const Home = () => {
 	const router = useRouter();
 	const { unreadCount } = useNotifications();
@@ -155,7 +156,11 @@ const Home = () => {
 							style={styles.logoutButton}
 							onPress={handleLogout}
 							activeOpacity={0.7}>
-							<SignOut size={20} color={neutral.neutral6} weight="bold" />
+							<SignOut
+								size={20}
+								color={neutral.neutral6}
+								weight="bold"
+							/>
 						</TouchableOpacity>
 					</View>
 				</View>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import Animated, {
@@ -17,13 +17,81 @@ import {
 	DecorativeIllustration,
 } from "@/components";
 import { useForm } from "@/hooks";
+import { authService } from "@/services";
 
 const SignIn = () => {
 	const router = useRouter();
-	const { values, handleChange, isValid } = useForm({
-		email: "",
+	const [isLoading, setIsLoading] = useState(false);
+	const [generalError, setGeneralError] = useState<string | null>(null);
+
+	const {
+		values,
+		errors,
+		touched,
+		handleChange,
+		handleBlur,
+		setTouched,
+		setErrors,
+	} = useForm({
+		username: "",
 		password: "",
 	});
+
+	const validateForm = (): boolean => {
+		const newErrors: any = {};
+
+		if (!values.username.trim()) {
+			newErrors.username = "Username is required";
+		}
+
+		if (!values.password.trim()) {
+			newErrors.password = "Password is required";
+		} else if (values.password.length < 6) {
+			newErrors.password = "Password must be at least 6 characters";
+		}
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const handleSubmit = async () => {
+		setGeneralError(null);
+
+		if (!validateForm()) {
+			setTouched({ username: true, password: true });
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			const result = await authService.login({
+				username: values.username,
+				password: values.password,
+			});
+
+			if (result.success) {
+				router.replace("/(home)");
+			} else {
+				const errorMsg =
+					result.error ||
+					"Login failed. Please check your credentials.";
+				setGeneralError(errorMsg);
+				setTouched({ username: true, password: true });
+			}
+		} catch (error: any) {
+			const errorMsg =
+				error.message ||
+				"An unexpected error occurred. Please try again.";
+			setGeneralError(errorMsg);
+			setTouched({ username: true, password: true });
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const isValid =
+		values.username.trim() !== "" && values.password.trim().length >= 6;
 
 	const welcomeOpacity = useSharedValue(0);
 	const welcomeTranslateY = useSharedValue(30);
@@ -90,10 +158,6 @@ const SignIn = () => {
 		transform: [{ scale: fingerprintScale.value }],
 	}));
 
-	const handleSignIn = () => {
-		router.replace("/(home)");
-	};
-
 	return (
 		<AuthLayout
 			title="Sign in"
@@ -116,20 +180,36 @@ const SignIn = () => {
 			</Animated.View>
 
 			<Animated.View style={[styles.inputContainer, formAnimatedStyle]}>
+				{generalError && (
+					<View style={styles.errorContainer}>
+						<Text style={styles.errorIcon}>⚠️</Text>
+						<Text style={styles.generalError}>{generalError}</Text>
+					</View>
+				)}
+
 				<CustomInput
-					placeholder="Email address"
-					value={values.email}
-					onChangeText={(text) => handleChange("email", text)}
-					keyboardType="email-address"
+					placeholder="Username"
+					value={values.username}
+					onChangeText={(text) => {
+						setGeneralError(null);
+						handleChange("username", text);
+					}}
+					onBlur={() => handleBlur("username")}
 					autoCapitalize="none"
 					containerStyle={styles.input}
+					error={touched.username ? errors.username : undefined}
 				/>
 
 				<PasswordInput
 					placeholder="Password"
 					value={values.password}
-					onChangeText={(text) => handleChange("password", text)}
+					onChangeText={(text) => {
+						setGeneralError(null);
+						handleChange("password", text);
+					}}
+					onBlur={() => handleBlur("password")}
 					containerStyle={styles.input}
+					error={touched.password ? errors.password : undefined}
 				/>
 
 				<TouchableOpacity
@@ -142,9 +222,9 @@ const SignIn = () => {
 			{/* Sign In Button */}
 			<Animated.View style={formAnimatedStyle}>
 				<PrimaryButton
-					title="Sign In"
-					onPress={handleSignIn}
-					// disabled={!values.email || !values.password}
+					title={isLoading ? "Signing In..." : "Sign In"}
+					onPress={handleSubmit}
+					disabled={!isValid || isLoading}
 					style={styles.signInButton}
 				/>
 			</Animated.View>
@@ -212,6 +292,26 @@ const styles = StyleSheet.create({
 	},
 	inputContainer: {
 		marginBottom: 20,
+	},
+	errorContainer: {
+		flexDirection: "row",
+		alignItems: "center",
+		backgroundColor: "#FEE2E2",
+		borderRadius: 12,
+		paddingVertical: 12,
+		paddingHorizontal: 16,
+		marginBottom: 16,
+		gap: 8,
+	},
+	errorIcon: {
+		fontSize: 18,
+	},
+	generalError: {
+		flex: 1,
+		fontFamily: "Poppins",
+		fontSize: 13,
+		color: "#DC2626",
+		lineHeight: 18,
 	},
 	input: {
 		marginBottom: 16,

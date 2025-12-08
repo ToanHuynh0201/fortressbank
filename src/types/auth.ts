@@ -10,7 +10,7 @@ export interface User {
 }
 
 export interface LoginRequest {
-	email: string;
+	username: string;
 	password: string;
 }
 
@@ -23,10 +23,16 @@ export interface RegisterRequest {
 
 export interface LoginResponse {
 	status: string;
+	code: number;
+	message: string;
 	data: {
-		accessToken: string;
-		refreshToken: string;
-		user: User;
+		access_token: string;
+		refresh_token: string;
+		expires_in: number;
+		refresh_expires_in: number;
+		id_token: string;
+		token_type: string;
+		scope: string;
 	};
 }
 

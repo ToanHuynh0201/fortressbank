@@ -5,41 +5,33 @@ import {
 	setStorageItem,
 	clearStorageItems,
 } from "@/utils/storage";
+import { withErrorHandling } from "@/utils/error";
+import type { LoginRequest } from "@/types/auth";
 
 class AuthService {
 	/**
-	 * Login user with email and password
-	 * @param {string} email - User email
-	 * @param {string} password - User password
+	 * Login user with username and password
+	 * @param {LoginRequest} request - Login request with username and password
 	 * @returns {Promise<any>} API response data
 	 */
-	async login(email: string, password: string): Promise<any> {
-		try {
-			const loginData = {
-				email,
-				password,
-			};
+	login = withErrorHandling(async (request: LoginRequest) => {
+		const response = await api.post("/auth/login", request);
 
-			const response = await api.post("/auth/login", loginData);
+		if (response.data.status === "success") {
+			const data = response.data.data;
+			const { access_token, refresh_token } = data;
 
-			if (response.data.status === "success" || response.data.success) {
-				const data = response.data.data || response.data;
-				const { user, accessToken, refreshToken, token } = data;
-
-				const authToken = accessToken || token;
-
-				if (user && authToken) {
-					this._storeAuthData(user, authToken, refreshToken);
-				}
-
-				return response.data;
+			if (access_token) {
+				await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, access_token);
 			}
 
-			throw new Error("Login failed");
-		} catch (error: any) {
-			throw error;
+			if (refresh_token) {
+				await setStorageItem(STORAGE_KEYS.SESSION_DATA, refresh_token);
+			}
 		}
-	}
+
+		return response;
+	});
 
 	/**
 	 * Logout user and clear stored data
@@ -91,18 +83,18 @@ class AuthService {
 
 	/**
 	 * Get access token
-	 * @returns {string|null} Access token or null
+	 * @returns {Promise<string|null>} Access token or null
 	 */
-	getAccessToken() {
-		return getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
+	async getAccessToken() {
+		return await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
 	}
 
 	/**
 	 * Get refresh token
-	 * @returns {string|null} Refresh token or null
+	 * @returns {Promise<string|null>} Refresh token or null
 	 */
-	getRefreshToken() {
-		return getStorageItem(STORAGE_KEYS.SESSION_DATA);
+	async getRefreshToken() {
+		return await getStorageItem(STORAGE_KEYS.SESSION_DATA);
 	}
 
 	/**

@@ -53,9 +53,12 @@ class ApiService {
 	_setupRequestInterceptor() {
 		this.api.interceptors.request.use(
 			async (config: any) => {
-				const token = await getAuthToken();
-				if (token) {
-					config.headers.Authorization = `Bearer ${token}`;
+				// Don't send token for login endpoint
+				if (!this._isLoginEndpoint(config.url)) {
+					const token = await getAuthToken();
+					if (token) {
+						config.headers.Authorization = `Bearer ${token}`;
+					}
 				}
 				return config;
 			},
@@ -80,7 +83,8 @@ class ApiService {
 				// Don't trigger logout for login endpoint errors
 				if (this._isLoginEndpoint(error.config?.url)) {
 					logError(parsedError, { context: "api.response" });
-					return Promise.reject(parsedError);
+					// Reject with original error to preserve response
+					return Promise.reject(error);
 				}
 
 				// Handle auth errors with token refresh attempt
@@ -96,7 +100,8 @@ class ApiService {
 				}
 
 				logError(parsedError, { context: "api.response" });
-				return Promise.reject(parsedError);
+				// Reject with original error to preserve response
+				return Promise.reject(error);
 			},
 		);
 	}
