@@ -27,12 +27,12 @@
 		"web": {
 			"favicon": "./assets/favicon.png"
 		},
-		"plugins": ["expo-router"],
-		"extra": {
-			"eas": {
-				"projectId": "35387e00-35d0-47f8-911b-40097f9bf5be"
-			}
-		},
-		"owner": "toanhuynh0201"
+		"plugins": ["expo-router"]
+		// "extra": {
+		// 	"eas": {
+		// 		"projectId": "35387e00-35d0-47f8-911b-40097f9bf5be"
+		// 	}
+		// },
+		// "owner": "toanhuynh0201"
 	}
 }

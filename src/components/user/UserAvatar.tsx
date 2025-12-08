@@ -1,81 +1,104 @@
-import React from 'react';
-import { View, Image, Text, StyleSheet, ImageStyle } from 'react-native';
-import { neutral } from '@/constants/colors';
+import React from "react";
+import { View, Image, Text, StyleSheet, ImageStyle } from "react-native";
+import { neutral, primary } from "@/constants/colors";
+import { useAuth } from "@/hooks";
 
 interface UserAvatarProps {
-  size?: number;
-  imageUri?: string;
-  initials?: string;
-  backgroundColor?: string;
-  textColor?: string;
-  containerStyle?: ImageStyle;
+	size?: number;
+	name?: string;
+	initials?: string;
+	backgroundColor?: string;
+	textColor?: string;
+	containerStyle?: ImageStyle;
 }
 
 const UserAvatar: React.FC<UserAvatarProps> = ({
-  size = 50,
-  imageUri,
-  initials,
-  backgroundColor = neutral.neutral6,
-  textColor = neutral.neutral1,
-  containerStyle,
+	size = 50,
+	name,
+	initials,
+	backgroundColor = primary.primary1,
+	textColor = neutral.neutral6,
+	containerStyle,
 }) => {
-  const avatarSize: ImageStyle = {
-    width: size,
-    height: size,
-    borderRadius: size / 2,
-  };
+	const { user } = useAuth();
+	name = user?.fullName || name || "User";
+	const avatarSize: ImageStyle = {
+		width: size,
+		height: size,
+		borderRadius: size / 2,
+	};
 
-  if (imageUri) {
-    return (
-      <View style={[styles.avatarContainer, { width: size, height: size }]}>
-        <Image
-          source={{ uri: imageUri }}
-          style={[styles.avatar, avatarSize, containerStyle]}
-        />
-        <View style={styles.avatarBorder} />
-      </View>
-    );
-  }
+	// Get initials from name if name is provided
+	const getInitials = () => {
+		if (initials) return initials.toUpperCase();
+		if (name) {
+			const words = name.trim().split(" ");
+			if (words.length >= 2) {
+				return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+			}
+			return name.charAt(0).toUpperCase();
+		}
+		return "";
+	};
 
-  if (initials) {
-    return (
-      <View style={[styles.avatar, avatarSize, { backgroundColor }, containerStyle]}>
-        <Text style={[styles.initials, { color: textColor, fontSize: size / 2.5 }]}>
-          {initials}
-        </Text>
-      </View>
-    );
-  }
+	const displayInitials = getInitials();
 
-  return (
-    <View style={[styles.avatar, avatarSize, { backgroundColor }, containerStyle]} />
-  );
+	if (displayInitials) {
+		return (
+			<View
+				style={[
+					styles.avatar,
+					avatarSize,
+					{ backgroundColor },
+					containerStyle,
+				]}>
+				<Text
+					style={[
+						styles.initials,
+						{ color: textColor, fontSize: size / 2.5 },
+					]}>
+					{displayInitials}
+				</Text>
+			</View>
+		);
+	}
+
+	return (
+		<View
+			style={[
+				styles.avatar,
+				avatarSize,
+				{ backgroundColor },
+				containerStyle,
+			]}
+		/>
+	);
 };
 
 const styles = StyleSheet.create({
-  avatarContainer: {
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatar: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  avatarBorder: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    borderRadius: 999,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  initials: {
-    fontFamily: 'Poppins',
-    fontWeight: '600',
-  },
+	avatarContainer: {
+		position: "relative",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	avatar: {
+		justifyContent: "center",
+		alignItems: "center",
+		borderWidth: 3,
+		borderColor: "rgba(255, 255, 255, 0.3)",
+	},
+	avatarBorder: {
+		position: "absolute",
+		width: "100%",
+		height: "100%",
+		borderRadius: 999,
+		borderWidth: 2,
+		borderColor: "rgba(255, 255, 255, 0.2)",
+	},
+	initials: {
+		fontFamily: "Poppins",
+		fontWeight: "600",
+	},
 });
 
 export default UserAvatar;

@@ -31,12 +31,13 @@ import { AppHeader } from "@/components/common";
 import { SettingRow } from "@/components/settings";
 import { primary, neutral } from "@/constants/colors";
 import { UserAvatar } from "@/components";
-import { clearStorage } from "@/utils/storage";
+import { useAuth } from "@/hooks";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 const Setting = () => {
 	const router = useRouter();
+	const { logout, user } = useAuth();
 
 	const profileOpacity = useSharedValue(0);
 	const profileScale = useSharedValue(0.8);
@@ -108,7 +109,7 @@ const Setting = () => {
 					style: "destructive",
 					onPress: async () => {
 						try {
-							await clearStorage();
+							await logout();
 							router.replace("/(auth)/signIn");
 						} catch (error) {
 							console.error("Error during logout:", error);
@@ -142,15 +143,14 @@ const Setting = () => {
 				<Animated.View
 					style={[styles.profileCard, profileAnimatedStyle]}>
 					<Animated.View style={avatarAnimatedStyle}>
-						<UserAvatar
-							imageUri="https://i.pravatar.cc/150?img=12"
-							size={80}
-						/>
+						<UserAvatar size={80} />
 					</Animated.View>
 					<View style={styles.profileInfo}>
-						<Text style={styles.userName}>Push Puttichai</Text>
+						<Text style={styles.userName}>
+							{user?.fullName || "Guest"}
+						</Text>
 						<Text style={styles.userEmail}>
-							push.puttichai@email.com
+							{user?.email || ""}
 						</Text>
 					</View>
 					<TouchableOpacity style={styles.editButton}>

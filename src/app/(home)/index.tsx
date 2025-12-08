@@ -15,12 +15,12 @@ import { useRouter } from "expo-router";
 import { UserAvatar, NotificationBell, BankCard } from "@/components";
 import { useNotifications } from "@/contexts";
 import { SignOut } from "phosphor-react-native";
-import { clearStorage } from "@/utils/storage";
 import Feather from "@expo/vector-icons/Feather";
-import { authService } from "@/services";
+import { useAuth } from "@/hooks";
 const Home = () => {
 	const router = useRouter();
 	const { unreadCount } = useNotifications();
+	const { user, isLoading, logout } = useAuth();
 
 	const handleLogout = () => {
 		Alert.alert(
@@ -36,7 +36,7 @@ const Home = () => {
 					style: "destructive",
 					onPress: async () => {
 						try {
-							await clearStorage();
+							await logout();
 							router.replace("/(auth)/signIn");
 						} catch (error) {
 							console.error("Error during logout:", error);
@@ -136,15 +136,14 @@ const Home = () => {
 				style={styles.headerGradient}>
 				<View style={styles.header}>
 					<View style={styles.headerLeft}>
-						<UserAvatar
-							imageUri="https://i.pravatar.cc/150?img=12"
-							size={54}
-						/>
+						<UserAvatar size={54} />
 						<View style={styles.greetingContainer}>
 							<Text style={styles.greetingLabel}>
 								Welcome back,
 							</Text>
-							<Text style={styles.greeting}>Push Puttichai</Text>
+							<Text style={styles.greeting}>
+								{user?.name || user?.fullName || "User"}
+							</Text>
 						</View>
 					</View>
 					<View style={styles.headerRight}>

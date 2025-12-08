@@ -36,10 +36,10 @@ export default {
 			API_LOCATION_URL:
 				process.env.EXPO_PUBLIC_API_LOCATION_URL ||
 				"http://localhost:3030/api",
-			eas: {
-				projectId: "35387e00-35d0-47f8-911b-40097f9bf5be",
-			},
+			// eas: {
+			// 	projectId: "35387e00-35d0-47f8-911b-40097f9bf5be",
+			// },
 		},
-		owner: "toanhuynh0201",
+		// owner: "toanhuynh0201",
 	},
 };

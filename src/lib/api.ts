@@ -113,7 +113,7 @@ class ApiService {
 	 * @returns {boolean} Whether URL is login endpoint
 	 */
 	_isLoginEndpoint(url: string) {
-		return url?.includes("/auth/login");
+		return url?.includes("login");
 	}
 
 	/**

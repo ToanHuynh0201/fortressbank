@@ -16,11 +16,11 @@ import {
 	LinkText,
 	DecorativeIllustration,
 } from "@/components";
-import { useForm } from "@/hooks";
-import { authService } from "@/services";
+import { useForm, useAuth } from "@/hooks";
 
 const SignIn = () => {
 	const router = useRouter();
+	const { login } = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState<string | null>(null);
 
@@ -65,10 +65,7 @@ const SignIn = () => {
 		setIsLoading(true);
 
 		try {
-			const result = await authService.login({
-				username: values.username,
-				password: values.password,
-			});
+			const result = await login(values.username, values.password);
 
 			if (result.success) {
 				router.replace("/(home)");

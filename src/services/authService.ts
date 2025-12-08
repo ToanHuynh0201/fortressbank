@@ -10,6 +10,23 @@ import type { LoginRequest } from "@/types/auth";
 
 class AuthService {
 	/**
+	 * Get user profile from API
+	 * @returns {Promise<any>} User profile data
+	 */
+	getUserProfile = withErrorHandling(async () => {
+		const response = await api.get("/users/me");
+
+		if (response.data.status === "success") {
+			const userData = response.data.data;
+			// Save user data to storage
+			await setStorageItem(STORAGE_KEYS.USER_DATA, userData);
+			return response;
+		}
+
+		return null;
+	});
+
+	/**
 	 * Login user with username and password
 	 * @param {LoginRequest} request - Login request with username and password
 	 * @returns {Promise<any>} API response data
@@ -28,6 +45,18 @@ class AuthService {
 			if (refresh_token) {
 				await setStorageItem(STORAGE_KEYS.SESSION_DATA, refresh_token);
 			}
+
+			// Fetch user profile after successful login
+			const userProfileResponse = await this.getUserProfile();
+
+			// Add user data to response
+			return {
+				...response,
+				data: {
+					...response.data,
+					user: userProfileResponse?.data,
+				},
+			};
 		}
 
 		return response;
@@ -39,8 +68,11 @@ class AuthService {
 	async logout() {
 		try {
 			const token = await this.getAccessToken();
-			if (token) {
-				await api.post("/auth/logout", {});
+			const refreshToken = await this.getRefreshToken();
+			if (token && refreshToken) {
+				await api.post("/auth/logout", {
+					refreshToken: refreshToken,
+				});
 			}
 		} catch (error) {
 			console.error("Logout error:", error);
@@ -55,20 +87,37 @@ class AuthService {
 
 	/**
 	 * Get current user from localStorage
-	 * @returns {Object|null} User object or null
+	 * @returns {Promise<Object|null>} User object or null
 	 */
-	getCurrentUser() {
-		return getStorageItem(STORAGE_KEYS.USER_DATA);
+	async getCurrentUser() {
+		return await getStorageItem(STORAGE_KEYS.USER_DATA);
 	}
 
 	/**
-	 * Check if user is authenticated
-	 * @returns {boolean} Authentication status
+	 * Change user password
+	 * @param {string} oldPassword - Current password
+	 * @param {string} newPassword - New password
+	 * @returns {Promise<any>} API response
 	 */
-	isAuthenticated() {
+	changePassword = withErrorHandling(
+		async (oldPassword: string, newPassword: string) => {
+			const response = await api.post("/users/me/change-password", {
+				oldPassword,
+				newPassword,
+			});
+
+			return response;
+		},
+	);
+
+	/**
+	 * Check if user is authenticated
+	 * @returns {Promise<boolean>} Authentication status
+	 */
+	async isAuthenticated() {
 		try {
-			const token = this.getAccessToken();
-			const user = this.getCurrentUser();
+			const token = await this.getAccessToken();
+			const user = await this.getCurrentUser();
 
 			if (!token || !user) {
 				return false;
@@ -99,44 +148,21 @@ class AuthService {
 
 	/**
 	 * Validate user session
-	 * @returns {boolean} Whether session is valid
+	 * @returns {Promise<boolean>} Whether session is valid
 	 */
-	validateSession() {
-		const token = this.getAccessToken();
+	async validateSession() {
+		const token = await this.getAccessToken();
 		if (!token) {
 			return false;
 		}
 
-		const user = this.getCurrentUser();
+		const user = await this.getCurrentUser();
 		if (!user) {
 			this.logout();
 			return false;
 		}
 
 		return true;
-	}
-
-	/**
-	 * Change user password
-	 * @param {string} currentPassword - Current password
-	 * @param {string} newPassword - New password
-	 * @returns {Promise<Object>} API response data
-	 */
-	async changePassword(currentPassword: string, newPassword: string) {
-		try {
-			const response = await api.patch("/auth/change-password", {
-				currentPassword,
-				newPassword,
-			});
-
-			if (response.data.status === "success" || response.data.success) {
-				return response.data;
-			}
-
-			throw new Error("Change password failed");
-		} catch (error: any) {
-			throw error;
-		}
 	}
 
 	/**

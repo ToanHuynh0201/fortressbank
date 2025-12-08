@@ -85,8 +85,6 @@ export const withErrorHandling = <TArgs extends any[], TReturn>(
 				};
 			}
 
-			// Handle non-success response
-			console.log("Non-success response, parsing error...");
 			const error = parseError({ response });
 			return {
 				success: false,
@@ -95,7 +93,6 @@ export const withErrorHandling = <TArgs extends any[], TReturn>(
 			};
 		} catch (error: any) {
 			const parsedError = parseError(error);
-			console.log("Parsed error:", parsedError);
 
 			return {
 				success: false,

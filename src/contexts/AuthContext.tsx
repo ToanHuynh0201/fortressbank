@@ -1,6 +1,7 @@
 import { authService } from "@/services";
 import { createContext, useReducer, useEffect } from "react";
-import { setStorageItem } from "@/utils";
+import { getStorageItem, setStorageItem } from "@/utils";
+import { STORAGE_KEYS } from "@/constants";
 
 // AuthState type
 interface AuthState {
@@ -10,9 +11,13 @@ interface AuthState {
 	error: string | null;
 }
 
-interface AuthContextType extends AuthState {
+interface AuthContextType {
+	user: any;
+	isAuthenticated: boolean;
+	isLoading: boolean;
+	error: string | null;
 	login: (email: string, password: string) => Promise<any>;
-	logout: () => void;
+	logout: () => Promise<void>;
 	clearError: () => void;
 	updateUser: (user: any) => void;
 	changePassword: (
@@ -102,10 +107,11 @@ export const AuthProvider = ({ children }: any) => {
 
 	// Check for existing authentication on mount
 	useEffect(() => {
-		const checkAuth = () => {
+		const checkAuth = async () => {
 			try {
-				if (authService.validateSession()) {
-					const user = authService.getCurrentUser();
+				const isValid = await authService.validateSession();
+				if (isValid) {
+					const user = await authService.getCurrentUser();
 					dispatch({
 						type: AUTH_ACTIONS.LOGIN_SUCCESS,
 						payload: { user },
@@ -125,17 +131,30 @@ export const AuthProvider = ({ children }: any) => {
 	}, []);
 
 	// Login function
-	const login = async (email: string, password: string) => {
+	const login = async (username: string, password: string) => {
 		dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
 		try {
-			const response = await authService.login(email, password);
-			const userData = response.data?.user;
-			dispatch({
-				type: AUTH_ACTIONS.LOGIN_SUCCESS,
-				payload: { user: userData },
+			const response = await authService.login({
+				username,
+				password,
 			});
-			return response;
+
+			const user = await getStorageItem(STORAGE_KEYS.USER_DATA);
+
+			// withErrorHandling returns { success: true, data: { user: ... } }
+			if (response.success && user) {
+				const userData = user;
+				dispatch({
+					type: AUTH_ACTIONS.LOGIN_SUCCESS,
+					payload: { user: userData },
+				});
+				return response;
+			} else {
+				const errorMsg =
+					response.error || "Failed to fetch user profile";
+				throw new Error(errorMsg);
+			}
 		} catch (error: any) {
 			const errorMessage =
 				error.message || "Login failed. Please try again.";
@@ -161,7 +180,7 @@ export const AuthProvider = ({ children }: any) => {
 	// Update user function
 	const updateUser = (user: any) => {
 		// Update localStorage with new user data
-		setStorageItem("user", user);
+		setStorageItem(STORAGE_KEYS.USER_DATA, user);
 
 		dispatch({
 			type: AUTH_ACTIONS.UPDATE_USER,
@@ -170,11 +189,8 @@ export const AuthProvider = ({ children }: any) => {
 	};
 
 	// Change password function
-	const changePassword = async (
-		currentPassword: string,
-		newPassword: string,
-	) => {
-		return await authService.changePassword(currentPassword, newPassword);
+	const changePassword = async (oldPassword: string, newPassword: string) => {
+		return await authService.changePassword(oldPassword, newPassword);
 	};
 
 	const value = {
