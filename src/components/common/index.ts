@@ -10,3 +10,5 @@ export { default as FormField } from "./FormField";
 export { default as AccountNumberInput } from "./AccountNumberInput";
 export { default as CurrencyInput } from "./CurrencyInput";
 export { default as OTPInput } from "./OTPInput";
+export { default as DatePickerInput } from "./DatePickerInput";
+export { default as ConfirmationModal } from "./ConfirmationModal";
