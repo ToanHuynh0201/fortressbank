@@ -6,51 +6,194 @@ import {
 	Image,
 	TouchableOpacity,
 	Alert,
+	FlatList,
+	Dimensions,
+	ViewToken,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { primary, neutral, semantic } from "@/constants";
 import { useRouter } from "expo-router";
-import { UserAvatar, NotificationBell, BankCard } from "@/components";
+import { UserAvatar, NotificationBell, AccountCardItem, ConfirmationModal } from "@/components";
 import { useNotifications } from "@/contexts";
 import { SignOut } from "phosphor-react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { useAuth } from "@/hooks";
+import Animated, {
+	useSharedValue,
+	useAnimatedScrollHandler,
+	useAnimatedStyle,
+	interpolate,
+	Extrapolate,
+	SharedValue,
+} from "react-native-reanimated";
+import { Account } from "@/services/accountService";
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+// Account Item Component with animation
+const AccountItem = React.memo(
+	({
+		item,
+		index,
+		scrollX,
+	}: {
+		item: Account;
+		index: number;
+		scrollX: SharedValue<number>;
+	}) => {
+		const accountAnimatedStyle = useAnimatedStyle(() => {
+			const inputRange = [
+				(index - 1) * SCREEN_WIDTH,
+				index * SCREEN_WIDTH,
+				(index + 1) * SCREEN_WIDTH,
+			];
+
+			const scale = interpolate(
+				scrollX.value,
+				inputRange,
+				[0.85, 1, 0.85],
+				Extrapolate.CLAMP,
+			);
+
+			return {
+				transform: [{ scale }],
+			};
+		});
+
+		return (
+			<Animated.View
+				style={[styles.accountItemContainer, accountAnimatedStyle]}>
+				<AccountCardItem
+					accountName={item.accountName}
+					accountNumber={item.accountNumber}
+					balance={`${
+						item.currency
+					} ${item.balance.toLocaleString()}`}
+					branch={item.accountType}
+				/>
+			</Animated.View>
+		);
+	},
+	(prevProps, nextProps) => {
+		return (
+			prevProps.item.id === nextProps.item.id &&
+			prevProps.index === nextProps.index
+		);
+	},
+);
+
 const Home = () => {
 	const router = useRouter();
 	const { unreadCount } = useNotifications();
 	const { user, isLoading, logout } = useAuth();
+	const flatListRef = useRef<FlatList>(null);
+	const scrollX = useSharedValue(0);
+	const [currentAccountIndex, setCurrentAccountIndex] = useState(0);
+	const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-	const handleLogout = () => {
-		Alert.alert(
-			"Logout",
-			"Are you sure you want to logout?",
-			[
-				{
-					text: "Cancel",
-					style: "cancel",
-				},
-				{
-					text: "Logout",
-					style: "destructive",
-					onPress: async () => {
-						try {
-							await logout();
-							router.replace("/(auth)/signIn");
-						} catch (error) {
-							console.error("Error during logout:", error);
-							Alert.alert(
-								"Error",
-								"Failed to logout. Please try again.",
-							);
-						}
-					},
-				},
-			],
-			{ cancelable: true },
-		);
+	// Mock data - Replace with API call when backend is ready
+	const [accounts] = useState<Account[]>([
+		{
+			id: "1",
+			accountNumber: "1040868669",
+			accountName: "Main Savings Account",
+			accountType: "SAVINGS",
+			balance: 3469.52,
+			currency: "$",
+			status: "ACTIVE",
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		},
+		{
+			id: "2",
+			accountNumber: "1040868670",
+			accountName: "Checking Account",
+			accountType: "CHECKING",
+			balance: 12500.0,
+			currency: "$",
+			status: "ACTIVE",
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		},
+		{
+			id: "3",
+			accountNumber: "1040868671",
+			accountName: "Investment Account",
+			accountType: "INVESTMENT",
+			balance: 25750.85,
+			currency: "$",
+			status: "ACTIVE",
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		},
+	]);
+
+	const handleLogoutPress = () => {
+		setShowLogoutModal(true);
 	};
+
+	const handleLogoutConfirm = async () => {
+		setShowLogoutModal(false);
+		try {
+			await logout();
+			router.replace("/(auth)/signIn");
+		} catch (error) {
+			console.error("Error during logout:", error);
+			Alert.alert(
+				"Error",
+				"Failed to logout. Please try again.",
+			);
+		}
+	};
+
+	const handleLogoutCancel = () => {
+		setShowLogoutModal(false);
+	};
+
+	// Scroll handler for FlatList
+	const scrollHandler = useAnimatedScrollHandler({
+		onScroll: (event) => {
+			scrollX.value = event.contentOffset.x;
+		},
+	});
+
+	// Handle viewable items change
+	const onViewableItemsChanged = useRef(
+		({ viewableItems }: { viewableItems: ViewToken[] }) => {
+			if (viewableItems.length > 0 && viewableItems[0].index !== null) {
+				setCurrentAccountIndex(viewableItems[0].index);
+			}
+		},
+	).current;
+
+	const viewabilityConfig = useRef({
+		itemVisiblePercentThreshold: 50,
+	}).current;
+
+	// Render each account item
+	const renderAccountItem = useCallback(
+		({ item, index }: { item: Account; index: number }) => {
+			return (
+				<AccountItem
+					item={item}
+					index={index}
+					scrollX={scrollX}
+				/>
+			);
+		},
+		[],
+	);
+
+	// Key extractor
+	const keyExtractor = (item: Account) => item.id;
+
+	// Get item layout for optimization
+	const getItemLayout = (_: any, index: number) => ({
+		length: SCREEN_WIDTH,
+		offset: SCREEN_WIDTH * index,
+		index,
+	});
 
 	const mainFeatures = [
 		{
@@ -153,7 +296,7 @@ const Home = () => {
 						/>
 						<TouchableOpacity
 							style={styles.logoutButton}
-							onPress={handleLogout}
+							onPress={handleLogoutPress}
 							activeOpacity={0.7}>
 							<SignOut
 								size={20}
@@ -165,20 +308,54 @@ const Home = () => {
 				</View>
 			</LinearGradient>
 
-			<View style={styles.content}>
-				{/* Bank Card */}
-				<View style={styles.cardContainer}>
-					<BankCard
-						cardholderName="John Smith"
-						cardNumber="4756 1234 5678 9018"
-						maskedCardNumber="•••• •••• •••• 9018"
-						balance="$3.469.52"
-					/>
-				</View>
+			<ScrollView
+				style={styles.content}
+				showsVerticalScrollIndicator={false}
+				bounces={false}
+				contentContainerStyle={{ flexGrow: 1 }}>
+				{/* Account Cards Carousel */}
+				{accounts.length > 0 && (
+					<>
+						<Animated.FlatList
+							ref={flatListRef}
+							data={accounts}
+							renderItem={renderAccountItem}
+							keyExtractor={keyExtractor}
+							getItemLayout={getItemLayout}
+							horizontal
+							pagingEnabled
+							showsHorizontalScrollIndicator={false}
+							snapToAlignment="center"
+							decelerationRate="fast"
+							onScroll={scrollHandler}
+							scrollEventThrottle={16}
+							onViewableItemsChanged={onViewableItemsChanged}
+							viewabilityConfig={viewabilityConfig}
+							contentContainerStyle={styles.flatListContent}
+							style={styles.flatList}
+							removeClippedSubviews={true}
+							maxToRenderPerBatch={3}
+							initialNumToRender={3}
+							windowSize={3}
+						/>
 
-				{/* Main Features Title */}
-				<Text style={styles.sectionTitle}>Main Features</Text>
-
+						{/* Account Indicators */}
+						{accounts.length > 1 && (
+							<View style={styles.accountIndicators}>
+								{accounts.map((_, index) => (
+									<View
+										key={index}
+										style={[
+											styles.indicatorDot,
+											index === currentAccountIndex &&
+												styles.indicatorDotActive,
+										]}
+									/>
+								))}
+							</View>
+						)}
+					</>
+				)}
 				{/* Main Features - Large Cards */}
 				<View style={styles.featuresContainer}>
 					{mainFeatures.map((feature, index) => (
@@ -219,7 +396,18 @@ const Home = () => {
 						</TouchableOpacity>
 					))}
 				</View>
-			</View>
+			</ScrollView>
+
+			<ConfirmationModal
+				visible={showLogoutModal}
+				title="Đăng xuất"
+				message="Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?"
+				confirmText="Đăng xuất"
+				cancelText="Hủy"
+				onConfirm={handleLogoutConfirm}
+				onCancel={handleLogoutCancel}
+				confirmButtonVariant="danger"
+			/>
 		</SafeAreaView>
 	);
 };
@@ -288,9 +476,38 @@ const styles = StyleSheet.create({
 		borderTopLeftRadius: 30,
 		borderTopRightRadius: 30,
 		paddingTop: 16,
-		paddingHorizontal: 24,
 		paddingBottom: 20,
-		minHeight: "100%",
+	},
+	flatList: {
+		height: 240,
+		flexGrow: 0,
+	},
+	flatListContent: {
+		paddingHorizontal: 0,
+	},
+	accountItemContainer: {
+		width: SCREEN_WIDTH,
+		height: 240,
+		paddingHorizontal: 24,
+		justifyContent: "center",
+	},
+	accountIndicators: {
+		flexDirection: "row",
+		justifyContent: "center",
+		alignItems: "center",
+		gap: 8,
+		marginBottom: 12,
+		paddingHorizontal: 24,
+	},
+	indicatorDot: {
+		width: 8,
+		height: 8,
+		borderRadius: 4,
+		backgroundColor: neutral.neutral4,
+	},
+	indicatorDotActive: {
+		width: 24,
+		backgroundColor: primary.primary1,
 	},
 	cardContainer: {
 		marginBottom: 6,
@@ -301,9 +518,11 @@ const styles = StyleSheet.create({
 		color: neutral.neutral1,
 		marginBottom: 6,
 		fontFamily: "Poppins",
+		paddingHorizontal: 24,
 	},
 	featuresContainer: {
 		gap: 10,
+		paddingHorizontal: 24,
 	},
 	featureCard: {
 		borderRadius: 16,

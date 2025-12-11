@@ -16,7 +16,7 @@ import Animated, {
 	Easing,
 	FadeIn,
 } from "react-native-reanimated";
-import { CaretLeft, CaretLeftIcon } from "phosphor-react-native";
+import { CaretLeftIcon } from "phosphor-react-native";
 import colors from "@/constants/colors";
 import {
 	ScreenContainer,
@@ -24,6 +24,7 @@ import {
 	AccountCardItem,
 	CreditCardItem,
 } from "@/components";
+import { useAuth } from "@/hooks";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -115,6 +116,7 @@ const AccountCard = () => {
 	const userOpacity = useSharedValue(0);
 	const userScale = useSharedValue(0.9);
 	const contentOpacity = useSharedValue(0);
+	const { user } = useAuth();
 
 	useEffect(() => {
 		headerOpacity.value = withTiming(1, {
@@ -238,12 +240,11 @@ const AccountCard = () => {
 			{/* User Avatar and Name */}
 			<Animated.View style={[styles.userSection, userAnimatedStyle]}>
 				<UserAvatar
-					initials="PP"
 					size={100}
 					backgroundColor={colors.primary.primary1}
 					textColor={colors.neutral.neutral6}
 				/>
-				<Text style={styles.userName}>Push Puttichai</Text>
+				<Text style={styles.userName}>{user.fullName}</Text>
 			</Animated.View>
 
 			{/* Account Cards List */}
