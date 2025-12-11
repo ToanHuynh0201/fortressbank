@@ -112,17 +112,17 @@ const SignUp = () => {
 
     // Validate citizen ID (12 digits)
     if (!values.citizenId.trim()) {
-      setFieldError('citizenId', 'Căn cước công dân là bắt buộc');
+      setFieldError('citizenId', 'Citizen ID is required');
       isValid = false;
     } else if (!/^\d{12}$/.test(values.citizenId)) {
-      setFieldError('citizenId', 'Căn cước công dân phải có 12 chữ số');
+      setFieldError('citizenId', 'Citizen ID must have 12 digits');
       isValid = false;
     }
 
     // Validate phone number
     const phoneError = validationRules.phoneNumber(values.phoneNumber);
     if (!values.phoneNumber.trim()) {
-      setFieldError('phoneNumber', 'Số điện thoại là bắt buộc');
+      setFieldError('phoneNumber', 'Phone number is required');
       isValid = false;
     } else if (phoneError) {
       setFieldError('phoneNumber', phoneError);
@@ -132,7 +132,7 @@ const SignUp = () => {
     // Validate email
     const emailError = validationRules.email(values.email);
     if (!values.email.trim()) {
-      setFieldError('email', 'Email là bắt buộc');
+      setFieldError('email', 'Email is required');
       isValid = false;
     } else if (emailError) {
       setFieldError('email', emailError);
@@ -147,10 +147,10 @@ const SignUp = () => {
 
     // Validate username
     if (!values.username.trim()) {
-      setFieldError('username', 'Tên đăng nhập là bắt buộc');
+      setFieldError('username', 'Username is required');
       isValid = false;
     } else if (values.username.length < 4) {
-      setFieldError('username', 'Tên đăng nhập phải có ít nhất 4 ký tự');
+      setFieldError('username', 'Username must be at least 4 characters');
       isValid = false;
     }
 
@@ -163,25 +163,25 @@ const SignUp = () => {
 
     // Validate confirm password
     if (values.password !== values.confirmPassword) {
-      setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp');
+      setFieldError('confirmPassword', 'Passwords do not match');
       isValid = false;
     }
 
     // Validate fullname
     if (!values.fullname.trim()) {
-      setFieldError('fullname', 'Họ và tên là bắt buộc');
+      setFieldError('fullname', 'Full name is required');
       isValid = false;
     }
 
     // Validate date of birth
     if (!values.dateOfBirth.trim()) {
-      setFieldError('dateOfBirth', 'Ngày sinh là bắt buộc');
+      setFieldError('dateOfBirth', 'Date of birth is required');
       isValid = false;
     }
 
     // Validate terms agreement
     if (!values.agreedToTerms) {
-      Alert.alert('Lưu ý', 'Vui lòng đồng ý với điều khoản và điều kiện');
+      Alert.alert('Note', 'Please agree to the terms and conditions');
       isValid = false;
     }
 
@@ -204,7 +204,7 @@ const SignUp = () => {
       setTimer(60);
       setCanResend(false);
     } catch (error) {
-      Alert.alert('Lỗi', 'Không thể gửi mã OTP. Vui lòng thử lại.');
+      Alert.alert('Error', 'Cannot send OTP code. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -221,15 +221,15 @@ const SignUp = () => {
       setTimer(60);
       setCanResend(false);
       setFieldValue('otp', '');
-      Alert.alert('Thành công', 'Mã OTP mới đã được gửi đến số điện thoại của bạn');
+      Alert.alert('Success', 'A new OTP code has been sent to your phone number');
     } catch (error) {
-      Alert.alert('Lỗi', 'Không thể gửi lại mã OTP. Vui lòng thử lại.');
+      Alert.alert('Error', 'Cannot resend OTP code. Please try again.');
     }
   };
 
   const handleOTPVerification = async () => {
     if (values.otp.length !== 6) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đủ 6 số mã OTP');
+      Alert.alert('Error', 'Please enter all 6 digits of the OTP code');
       return;
     }
 
@@ -241,7 +241,7 @@ const SignUp = () => {
 
       setStep('complete-registration');
     } catch (error) {
-      Alert.alert('Lỗi', 'Mã OTP không chính xác. Vui lòng thử lại.');
+      Alert.alert('Error', 'OTP code is incorrect. Please try again.');
       setFieldValue('otp', '');
     } finally {
       setIsLoading(false);
@@ -268,7 +268,7 @@ const SignUp = () => {
 
       setStep('account-selection');
     } catch (error) {
-      Alert.alert('Lỗi', 'Đăng ký thất bại. Vui lòng thử lại.');
+      Alert.alert('Error', 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -284,7 +284,7 @@ const SignUp = () => {
       setFieldValue('accountNumberOption', option);
       setStep('success');
     } catch (error) {
-      Alert.alert('Lỗi', 'Không thể tạo tài khoản. Vui lòng thử lại.');
+      Alert.alert('Error', 'Cannot create account. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -349,15 +349,15 @@ const SignUp = () => {
               </LinearGradient>
             </View>
 
-            <Text style={styles.title}>Thông tin cơ bản</Text>
+            <Text style={styles.title}>Basic Information</Text>
             <Text style={styles.subtitle}>
-              Vui lòng nhập thông tin để bắt đầu đăng ký tài khoản
+              Please enter your information to start account registration
             </Text>
 
             <View style={styles.formContainer}>
-              <Text style={styles.label}>Căn cước công dân</Text>
+              <Text style={styles.label}>Citizen ID</Text>
               <CustomInput
-                placeholder="Nhập 12 chữ số CCCD"
+                placeholder="Enter 12-digit Citizen ID"
                 value={values.citizenId}
                 onChangeText={(text) => handleChange('citizenId', text.replace(/\D/g, ''))}
                 onBlur={() => handleBlur('citizenId')}
@@ -368,9 +368,9 @@ const SignUp = () => {
                 containerStyle={styles.inputWrapper}
               />
 
-              <Text style={styles.label}>Số điện thoại</Text>
+              <Text style={styles.label}>Phone Number</Text>
               <CustomInput
-                placeholder="Nhập số điện thoại"
+                placeholder="Enter phone number"
                 value={values.phoneNumber}
                 onChangeText={(text) => handleChange('phoneNumber', text.replace(/\D/g, ''))}
                 onBlur={() => handleBlur('phoneNumber')}
@@ -382,7 +382,7 @@ const SignUp = () => {
 
               <Text style={styles.label}>Email</Text>
               <CustomInput
-                placeholder="Nhập địa chỉ email"
+                placeholder="Enter email address"
                 value={values.email}
                 onChangeText={(text) => handleChange('email', text)}
                 onBlur={() => handleBlur('email')}
@@ -394,15 +394,15 @@ const SignUp = () => {
               />
 
               <PrimaryButton
-                title={isLoading ? "Đang gửi..." : "Tiếp tục"}
+                title={isLoading ? "Sending..." : "Continue"}
                 onPress={handleInitialInfoSubmit}
                 disabled={isLoading || !values.citizenId || !values.phoneNumber || !values.email}
                 style={styles.button}
               />
 
               <LinkText
-                normalText="Đã có tài khoản? "
-                linkText="Đăng nhập"
+                normalText="Already have an account? "
+                linkText="Sign In"
                 onPress={() => router.navigate('/(auth)/signIn')}
               />
             </View>
@@ -422,9 +422,9 @@ const SignUp = () => {
               </LinearGradient>
             </View>
 
-            <Text style={styles.title}>Xác thực OTP</Text>
+            <Text style={styles.title}>OTP Verification</Text>
             <Text style={styles.subtitle}>
-              Nhập mã OTP gồm 6 chữ số đã được gửi đến số điện thoại
+              Enter the 6-digit OTP code sent to your phone number
             </Text>
             <Text style={styles.phoneNumber}>{values.phoneNumber}</Text>
 
@@ -439,25 +439,25 @@ const SignUp = () => {
             <View style={styles.timerContainer}>
               {!canResend ? (
                 <Text style={styles.timerText}>
-                  Gửi lại mã sau{' '}
+                  Resend code in{' '}
                   <Text style={styles.timerHighlight}>{formatTime(timer)}</Text>
                 </Text>
               ) : (
                 <TouchableOpacity onPress={handleResendOTP}>
-                  <Text style={styles.resendText}>Gửi lại mã OTP</Text>
+                  <Text style={styles.resendText}>Resend OTP Code</Text>
                 </TouchableOpacity>
               )}
             </View>
 
             <PrimaryButton
-              title={isLoading ? "Đang xác thực..." : "Xác thực"}
+              title={isLoading ? "Verifying..." : "Verify"}
               onPress={handleOTPVerification}
               disabled={isLoading || values.otp.length !== 6}
               style={styles.button}
             />
 
             <TouchableOpacity onPress={() => setStep('initial-info')}>
-              <Text style={styles.backLink}>Thay đổi số điện thoại</Text>
+              <Text style={styles.backLink}>Change phone number</Text>
             </TouchableOpacity>
           </Animated.View>
         );
@@ -475,17 +475,17 @@ const SignUp = () => {
               </LinearGradient>
             </View>
 
-            <Text style={styles.compactTitle}>Hoàn tất đăng ký</Text>
+            <Text style={styles.compactTitle}>Complete Registration</Text>
             <Text style={styles.compactSubtitle}>
-              Điền thông tin còn thiếu để hoàn tất đăng ký
+              Fill in the remaining information to complete registration
             </Text>
 
             <View style={styles.formContainer}>
               <View style={styles.row}>
                 <View style={styles.halfWidth}>
-                  <Text style={styles.label}>Tên đăng nhập</Text>
+                  <Text style={styles.label}>Username</Text>
                   <CustomInput
-                    placeholder="Tên đăng nhập"
+                    placeholder="Username"
                     value={values.username}
                     onChangeText={(text) => handleChange('username', text)}
                     onBlur={() => handleBlur('username')}
@@ -497,9 +497,9 @@ const SignUp = () => {
                 </View>
 
                 <View style={styles.halfWidth}>
-                  <Text style={styles.label}>Họ và tên</Text>
+                  <Text style={styles.label}>Full Name</Text>
                   <CustomInput
-                    placeholder="Họ và tên"
+                    placeholder="Full Name"
                     value={values.fullname}
                     onChangeText={(text) => handleChange('fullname', text)}
                     onBlur={() => handleBlur('fullname')}
@@ -513,9 +513,9 @@ const SignUp = () => {
 
               <View style={styles.row}>
                 <View style={styles.halfWidth}>
-                  <Text style={styles.label}>Mật khẩu</Text>
+                  <Text style={styles.label}>Password</Text>
                   <PasswordInput
-                    placeholder="Mật khẩu"
+                    placeholder="Password"
                     value={values.password}
                     onChangeText={(text) => handleChange('password', text)}
                     onBlur={() => handleBlur('password')}
@@ -526,9 +526,9 @@ const SignUp = () => {
                 </View>
 
                 <View style={styles.halfWidth}>
-                  <Text style={styles.label}>Xác nhận MK</Text>
+                  <Text style={styles.label}>Confirm Password</Text>
                   <PasswordInput
-                    placeholder="Xác nhận"
+                    placeholder="Confirm"
                     value={values.confirmPassword}
                     onChangeText={(text) => handleChange('confirmPassword', text)}
                     onBlur={() => handleBlur('confirmPassword')}
@@ -539,11 +539,11 @@ const SignUp = () => {
                 </View>
               </View>
 
-              <Text style={styles.label}>Ngày sinh</Text>
+              <Text style={styles.label}>Date of Birth</Text>
               <DatePickerInput
                 value={values.dateOfBirth}
                 onDateChange={(date) => handleChange('dateOfBirth', date)}
-                placeholder="Chọn ngày sinh"
+                placeholder="Select date of birth"
                 isActive={!!values.dateOfBirth}
                 error={touched.dateOfBirth ? errors.dateOfBirth : undefined}
                 containerStyle={styles.inputWrapper}
@@ -554,15 +554,15 @@ const SignUp = () => {
                 onPress={() => setFieldValue('agreedToTerms', !values.agreedToTerms)}
                 label={
                   <Text style={styles.termsText}>
-                    Tôi đồng ý với{' '}
-                    <Text style={styles.termsLink}>Điều khoản và Điều kiện</Text>
+                    I agree to the{' '}
+                    <Text style={styles.termsLink}>Terms and Conditions</Text>
                   </Text>
                 }
                 containerStyle={styles.compactTermsContainer}
               />
 
               <PrimaryButton
-                title={isLoading ? "Đang xử lý..." : "Hoàn tất đăng ký"}
+                title={isLoading ? "Processing..." : "Complete Registration"}
                 onPress={handleCompleteRegistration}
                 disabled={isLoading}
                 style={styles.compactButton}
@@ -584,9 +584,9 @@ const SignUp = () => {
               </LinearGradient>
             </View>
 
-            <Text style={styles.title}>Chọn số tài khoản</Text>
+            <Text style={styles.title}>Select Account Number</Text>
             <Text style={styles.subtitle}>
-              Chọn cách tạo số tài khoản ngân hàng của bạn
+              Choose how to create your bank account number
             </Text>
 
             <View style={styles.optionsContainer}>
@@ -602,9 +602,9 @@ const SignUp = () => {
                   <View style={styles.optionIconContainer}>
                     <CreditCard size={32} color={primary.primary1} weight="duotone" />
                   </View>
-                  <Text style={styles.optionTitle}>Tự động tạo số</Text>
+                  <Text style={styles.optionTitle}>Auto-generate Number</Text>
                   <Text style={styles.optionDescription}>
-                    Hệ thống sẽ tự động tạo số tài khoản duy nhất cho bạn
+                    System will automatically create a unique account number for you
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -621,16 +621,16 @@ const SignUp = () => {
                   <View style={styles.optionIconContainer}>
                     <CreditCard size={32} color={primary.primary1} weight="duotone" />
                   </View>
-                  <Text style={styles.optionTitle}>Dùng số điện thoại</Text>
+                  <Text style={styles.optionTitle}>Use Phone Number</Text>
                   <Text style={styles.optionDescription}>
-                    Sử dụng số điện thoại {values.phoneNumber} làm số tài khoản
+                    Use phone number {values.phoneNumber} as account number
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
 
             {isLoading && (
-              <Text style={styles.loadingText}>Đang tạo tài khoản...</Text>
+              <Text style={styles.loadingText}>Creating account...</Text>
             )}
           </Animated.View>
         );
@@ -650,18 +650,18 @@ const SignUp = () => {
               </LinearGradient>
             </Animated.View>
 
-            <Text style={styles.successTitle}>Đăng ký thành công!</Text>
+            <Text style={styles.successTitle}>Registration Successful!</Text>
             <Text style={styles.successSubtitle}>
-              Tài khoản của bạn đã được tạo thành công
+              Your account has been successfully created
             </Text>
 
             <View style={styles.successInfoCard}>
               <View style={styles.successInfoRow}>
-                <Text style={styles.successInfoLabel}>Tên đăng nhập:</Text>
+                <Text style={styles.successInfoLabel}>Username:</Text>
                 <Text style={styles.successInfoValue}>{values.username}</Text>
               </View>
               <View style={styles.successInfoRow}>
-                <Text style={styles.successInfoLabel}>Họ tên:</Text>
+                <Text style={styles.successInfoLabel}>Full Name:</Text>
                 <Text style={styles.successInfoValue}>{values.fullname}</Text>
               </View>
               <View style={styles.successInfoRow}>
@@ -669,7 +669,7 @@ const SignUp = () => {
                 <Text style={styles.successInfoValue}>{values.email}</Text>
               </View>
               <View style={styles.successInfoRow}>
-                <Text style={styles.successInfoLabel}>Số tài khoản:</Text>
+                <Text style={styles.successInfoLabel}>Account Number:</Text>
                 <Text style={styles.successInfoValue}>
                   {values.accountNumberOption === 'phone'
                     ? values.phoneNumber
@@ -679,7 +679,7 @@ const SignUp = () => {
             </View>
 
             <PrimaryButton
-              title="Đăng nhập ngay"
+              title="Sign In Now"
               onPress={handleGoToSignIn}
               style={styles.button}
             />
@@ -721,10 +721,10 @@ const SignUp = () => {
       {/* Exit Confirmation Modal */}
       <ConfirmationModal
         visible={showExitModal}
-        title="Hủy đăng ký?"
-        message="Thông tin đăng ký của bạn sẽ không được lưu. Bạn có chắc chắn muốn thoát?"
-        confirmText="Thoát"
-        cancelText="Tiếp tục đăng ký"
+        title="Cancel Registration?"
+        message="Your registration information will not be saved. Are you sure you want to exit?"
+        confirmText="Exit"
+        cancelText="Continue Registration"
         onConfirm={handleConfirmExit}
         onCancel={handleCancelExit}
       />

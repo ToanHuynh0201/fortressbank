@@ -224,8 +224,8 @@ const CardDetail = () => {
 
 	const handleCopyAccountNumber = () => {
 		Alert.alert(
-			"Đã sao chép",
-			"Số tài khoản đã được sao chép vào clipboard",
+			"Copied",
+			"Account number has been copied to clipboard",
 		);
 	};
 
@@ -270,7 +270,7 @@ const CardDetail = () => {
 						weight="regular"
 					/>
 				</TouchableOpacity>
-				<Text style={styles.headerTitle}>Chi tiết thẻ</Text>
+				<Text style={styles.headerTitle}>Card Details</Text>
 			</Animated.View>
 			{/* Content */}
 			<ScrollView
@@ -330,7 +330,7 @@ const CardDetail = () => {
 								color={colors.neutral.neutral2}
 								weight="regular"
 							/>
-							<Text style={styles.infoLabel}>Tên chủ thẻ</Text>
+							<Text style={styles.infoLabel}>Card Owner</Text>
 						</View>
 						<Text style={styles.infoValue}>
 							{currentCardData.cardHolder}
@@ -346,7 +346,7 @@ const CardDetail = () => {
 								weight="regular"
 							/>
 							<Text style={styles.infoLabel}>
-								Số tài khoản liên kết
+								Linked Account Number
 							</Text>
 						</View>
 						<View style={styles.accountNumberContainer}>
@@ -369,7 +369,7 @@ const CardDetail = () => {
 					<TouchableOpacity
 						style={styles.showInfoButton}
 						onPress={handleShowDetail}>
-						<Text style={styles.showInfoText}>Hiển thông tin</Text>
+						<Text style={styles.showInfoText}>Show Details</Text>
 						<Eye
 							size={20}
 							color={colors.neutral.neutral6}
@@ -393,7 +393,7 @@ const CardDetail = () => {
 						onPress={(e) => e.stopPropagation()}>
 						{/* Modal Header */}
 						<View style={styles.modalHeader}>
-							<Text style={styles.modalTitle}>Chi tiết thẻ</Text>
+							<Text style={styles.modalTitle}>Card Details</Text>
 							<TouchableOpacity
 								onPress={handleCloseModal}
 								style={styles.closeButton}>
@@ -416,7 +416,7 @@ const CardDetail = () => {
 										weight="regular"
 									/>
 									<Text style={styles.detailLabel}>
-										Số thẻ
+										Card Number
 									</Text>
 								</View>
 								<View style={styles.cardNumberRow}>
@@ -456,7 +456,7 @@ const CardDetail = () => {
 										weight="regular"
 									/>
 									<Text style={styles.detailLabel}>
-										Chủ thẻ
+										Card Holder
 									</Text>
 								</View>
 								<Text style={styles.detailValue}>
@@ -473,7 +473,7 @@ const CardDetail = () => {
 										weight="regular"
 									/>
 									<Text style={styles.detailLabel}>
-										Ngày hết hạn
+										Expiry Date
 									</Text>
 								</View>
 								<Text style={styles.detailValue}>
@@ -486,7 +486,7 @@ const CardDetail = () => {
 						<TouchableOpacity
 							style={styles.modalCloseButton}
 							onPress={handleCloseModal}>
-							<Text style={styles.modalCloseText}>Đóng</Text>
+							<Text style={styles.modalCloseText}>Close</Text>
 						</TouchableOpacity>
 					</Pressable>
 				</Pressable>

@@ -13,9 +13,14 @@ import {
 import React, { useState, useRef, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { primary, neutral, semantic } from "@/constants";
+import { primary, neutral } from "@/constants";
 import { useRouter } from "expo-router";
-import { UserAvatar, NotificationBell, AccountCardItem, ConfirmationModal } from "@/components";
+import {
+	UserAvatar,
+	NotificationBell,
+	AccountCardItem,
+	ConfirmationModal,
+} from "@/components";
 import { useNotifications } from "@/contexts";
 import { SignOut } from "phosphor-react-native";
 import Feather from "@expo/vector-icons/Feather";
@@ -140,10 +145,7 @@ const Home = () => {
 			router.replace("/(auth)/signIn");
 		} catch (error) {
 			console.error("Error during logout:", error);
-			Alert.alert(
-				"Error",
-				"Failed to logout. Please try again.",
-			);
+			Alert.alert("Error", "Failed to logout. Please try again.");
 		}
 	};
 
@@ -400,10 +402,10 @@ const Home = () => {
 
 			<ConfirmationModal
 				visible={showLogoutModal}
-				title="Đăng xuất"
-				message="Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?"
-				confirmText="Đăng xuất"
-				cancelText="Hủy"
+				title="Logout"
+				message="Are you sure you want to logout from your account?"
+				confirmText="Logout"
+				cancelText="Cancel"
 				onConfirm={handleLogoutConfirm}
 				onCancel={handleLogoutCancel}
 				confirmButtonVariant="danger"

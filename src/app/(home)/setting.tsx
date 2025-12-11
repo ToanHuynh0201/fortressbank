@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	StyleSheet,
 	Text,
@@ -27,7 +27,7 @@ import {
 	SignOut,
 	PencilSimple,
 } from "phosphor-react-native";
-import { AppHeader } from "@/components/common";
+import { AppHeader, ConfirmationModal } from "@/components/common";
 import { SettingRow } from "@/components/settings";
 import { primary, neutral } from "@/constants/colors";
 import { UserAvatar } from "@/components";
@@ -38,6 +38,7 @@ const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 const Setting = () => {
 	const router = useRouter();
 	const { logout, user } = useAuth();
+	const [showLogoutModal, setShowLogoutModal] = useState(false);
 
 	const profileOpacity = useSharedValue(0);
 	const profileScale = useSharedValue(0.8);
@@ -95,34 +96,23 @@ const Setting = () => {
 		console.log("Customer care pressed");
 	};
 
-	const handleLogout = () => {
-		Alert.alert(
-			"Logout",
-			"Are you sure you want to logout?",
-			[
-				{
-					text: "Cancel",
-					style: "cancel",
-				},
-				{
-					text: "Logout",
-					style: "destructive",
-					onPress: async () => {
-						try {
-							await logout();
-							router.replace("/(auth)/signIn");
-						} catch (error) {
-							console.error("Error during logout:", error);
-							Alert.alert(
-								"Error",
-								"Failed to logout. Please try again.",
-							);
-						}
-					},
-				},
-			],
-			{ cancelable: true },
-		);
+	const handleLogoutPress = () => {
+		setShowLogoutModal(true);
+	};
+
+	const handleLogoutConfirm = async () => {
+		setShowLogoutModal(false);
+		try {
+			await logout();
+			router.replace("/(auth)/signIn");
+		} catch (error) {
+			console.error("Error during logout:", error);
+			Alert.alert("Error", "Failed to logout. Please try again.");
+		}
+	};
+
+	const handleLogoutCancel = () => {
+		setShowLogoutModal(false);
 	};
 
 	return (
@@ -213,7 +203,7 @@ const Setting = () => {
 							styles.logoutButton,
 							pressed && styles.logoutButtonPressed,
 						]}
-						onPress={handleLogout}>
+						onPress={handleLogoutPress}>
 						<View style={styles.logoutIconContainer}>
 							<SignOut
 								size={20}
@@ -225,6 +215,17 @@ const Setting = () => {
 					</Pressable>
 				</View>
 			</AnimatedScrollView>
+
+			<ConfirmationModal
+				visible={showLogoutModal}
+				title="Logout"
+				message="Are you sure you want to logout from your account?"
+				confirmText="Logout"
+				cancelText="Cancel"
+				onConfirm={handleLogoutConfirm}
+				onCancel={handleLogoutCancel}
+				confirmButtonVariant="danger"
+			/>
 		</SafeAreaView>
 	);
 };
