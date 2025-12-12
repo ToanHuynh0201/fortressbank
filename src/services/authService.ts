@@ -67,12 +67,21 @@ class AuthService {
 	 */
 	async logout() {
 		try {
-			const token = await this.getAccessToken();
 			const refreshToken = await this.getRefreshToken();
-			if (token && refreshToken) {
-				await api.post("/auth/logout", {
-					refreshToken: refreshToken,
+			if (refreshToken) {
+				// Use native fetch instead of api library
+				const response = await fetch("http://10.0.2.2:8000/auth/logout", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						refreshToken: refreshToken,
+					}),
 				});
+
+				const data = await response.json();
+				console.log("Logout response:", data);
 			}
 		} catch (error) {
 			console.error("Logout error:", error);

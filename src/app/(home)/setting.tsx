@@ -26,6 +26,7 @@ import {
 	Phone,
 	SignOut,
 	PencilSimple,
+	LockKey,
 } from "phosphor-react-native";
 import { AppHeader, ConfirmationModal } from "@/components/common";
 import { SettingRow } from "@/components/settings";
@@ -84,6 +85,10 @@ const Setting = () => {
 	}));
 	const handlePasswordPress = () => {
 		router.push("/(auth)/changePassword");
+	};
+
+	const handlePINPress = () => {
+		router.push("/(auth)/changePIN");
 	};
 
 	const handleTouchIDPress = () => {
@@ -165,6 +170,17 @@ const Setting = () => {
 							/>
 						}
 						onPress={handlePasswordPress}
+					/>
+					<SettingRow
+						title="PIN"
+						icon={
+							<LockKey
+								size={20}
+								color={primary.primary1}
+								weight="bold"
+							/>
+						}
+						onPress={handlePINPress}
 					/>
 					<SettingRow
 						title="Touch ID"

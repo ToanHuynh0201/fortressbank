@@ -154,6 +154,27 @@ class AccountService {
   }
 
   /**
+   * Change account PIN
+   */
+  async changeAccountPIN(accountId: string, oldPin: string, newPin: string): Promise<{ status: string; message: string }> {
+    const response = await apiService.post(`/accounts/${accountId}/change-pin`, {
+      oldPin,
+      newPin,
+    });
+    return response.data;
+  }
+
+  /**
+   * Verify account PIN
+   */
+  async verifyAccountPIN(accountId: string, pin: string): Promise<{ status: string; message: string }> {
+    const response = await apiService.post(`/accounts/${accountId}/verify-pin`, {
+      pin,
+    });
+    return response.data;
+  }
+
+  /**
    * Set card limit
    */
   async setCardLimit(cardId: string, limit: number): Promise<{ status: string; message: string }> {

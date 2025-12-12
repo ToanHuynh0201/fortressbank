@@ -702,7 +702,23 @@ const Transfer = () => {
 						<PrimaryButton
 							title="Continue to Confirmation"
 							onPress={() => {
-								router.push("(transfer)/transferConfirmation");
+								// Prepare transfer data
+								const transferParams = {
+									fromAccountId: selectedAccount,
+									fromAccountLabel: selectedAccountData?.label || "",
+									fromAccountNumber: selectedAccountData?.maskedNumber || "",
+									toAccountNumber: values.accountNumber,
+									recipientName: beneficiaryName || "Unknown",
+									amount: values.amount,
+									bankName: selectedBankData?.name || "",
+									message: values.content,
+								};
+
+								// Navigate with params
+								router.push({
+									pathname: "(transfer)/transferConfirmation",
+									params: transferParams,
+								});
 							}}
 							// disabled={!isFormValid}
 							style={styles.confirmButton}

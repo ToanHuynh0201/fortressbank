@@ -7,7 +7,7 @@ import {
 	StatusBar,
 	Alert,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -31,6 +31,17 @@ import { transferService, TransferRequest } from "@/services";
 
 const TransferConfirmation = () => {
 	const router = useRouter();
+	const params = useLocalSearchParams<{
+		fromAccountId: string;
+		fromAccountLabel: string;
+		fromAccountNumber: string;
+		toAccountNumber: string;
+		recipientName: string;
+		amount: string;
+		bankName: string;
+		message: string;
+	}>();
+
 	const [isProcessing, setIsProcessing] = useState(false);
 
 	// Animation values
@@ -76,30 +87,34 @@ const TransferConfirmation = () => {
 		opacity: contentOpacity.value,
 	}));
 
-	// TODO: Get these values from route params or context
+	// Parse amount and calculate fees
+	const numericAmount = parseFloat(
+		params.amount?.replace(/[^0-9.]/g, "") || "0",
+	);
+	const transferFee = 0; // You can calculate this based on your business logic
+	const totalAmount = numericAmount + transferFee;
+
+	// Prepare transfer data for API
 	const transferData: TransferRequest = {
-		fromAccountId: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
-		toAccountId: "fedcba98-7654-3210-fedc-ba9876543210",
-		amount: 10.0,
-		type: "INTERNAL_TRANSFER",
-		description: "Test transfer from Postman",
+		fromAccountId: params.fromAccountId || "",
+		toAccountId: params.toAccountNumber || "", // This should be mapped from beneficiary lookup
+		amount: numericAmount,
+		type: "EXTERNAL_TRANSFER", // or INTERNAL_TRANSFER based on bank
+		description: params.message || "",
 	};
 
 	const recipientInfo = {
-		name: "Capi Creative Design",
-		accountNumber: "0123 4567 8910 9",
+		name: params.recipientName || "Unknown",
+		accountNumber: params.toAccountNumber || "",
+		bankName: params.bankName || "",
 	};
 
 	const senderInfo = {
-		accountType: "VISA Checking",
-		accountNumber: "**** **** 1234",
+		accountType: params.fromAccountLabel || "Account",
+		accountNumber: params.fromAccountNumber || "",
 	};
 
-	const transferAmount = "$1,000.00";
-	const transferFee = "$0.00";
-	const totalAmount = "$1,000.00";
-
-	const createTransfer = () => async () => {
+	const createTransfer = async () => {
 		if (isProcessing) return;
 
 		setIsProcessing(true);
@@ -108,11 +123,15 @@ const TransferConfirmation = () => {
 			const response = await transferService.createTransfer(transferData);
 
 			if (response.status === "success" && response.data.txId) {
-				// Navigate to OTP verification with txId
+				// Navigate to PIN verification with txId and fromAccountId
 				console.log("Transaction created:", response.data.txId);
-				router.push(
-					`(transfer)/otpVerification?txId=${response.data.txId}`,
-				);
+				router.push({
+					pathname: "(transfer)/pinVerification",
+					params: {
+						txId: response.data.txId,
+						fromAccountId: transferData.fromAccountId,
+					},
+				});
 			} else {
 				Alert.alert("Error", "Failed to create transaction");
 			}
@@ -187,7 +206,13 @@ const TransferConfirmation = () => {
 					entering={FadeInDown.delay(150).duration(500)}
 					style={styles.amountCard}>
 					<Text style={styles.amountLabel}>Transfer Amount</Text>
-					<Text style={styles.amountValue}>{transferAmount}</Text>
+					<Text style={styles.amountValue}>
+						$
+						{numericAmount.toLocaleString("en-US", {
+							minimumFractionDigits: 2,
+							maximumFractionDigits: 2,
+						})}
+					</Text>
 				</Animated.View>
 
 				{/* Transfer Details Card */}
@@ -237,6 +262,11 @@ const TransferConfirmation = () => {
 						<Text style={styles.detailSubValue}>
 							{recipientInfo.accountNumber}
 						</Text>
+						{recipientInfo.bankName && (
+							<Text style={styles.detailBankName}>
+								{recipientInfo.bankName}
+							</Text>
+						)}
 					</View>
 				</Animated.View>
 
@@ -246,7 +276,9 @@ const TransferConfirmation = () => {
 					style={styles.summaryCard}>
 					<View style={styles.summaryRow}>
 						<Text style={styles.summaryLabel}>Transfer Fee</Text>
-						<Text style={styles.summaryValue}>{transferFee}</Text>
+						<Text style={styles.summaryValue}>
+							${transferFee.toFixed(2)}
+						</Text>
 					</View>
 
 					<View style={styles.summaryDivider} />
@@ -256,7 +288,11 @@ const TransferConfirmation = () => {
 							Total Amount
 						</Text>
 						<Text style={styles.summaryTotalValue}>
-							{totalAmount}
+							$
+							{totalAmount.toLocaleString("en-US", {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2,
+							})}
 						</Text>
 					</View>
 				</Animated.View>
@@ -269,7 +305,7 @@ const TransferConfirmation = () => {
 						title={
 							isProcessing ? "Processing..." : "Confirm Transfer"
 						}
-						onPress={() => createTransfer()}
+						onPress={createTransfer}
 						style={styles.confirmButton}
 						disabled={isProcessing}
 					/>
@@ -443,6 +479,14 @@ const styles = StyleSheet.create({
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
 		lineHeight: 16,
+	},
+	detailBankName: {
+		fontFamily: "Poppins",
+		fontSize: 11,
+		fontWeight: "600",
+		color: colors.primary.primary1,
+		lineHeight: 16,
+		marginTop: 2,
 	},
 	arrowDivider: {
 		width: 32,

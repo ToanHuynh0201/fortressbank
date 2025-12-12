@@ -33,13 +33,21 @@ const RootLayout = () => {
                     animationDuration: 400,
                 }} 
             />
-            <Stack.Screen 
-                name="changePassword" 
+            <Stack.Screen
+                name="changePassword"
                 options={{
                     title: "Change Password",
                     animation: 'fade',
                     animationDuration: 400,
-                }} 
+                }}
+            />
+            <Stack.Screen
+                name="changePIN"
+                options={{
+                    title: "Change PIN",
+                    animation: 'fade',
+                    animationDuration: 400,
+                }}
             />
         </Stack>
     );

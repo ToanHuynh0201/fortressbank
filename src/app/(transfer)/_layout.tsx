@@ -30,15 +30,29 @@ export default function TransferLayout() {
           animationDuration: 350,
         }}
       />
-      <Stack.Screen 
-        name="transferConfirmation" 
+      <Stack.Screen
+        name="transferConfirmation"
         options={{
           animation: 'slide_from_bottom',
           animationDuration: 350,
         }}
       />
-      <Stack.Screen 
-        name="transferSuccess" 
+      <Stack.Screen
+        name="otpVerification"
+        options={{
+          animation: 'slide_from_right',
+          animationDuration: 350,
+        }}
+      />
+      <Stack.Screen
+        name="pinVerification"
+        options={{
+          animation: 'slide_from_right',
+          animationDuration: 350,
+        }}
+      />
+      <Stack.Screen
+        name="transferSuccess"
         options={{
           animation: 'fade',
           animationDuration: 400,
