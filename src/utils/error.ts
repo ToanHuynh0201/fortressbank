@@ -76,7 +76,10 @@ export const withErrorHandling = <TArgs extends any[], TReturn>(
 			const response = await asyncFn(...args);
 
 			// If response is successful, return it
-			if ((response as any).data?.status === "success") {
+			if (
+				(response as any).data?.status === "success" ||
+				(response as any).data?.code === 1000
+			) {
 				return {
 					success: true,
 					data: (response as any).data.data,

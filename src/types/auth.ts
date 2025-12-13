@@ -15,10 +15,30 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+	username: string;
 	email: string;
 	password: string;
-	name: string;
-	phone?: string;
+	fullName: string;
+	phoneNumber: string;
+	dob: string;
+	citizenId: string;
+	accountNumberType: 'AUTO_GENERATE' | 'PHONE_NUMBER';
+	pin: string;
+}
+
+export interface RegisterResponse {
+	code: number;
+	message: string;
+	data?: {
+		id: string;
+		username: string;
+		email: string;
+		fullName: string;
+		citizenId: string;
+		dob: string;
+		phoneNumber: string;
+		createdAt: string;
+	};
 }
 
 export interface LoginResponse {

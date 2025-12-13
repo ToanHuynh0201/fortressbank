@@ -67,7 +67,7 @@ const SignIn = () => {
 		try {
 			const result = await login(values.username, values.password);
 
-			if (result.success) {
+			if (result.code === 1000) {
 				router.replace("/(home)");
 			} else {
 				const errorMsg =

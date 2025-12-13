@@ -16,7 +16,7 @@ interface AuthContextType {
 	isAuthenticated: boolean;
 	isLoading: boolean;
 	error: string | null;
-	login: (email: string, password: string) => Promise<any>;
+	login: (username: string, password: string) => Promise<any>;
 	logout: () => Promise<void>;
 	clearError: () => void;
 	updateUser: (user: any) => void;
@@ -142,8 +142,8 @@ export const AuthProvider = ({ children }: any) => {
 
 			const user = await getStorageItem(STORAGE_KEYS.USER_DATA);
 
-			// withErrorHandling returns { success: true, data: { user: ... } }
-			if (response.success && user) {
+			// Check if response code is 1000 (success)
+			if (response.code === 1000 && user) {
 				const userData = user;
 				dispatch({
 					type: AUTH_ACTIONS.LOGIN_SUCCESS,
@@ -152,7 +152,7 @@ export const AuthProvider = ({ children }: any) => {
 				return response;
 			} else {
 				const errorMsg =
-					response.error || "Failed to fetch user profile";
+					response.message || "Failed to fetch user profile";
 				throw new Error(errorMsg);
 			}
 		} catch (error: any) {

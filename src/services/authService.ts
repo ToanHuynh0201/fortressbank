@@ -12,6 +12,8 @@ import type {
 	ValidateAndSendOtpResponse,
 	VerifyOtpRequest,
 	VerifyOtpResponse,
+	RegisterRequest,
+	RegisterResponse,
 } from "@/types/auth";
 
 class AuthService {
@@ -19,54 +21,97 @@ class AuthService {
 	 * Get user profile from API
 	 * @returns {Promise<any>} User profile data
 	 */
-	getUserProfile = withErrorHandling(async () => {
-		const response = await api.get("/users/me");
+	async getUserProfile() {
+		try {
+			const token = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
 
-		if (response.data.status === "success") {
-			const userData = response.data.data;
-			// Save user data to storage
-			await setStorageItem(STORAGE_KEYS.USER_DATA, userData);
-			return response;
+			const response = await fetch("http://10.0.2.2:8000/users/me", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			const result = await response.json();
+			console.log(
+				"User profile response:",
+				JSON.stringify(result, null, 2),
+			);
+
+			if (result.code === 1000 && result.data) {
+				const userData = result.data;
+				console.log("USERDATA:", userData);
+
+				// Save user data to storage
+				await setStorageItem(STORAGE_KEYS.USER_DATA, userData);
+				return result;
+			}
+
+			return null;
+		} catch (error) {
+			console.error("Get user profile error:", error);
+			return null;
 		}
-
-		return null;
-	});
+	}
 
 	/**
 	 * Login user with username and password
 	 * @param {LoginRequest} request - Login request with username and password
 	 * @returns {Promise<any>} API response data
 	 */
-	login = withErrorHandling(async (request: LoginRequest) => {
-		const response = await api.post("/auth/login", request);
-
-		if (response.data.status === "success") {
-			const data = response.data.data;
-			const { access_token, refresh_token } = data;
-
-			if (access_token) {
-				await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, access_token);
-			}
-
-			if (refresh_token) {
-				await setStorageItem(STORAGE_KEYS.SESSION_DATA, refresh_token);
-			}
-
-			// Fetch user profile after successful login
-			const userProfileResponse = await this.getUserProfile();
-
-			// Add user data to response
-			return {
-				...response,
-				data: {
-					...response.data,
-					user: userProfileResponse?.data,
+	async login(request: LoginRequest) {
+		try {
+			const response = await fetch("http://10.0.2.2:8000/auth/login", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
 				},
+				body: JSON.stringify(request),
+			});
+
+			const result = await response.json();
+			console.log("Login response:", JSON.stringify(result, null, 2));
+
+			if (result.code === 1000 && result.data) {
+				const { access_token, refresh_token } = result.data;
+
+				if (access_token) {
+					await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, access_token);
+				}
+
+				if (refresh_token) {
+					await setStorageItem(
+						STORAGE_KEYS.SESSION_DATA,
+						refresh_token,
+					);
+				}
+
+				// Fetch user profile after successful login
+				const userProfileResponse = await this.getUserProfile();
+
+				// Add user data to response
+				return {
+					...result,
+					data: {
+						...result.data,
+						user: userProfileResponse?.data?.data || null,
+					},
+				};
+			}
+
+			return result;
+		} catch (error) {
+			console.error("Login error:", error);
+			return {
+				code: -1,
+				message:
+					error instanceof Error
+						? error.message
+						: "Network error occurred",
 			};
 		}
-
-		return response;
-	});
+	}
 
 	/**
 	 * Logout user and clear stored data
@@ -76,15 +121,18 @@ class AuthService {
 			const refreshToken = await this.getRefreshToken();
 			if (refreshToken) {
 				// Use native fetch instead of api library
-				const response = await fetch("http://10.0.2.2:8000/auth/logout", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
+				const response = await fetch(
+					"http://10.0.2.2:8000/auth/logout",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							refreshToken: refreshToken,
+						}),
 					},
-					body: JSON.stringify({
-						refreshToken: refreshToken,
-					}),
-				});
+				);
 
 				const data = await response.json();
 				console.log("Logout response:", data);
@@ -236,15 +284,24 @@ class AuthService {
 		request: ValidateAndSendOtpRequest,
 	): Promise<ValidateAndSendOtpResponse> {
 		try {
-			const response = await fetch("http://localhost:8000/auth/validate-and-send-otp", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
+			console.log(
+				"Sending OTP request:",
+				JSON.stringify(request, null, 2),
+			);
+
+			const response = await fetch(
+				"http://10.0.2.2:8000/auth/validate-and-send-otp",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(request),
 				},
-				body: JSON.stringify(request),
-			});
+			);
 
 			const data: ValidateAndSendOtpResponse = await response.json();
+			console.log("OTP response:", JSON.stringify(data, null, 2));
 
 			// Return the response regardless of success or error
 			// The response will have code, message, and optionally data
@@ -254,7 +311,10 @@ class AuthService {
 			// Return error response in the same format
 			return {
 				code: -1,
-				message: error instanceof Error ? error.message : "Network error occurred",
+				message:
+					error instanceof Error
+						? error.message
+						: "Network error occurred",
 			};
 		}
 	}
@@ -266,7 +326,45 @@ class AuthService {
 	 */
 	async verifyOtp(request: VerifyOtpRequest): Promise<VerifyOtpResponse> {
 		try {
-			const response = await fetch("http://localhost:8000/auth/verify-otp", {
+			const response = await fetch(
+				"http://10.0.2.2:8000/auth/verify-otp",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(request),
+				},
+			);
+
+			const data: VerifyOtpResponse = await response.json();
+
+			console.log("OTP response:", JSON.stringify(data, null, 2));
+			// Return the response regardless of success or error
+			// The response will have code, message, and optionally data
+			return data;
+		} catch (error) {
+			console.error("Verify OTP error:", error);
+			// Return error response in the same format
+
+			return {
+				code: -1,
+				message:
+					error instanceof Error
+						? error.message
+						: "Network error occurred",
+			};
+		}
+	}
+
+	/**
+	 * Register new user account
+	 * @param {RegisterRequest} request - Registration data
+	 * @returns {Promise<RegisterResponse>} API response
+	 */
+	async register(request: RegisterRequest): Promise<RegisterResponse> {
+		try {
+			const response = await fetch("http://10.0.2.2:8000/auth/register", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -274,17 +372,20 @@ class AuthService {
 				body: JSON.stringify(request),
 			});
 
-			const data: VerifyOtpResponse = await response.json();
+			const data: RegisterResponse = await response.json();
+			console.log(data);
 
 			// Return the response regardless of success or error
-			// The response will have code, message, and optionally data
 			return data;
 		} catch (error) {
-			console.error("Verify OTP error:", error);
+			console.error("Register error:", error);
 			// Return error response in the same format
 			return {
 				code: -1,
-				message: error instanceof Error ? error.message : "Network error occurred",
+				message:
+					error instanceof Error
+						? error.message
+						: "Network error occurred",
 			};
 		}
 	}
