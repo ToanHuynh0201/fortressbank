@@ -9,8 +9,9 @@ import {
 	FlatList,
 	Dimensions,
 	ViewToken,
+	ActivityIndicator,
 } from "react-native";
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { primary, neutral } from "@/constants";
@@ -33,7 +34,7 @@ import Animated, {
 	Extrapolate,
 	SharedValue,
 } from "react-native-reanimated";
-import { Account } from "@/services/accountService";
+import { Account, accountService } from "@/services/accountService";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 // Account Item Component with animation
@@ -70,19 +71,17 @@ const AccountItem = React.memo(
 			<Animated.View
 				style={[styles.accountItemContainer, accountAnimatedStyle]}>
 				<AccountCardItem
-					accountName={item.accountName}
+					accountName={`Account`}
 					accountNumber={item.accountNumber}
-					balance={`${
-						item.currency
-					} ${item.balance.toLocaleString()}`}
-					branch={item.accountType}
+					balance={`$${item.balance.toFixed(2)}`}
+					branch={item.accountStatus}
 				/>
 			</Animated.View>
 		);
 	},
 	(prevProps, nextProps) => {
 		return (
-			prevProps.item.id === nextProps.item.id &&
+			prevProps.item.accountId === nextProps.item.accountId &&
 			prevProps.index === nextProps.index
 		);
 	},
@@ -96,43 +95,30 @@ const Home = () => {
 	const scrollX = useSharedValue(0);
 	const [currentAccountIndex, setCurrentAccountIndex] = useState(0);
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
+	const [accounts, setAccounts] = useState<Account[]>([]);
+	const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
 
-	// Mock data - Replace with API call when backend is ready
-	const [accounts] = useState<Account[]>([
-		{
-			id: "1",
-			accountNumber: "1040868669",
-			accountName: "Main Savings Account",
-			accountType: "SAVINGS",
-			balance: 3469.52,
-			currency: "$",
-			status: "ACTIVE",
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-		},
-		{
-			id: "2",
-			accountNumber: "1040868670",
-			accountName: "Checking Account",
-			accountType: "CHECKING",
-			balance: 12500.0,
-			currency: "$",
-			status: "ACTIVE",
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-		},
-		{
-			id: "3",
-			accountNumber: "1040868671",
-			accountName: "Investment Account",
-			accountType: "INVESTMENT",
-			balance: 25750.85,
-			currency: "$",
-			status: "ACTIVE",
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-		},
-	]);
+	// Fetch accounts from API
+	useEffect(() => {
+		fetchAccounts();
+	}, []);
+
+	const fetchAccounts = async () => {
+		try {
+			setIsLoadingAccounts(true);
+			const response = await accountService.getAccounts();
+
+			if (response.success && response.data) {
+				setAccounts(response.data);
+			} else {
+				console.error("Failed to fetch accounts:", response.error);
+			}
+		} catch (error) {
+			console.error("Error fetching accounts:", error);
+		} finally {
+			setIsLoadingAccounts(false);
+		}
+	};
 
 	const handleLogoutPress = () => {
 		setShowLogoutModal(true);
@@ -188,7 +174,7 @@ const Home = () => {
 	);
 
 	// Key extractor
-	const keyExtractor = (item: Account) => item.id;
+	const keyExtractor = (item: Account) => item.accountId;
 
 	// Get item layout for optimization
 	const getItemLayout = (_: any, index: number) => ({
@@ -316,7 +302,17 @@ const Home = () => {
 				bounces={false}
 				contentContainerStyle={{ flexGrow: 1 }}>
 				{/* Account Cards Carousel */}
-				{accounts.length > 0 && (
+				{isLoadingAccounts ? (
+					<View style={styles.loadingContainer}>
+						<ActivityIndicator
+							size="large"
+							color={primary.primary1}
+						/>
+						<Text style={styles.loadingText}>
+							Loading accounts...
+						</Text>
+					</View>
+				) : accounts.length > 0 ? (
 					<>
 						<Animated.FlatList
 							ref={flatListRef}
@@ -357,6 +353,10 @@ const Home = () => {
 							</View>
 						)}
 					</>
+				) : (
+					<View style={styles.emptyContainer}>
+						<Text style={styles.emptyText}>No accounts found</Text>
+					</View>
 				)}
 				{/* Main Features - Large Cards */}
 				<View style={styles.featuresContainer}>
@@ -582,5 +582,33 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		color: neutral.neutral6,
 		fontWeight: "bold",
+	},
+	loadingContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		paddingVertical: 60,
+		minHeight: 240,
+	},
+	loadingText: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "500",
+		color: neutral.neutral3,
+		marginTop: 12,
+	},
+	emptyContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		paddingVertical: 60,
+		minHeight: 240,
+	},
+	emptyText: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "500",
+		color: neutral.neutral3,
+		textAlign: "center",
 	},
 });

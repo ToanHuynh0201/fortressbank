@@ -41,16 +41,9 @@ import { BeneficiarySelector } from "@/components/beneficiaries";
 import { useForm } from "@/hooks";
 import { parseCurrency } from "@/utils/currency";
 import { Beneficiary } from "@/types/beneficiary";
+import { Account, accountService } from "@/services/accountService";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
-
-interface Account {
-	id: string;
-	label: string;
-	fullNumber: string;
-	maskedNumber: string;
-	balance: number;
-}
 
 interface Bank {
 	id: string;
@@ -69,6 +62,7 @@ const Transfer = () => {
 		useState(false);
 	const [selectedBank, setSelectedBank] = useState<string>("");
 	const [showBankDropdown, setShowBankDropdown] = useState(false);
+	const [accounts, setAccounts] = useState<Account[]>([]);
 
 	const headerOpacity = useSharedValue(0);
 	const contentOpacity = useSharedValue(0);
@@ -88,7 +82,24 @@ const Transfer = () => {
 			damping: 20,
 			stiffness: 90,
 		});
+
+		// Fetch accounts from API
+		fetchAccounts();
 	}, []);
+
+	const fetchAccounts = async () => {
+		try {
+			const response = await accountService.getAccounts();
+
+			if (response.success && response.data) {
+				setAccounts(response.data);
+			} else {
+				console.error("Failed to fetch accounts:", response.error);
+			}
+		} catch (error) {
+			console.error("Error fetching accounts:", error);
+		}
+	};
 
 	const headerAnimatedStyle = useAnimatedStyle(() => ({
 		opacity: headerOpacity.value,
@@ -105,37 +116,6 @@ const Transfer = () => {
 		amount: "",
 		content: "",
 	});
-
-	const accounts: Account[] = [
-		{
-			id: "1",
-			label: "Checking Account",
-			fullNumber: "1234 5678 9012",
-			maskedNumber: "**** **** 9012",
-			balance: 10000,
-		},
-		{
-			id: "2",
-			label: "Savings Account",
-			fullNumber: "1234 5678 5689",
-			maskedNumber: "**** **** 5689",
-			balance: 25000,
-		},
-		{
-			id: "3",
-			label: "Investment Account",
-			fullNumber: "5412 3456 7890",
-			maskedNumber: "**** **** 7890",
-			balance: 5500,
-		},
-		{
-			id: "4",
-			label: "Business Account",
-			fullNumber: "9876 5432 1098",
-			maskedNumber: "**** **** 1098",
-			balance: 15000,
-		},
-	];
 
 	const banks: Bank[] = [
 		{
@@ -189,7 +169,7 @@ const Transfer = () => {
 	];
 
 	// Get selected account balance
-	const selectedAccountData = accounts.find((a) => a.id === selectedAccount);
+	const selectedAccountData = accounts.find((a) => a.accountId === selectedAccount);
 	const availableBalance = selectedAccountData?.balance || 0;
 
 	// Parse amount for validation
@@ -277,29 +257,13 @@ const Transfer = () => {
 													style={
 														styles.accountLabelSelected
 													}>
-													{
-														accounts.find(
-															(a) =>
-																a.id ===
-																selectedAccount,
-														)?.label
-													}
+													Account {selectedAccountData?.accountNumber}
 												</Text>
 												<Text
 													style={
 														styles.accountNumber
 													}>
-													{showAccountNumbers
-														? accounts.find(
-																(a) =>
-																	a.id ===
-																	selectedAccount,
-														  )?.fullNumber
-														: accounts.find(
-																(a) =>
-																	a.id ===
-																	selectedAccount,
-														  )?.maskedNumber}
+													{selectedAccountData?.accountNumber}
 												</Text>
 												<View
 													style={
@@ -316,7 +280,7 @@ const Transfer = () => {
 															styles.balanceAmount
 														}>
 														$
-														{selectedAccountData?.balance.toLocaleString()}
+														{selectedAccountData?.balance.toFixed(2)}
 													</Text>
 												</View>
 											</>
@@ -393,14 +357,14 @@ const Transfer = () => {
 							<View style={styles.dropdownMenu}>
 								{accounts.map((account) => (
 									<TouchableOpacity
-										key={account.id}
+										key={account.accountId}
 										style={[
 											styles.dropdownItem,
-											selectedAccount === account.id &&
+											selectedAccount === account.accountId &&
 												styles.dropdownItemSelected,
 										]}
 										onPress={() => {
-											setSelectedAccount(account.id);
+											setSelectedAccount(account.accountId);
 											setShowAccountDropdown(false);
 										}}>
 										<View
@@ -417,21 +381,17 @@ const Transfer = () => {
 													style={
 														styles.dropdownItemLabel
 													}>
-													{account.label}{" "}
-													{showAccountNumbers
-														? account.fullNumber
-														: account.maskedNumber}
+													Account {account.accountNumber}
 												</Text>
 												<Text
 													style={
 														styles.dropdownItemBalance
 													}>
-													Available balance:{" "}
-													{account.balance.toLocaleString()}
-													$
+													Available balance: $
+													{account.balance.toFixed(2)}
 												</Text>
 											</View>
-											{selectedAccount === account.id && (
+											{selectedAccount === account.accountId && (
 												<View style={styles.checkIcon}>
 													<Text
 														style={
@@ -444,34 +404,6 @@ const Transfer = () => {
 										</View>
 									</TouchableOpacity>
 								))}
-
-								{/* Toggle Eye in Dropdown */}
-								<TouchableOpacity
-									style={styles.dropdownEyeToggle}
-									onPress={() =>
-										setShowAccountNumbers(
-											!showAccountNumbers,
-										)
-									}>
-									{showAccountNumbers ? (
-										<Eye
-											size={20}
-											color={colors.primary.primary1}
-											weight="regular"
-										/>
-									) : (
-										<EyeSlash
-											size={20}
-											color={colors.neutral.neutral3}
-											weight="regular"
-										/>
-									)}
-									<Text style={styles.dropdownEyeText}>
-										{showAccountNumbers
-											? "Hide account numbers"
-											: "Show account numbers"}
-									</Text>
-								</TouchableOpacity>
 							</View>
 						)}
 					</Animated.View>
@@ -705,8 +637,8 @@ const Transfer = () => {
 								// Prepare transfer data
 								const transferParams = {
 									fromAccountId: selectedAccount,
-									fromAccountLabel: selectedAccountData?.label || "",
-									fromAccountNumber: selectedAccountData?.maskedNumber || "",
+									fromAccountLabel: `Account ${selectedAccountData?.accountNumber}` || "",
+									fromAccountNumber: selectedAccountData?.accountNumber || "",
 									toAccountNumber: values.accountNumber,
 									recipientName: beneficiaryName || "Unknown",
 									amount: values.amount,

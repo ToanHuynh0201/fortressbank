@@ -39,7 +39,7 @@ const ChangePIN = () => {
 	const loadAccounts = async () => {
 		try {
 			const response = await accountService.getAccounts();
-			if (response.status === "success" && response.data) {
+			if (response.success && response.data) {
 				setAccounts(response.data);
 				// Auto-select if only one account
 				if (response.data.length === 1) {
@@ -97,15 +97,15 @@ const ChangePIN = () => {
 		setIsLoading(true);
 		try {
 			const response = await accountService.changeAccountPIN(
-				selectedAccount.id,
+				selectedAccount.accountId,
 				values.oldPIN,
 				values.newPIN,
 			);
 
-			if (response.status === "success") {
+			if (response.success) {
 				setStep("success");
 			} else {
-				Alert.alert("Error", response.message || "Failed to change PIN");
+				Alert.alert("Error", response.error || "Failed to change PIN");
 			}
 		} catch (error: any) {
 			Alert.alert("Error", error.message || "Failed to change PIN");
@@ -140,18 +140,18 @@ const ChangePIN = () => {
 
 					{accounts.map((account) => (
 						<TouchableOpacity
-							key={account.id}
+							key={account.accountId}
 							style={styles.accountCard}
 							onPress={() => handleAccountSelect(account)}>
 							<View style={styles.accountInfo}>
 								<Text style={styles.accountName}>
-									{account.accountName}
+									Account {account.accountNumber}
 								</Text>
 								<Text style={styles.accountNumber}>
 									{account.accountNumber}
 								</Text>
 								<Text style={styles.accountBalance}>
-									Balance: ${account.balance.toLocaleString()}
+									Balance: ${account.balance.toFixed(2)}
 								</Text>
 							</View>
 							<CaretDown
@@ -220,7 +220,7 @@ const ChangePIN = () => {
 				title="Change PIN"
 				backgroundColor={neutral.neutral6}
 				textColor={neutral.neutral1}
-				onBackPress={() => setStep("select-account")}
+				onBack={() => setStep("select-account")}
 			/>
 
 			<KeyboardAvoidingView
@@ -236,7 +236,7 @@ const ChangePIN = () => {
 							Changing PIN for:
 						</Text>
 						<Text style={styles.selectedAccountName}>
-							{selectedAccount?.accountName}
+							Account {selectedAccount?.accountNumber}
 						</Text>
 						<Text style={styles.selectedAccountNumber}>
 							{selectedAccount?.accountNumber}

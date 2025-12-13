@@ -6,6 +6,7 @@ import {
 	ScrollView,
 	TouchableOpacity,
 	StatusBar,
+	ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Animated, {
@@ -25,6 +26,8 @@ import {
 	CreditCardItem,
 } from "@/components";
 import { useAuth } from "@/hooks";
+import { accountService } from "@/services/accountService";
+import type { Account } from "@/services/accountService";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -111,6 +114,8 @@ const cardsData: BankCardData[] = [
 const AccountCard = () => {
 	const router = useRouter();
 	const [activeTab, setActiveTab] = useState<"account" | "card">("account");
+	const [accounts, setAccounts] = useState<Account[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const headerOpacity = useSharedValue(0);
 	const userOpacity = useSharedValue(0);
@@ -137,7 +142,27 @@ const AccountCard = () => {
 			duration: 500,
 			easing: Easing.out(Easing.ease),
 		});
+
+		// Fetch accounts data
+		fetchAccounts();
 	}, []);
+
+	const fetchAccounts = async () => {
+		try {
+			setIsLoading(true);
+			const response = await accountService.getAccounts();
+
+			if (response.success && response.data) {
+				setAccounts(response.data);
+			} else {
+				console.error("Failed to fetch accounts:", response.error);
+			}
+		} catch (error) {
+			console.error("Error fetching accounts:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	const headerAnimatedStyle = useAnimatedStyle(() => ({
 		opacity: headerOpacity.value,
@@ -152,13 +177,13 @@ const AccountCard = () => {
 		opacity: contentOpacity.value,
 	}));
 
-	const renderAccountCard = (account: AccountCardData) => (
+	const renderAccountCard = (account: Account) => (
 		<AccountCardItem
-			key={account.id}
-			accountName={account.accountName}
+			key={account.accountId}
+			accountName={`Account`}
 			accountNumber={account.accountNumber}
-			balance={account.balance}
-			branch={account.branch}
+			balance={`$${account.balance.toFixed(2)}`}
+			branch="Main Branch"
 		/>
 	);
 
@@ -248,14 +273,34 @@ const AccountCard = () => {
 			</Animated.View>
 
 			{/* Account Cards List */}
-			<AnimatedScrollView
-				style={[styles.scrollView, contentAnimatedStyle]}
-				contentContainerStyle={styles.scrollContent}
-				showsVerticalScrollIndicator={false}>
-				{activeTab === "account"
-					? accountsData.map((account) => renderAccountCard(account))
-					: cardsData.map((card) => renderBankCard(card))}
-			</AnimatedScrollView>
+			{isLoading ? (
+				<View style={styles.loadingContainer}>
+					<ActivityIndicator
+						size="large"
+						color={colors.primary.primary1}
+					/>
+					<Text style={styles.loadingText}>Loading accounts...</Text>
+				</View>
+			) : (
+				<AnimatedScrollView
+					style={[styles.scrollView, contentAnimatedStyle]}
+					contentContainerStyle={styles.scrollContent}
+					showsVerticalScrollIndicator={false}>
+					{activeTab === "account" ? (
+						accounts.length > 0 ? (
+							accounts.map((account) =>
+								renderAccountCard(account),
+							)
+						) : (
+							<Text style={styles.emptyText}>
+								No accounts found
+							</Text>
+						)
+					) : (
+						cardsData.map((card) => renderBankCard(card))
+					)}
+				</AnimatedScrollView>
+			)}
 
 			{/* Bottom Indicator */}
 			<View style={styles.bottomIndicator}>
@@ -367,6 +412,27 @@ const styles = StyleSheet.create({
 		height: 5,
 		borderRadius: 2.5,
 		backgroundColor: colors.neutral.neutral4,
+	},
+	loadingContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		paddingVertical: 40,
+	},
+	loadingText: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+		marginTop: 12,
+	},
+	emptyText: {
+		fontFamily: "Poppins",
+		fontSize: 14,
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+		textAlign: "center",
+		marginTop: 20,
 	},
 });
 
