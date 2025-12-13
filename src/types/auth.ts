@@ -50,6 +50,29 @@ export interface ChangePasswordRequest {
 	newPassword: string;
 }
 
+export interface ValidateAndSendOtpRequest {
+	email: string;
+	phoneNumber: string;
+	citizenId: string;
+}
+
+export interface ValidateAndSendOtpResponse {
+	code: number;
+	message: string;
+	data?: any;
+}
+
+export interface VerifyOtpRequest {
+	email: string;
+	otp: string;
+}
+
+export interface VerifyOtpResponse {
+	code: number;
+	message: string;
+	data?: any;
+}
+
 export interface AuthContextState {
 	user: User | null;
 	isAuthenticated: boolean;

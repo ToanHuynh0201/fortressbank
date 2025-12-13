@@ -35,6 +35,7 @@ import {
 } from '@/components';
 import { useForm } from '@/hooks';
 import { validationRules } from '@/utils';
+import { authService } from '@/services/authService';
 
 type Step = 'initial-info' | 'otp-verification' | 'complete-registration' | 'account-selection' | 'success';
 
@@ -196,13 +197,20 @@ const SignUp = () => {
 
     setIsLoading(true);
     try {
-      // TODO: Call API to send OTP
-      console.log('Sending OTP to:', values.phoneNumber);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      const result = await authService.validateAndSendOtp({
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        citizenId: values.citizenId,
+      });
 
-      setStep('otp-verification');
-      setTimer(60);
-      setCanResend(false);
+      if (result.code === 1000 && result.data?.sent) {
+        setStep('otp-verification');
+        setTimer(60);
+        setCanResend(false);
+        Alert.alert('Success', 'OTP code has been sent to your email');
+      } else {
+        Alert.alert('Error', result.message || 'Cannot send OTP code. Please try again.');
+      }
     } catch (error) {
       Alert.alert('Error', 'Cannot send OTP code. Please try again.');
     } finally {
@@ -214,14 +222,20 @@ const SignUp = () => {
     if (!canResend) return;
 
     try {
-      // TODO: Call API to resend OTP
-      console.log('Resending OTP to:', values.phoneNumber);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const result = await authService.validateAndSendOtp({
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        citizenId: values.citizenId,
+      });
 
-      setTimer(60);
-      setCanResend(false);
-      setFieldValue('otp', '');
-      Alert.alert('Success', 'A new OTP code has been sent to your phone number');
+      if (result.code === 1000 && result.data?.sent) {
+        setTimer(60);
+        setCanResend(false);
+        setFieldValue('otp', '');
+        Alert.alert('Success', 'A new OTP code has been sent to your email');
+      } else {
+        Alert.alert('Error', result.message || 'Cannot resend OTP code. Please try again.');
+      }
     } catch (error) {
       Alert.alert('Error', 'Cannot resend OTP code. Please try again.');
     }
@@ -235,11 +249,18 @@ const SignUp = () => {
 
     setIsLoading(true);
     try {
-      // TODO: Call API to verify OTP
-      console.log('Verifying OTP:', values.otp);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await authService.verifyOtp({
+        email: values.email,
+        otp: values.otp,
+      });
 
-      setStep('complete-registration');
+      if (result.code === 1000 && result.data?.valid) {
+        setStep('complete-registration');
+        Alert.alert('Success', 'OTP verified successfully');
+      } else {
+        Alert.alert('Error', result.message || 'OTP code is incorrect. Please try again.');
+        setFieldValue('otp', '');
+      }
     } catch (error) {
       Alert.alert('Error', 'OTP code is incorrect. Please try again.');
       setFieldValue('otp', '');

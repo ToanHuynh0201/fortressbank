@@ -6,7 +6,13 @@ import {
 	clearStorageItems,
 } from "@/utils/storage";
 import { withErrorHandling } from "@/utils/error";
-import type { LoginRequest } from "@/types/auth";
+import type {
+	LoginRequest,
+	ValidateAndSendOtpRequest,
+	ValidateAndSendOtpResponse,
+	VerifyOtpRequest,
+	VerifyOtpResponse,
+} from "@/types/auth";
 
 class AuthService {
 	/**
@@ -219,6 +225,68 @@ class AuthService {
 		setStorageItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
 		setStorageItem(STORAGE_KEYS.SESSION_DATA, refreshToken);
 		setStorageItem(STORAGE_KEYS.USER_DATA, user);
+	}
+
+	/**
+	 * Validate user information and send OTP for registration
+	 * @param {ValidateAndSendOtpRequest} request - Request with email, phoneNumber, and citizenId
+	 * @returns {Promise<ValidateAndSendOtpResponse>} API response
+	 */
+	async validateAndSendOtp(
+		request: ValidateAndSendOtpRequest,
+	): Promise<ValidateAndSendOtpResponse> {
+		try {
+			const response = await fetch("http://localhost:8000/auth/validate-and-send-otp", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(request),
+			});
+
+			const data: ValidateAndSendOtpResponse = await response.json();
+
+			// Return the response regardless of success or error
+			// The response will have code, message, and optionally data
+			return data;
+		} catch (error) {
+			console.error("Validate and send OTP error:", error);
+			// Return error response in the same format
+			return {
+				code: -1,
+				message: error instanceof Error ? error.message : "Network error occurred",
+			};
+		}
+	}
+
+	/**
+	 * Verify OTP code
+	 * @param {VerifyOtpRequest} request - Request with email and OTP code
+	 * @returns {Promise<VerifyOtpResponse>} API response
+	 */
+	async verifyOtp(request: VerifyOtpRequest): Promise<VerifyOtpResponse> {
+		try {
+			const response = await fetch("http://localhost:8000/auth/verify-otp", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(request),
+			});
+
+			const data: VerifyOtpResponse = await response.json();
+
+			// Return the response regardless of success or error
+			// The response will have code, message, and optionally data
+			return data;
+		} catch (error) {
+			console.error("Verify OTP error:", error);
+			// Return error response in the same format
+			return {
+				code: -1,
+				message: error instanceof Error ? error.message : "Network error occurred",
+			};
+		}
 	}
 }
 
