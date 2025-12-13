@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	section: {
-		marginBottom: 24,
+		marginBottom: 12,
 	},
 	sectionTitle: {
 		fontFamily: "Poppins",
