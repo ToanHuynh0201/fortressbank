@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { primary, neutral } from "@/constants";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import {
 	UserAvatar,
 	NotificationBell,
@@ -102,6 +103,13 @@ const Home = () => {
 	useEffect(() => {
 		fetchAccounts();
 	}, []);
+
+	// Refresh accounts when screen gains focus
+	useFocusEffect(
+		useCallback(() => {
+			fetchAccounts();
+		}, [])
+	);
 
 	const fetchAccounts = async () => {
 		try {

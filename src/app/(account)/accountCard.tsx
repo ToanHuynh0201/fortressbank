@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
 	View,
 	Text,
@@ -9,6 +9,7 @@ import {
 	ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -17,7 +18,7 @@ import Animated, {
 	Easing,
 	FadeIn,
 } from "react-native-reanimated";
-import { CaretLeftIcon } from "phosphor-react-native";
+import { CaretLeftIcon, Plus } from "phosphor-react-native";
 import colors from "@/constants/colors";
 import {
 	ScreenContainer,
@@ -146,6 +147,13 @@ const AccountCard = () => {
 		// Fetch accounts data
 		fetchAccounts();
 	}, []);
+
+	// Refresh accounts when screen gains focus
+	useFocusEffect(
+		useCallback(() => {
+			fetchAccounts();
+		}, [])
+	);
 
 	const fetchAccounts = async () => {
 		try {
@@ -302,6 +310,14 @@ const AccountCard = () => {
 				</AnimatedScrollView>
 			)}
 
+			{/* Floating Action Button */}
+			<TouchableOpacity
+				style={styles.fab}
+				onPress={() => router.push("/(account)/addAccount")}
+				activeOpacity={0.8}>
+				<Plus size={24} color={colors.neutral.neutral6} weight="bold" />
+			</TouchableOpacity>
+
 			{/* Bottom Indicator */}
 			<View style={styles.bottomIndicator}>
 				<View style={styles.indicator} />
@@ -433,6 +449,22 @@ const styles = StyleSheet.create({
 		color: colors.neutral.neutral3,
 		textAlign: "center",
 		marginTop: 20,
+	},
+	fab: {
+		position: "absolute",
+		bottom: 50,
+		right: 24,
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		backgroundColor: colors.primary.primary1,
+		justifyContent: "center",
+		alignItems: "center",
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.3,
+		shadowRadius: 8,
+		elevation: 8,
 	},
 });
 

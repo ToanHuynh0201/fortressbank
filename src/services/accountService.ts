@@ -1,4 +1,4 @@
-import apiService from "@/lib/api";
+import api from "@/lib/api";
 import { withErrorHandling } from "@/utils/error";
 
 /**
@@ -54,9 +54,22 @@ class AccountService {
 	 * Get all user accounts
 	 */
 	getAccounts = withErrorHandling(async () => {
-		const response = await apiService.get("/accounts");
+		const response = await api.get("/accounts");
 		return response;
 	});
+
+	/**
+	 * Create new account
+	 */
+	createAccount = withErrorHandling(
+		async (data: {
+			accountNumberType: "PHONE_NUMBER" | "AUTO_GENERATE";
+			pin: string;
+		}) => {
+			const response = await api.post("/accounts", data);
+			return response;
+		},
+	);
 
 	/**
 	 * Get account by ID
@@ -64,7 +77,7 @@ class AccountService {
 	async getAccountById(
 		accountId: string,
 	): Promise<{ status: string; data: Account }> {
-		const response = await apiService.get(`/accounts/${accountId}`);
+		const response = await api.get(`/accounts/${accountId}`);
 		return response.data;
 	}
 
@@ -74,7 +87,7 @@ class AccountService {
 	async getAccountBalance(
 		accountId: string,
 	): Promise<{ status: string; data: AccountBalance }> {
-		const response = await apiService.get(`/accounts/${accountId}/balance`);
+		const response = await api.get(`/accounts/${accountId}/balance`);
 		return response.data;
 	}
 
@@ -86,7 +99,7 @@ class AccountService {
 		startDate: string,
 		endDate: string,
 	): Promise<{ status: string; data: AccountStatement }> {
-		const response = await apiService.get(
+		const response = await api.get(
 			`/accounts/${accountId}/statement?startDate=${startDate}&endDate=${endDate}`,
 		);
 		return response.data;
@@ -96,7 +109,7 @@ class AccountService {
 	 * Get all user cards
 	 */
 	async getCards(): Promise<{ status: string; data: Card[] }> {
-		const response = await apiService.get("/cards");
+		const response = await api.get("/cards");
 		return response.data;
 	}
 
@@ -104,7 +117,7 @@ class AccountService {
 	 * Get card by ID
 	 */
 	async getCardById(cardId: string): Promise<{ status: string; data: Card }> {
-		const response = await apiService.get(`/cards/${cardId}`);
+		const response = await api.get(`/cards/${cardId}`);
 		return response.data;
 	}
 
@@ -114,7 +127,7 @@ class AccountService {
 	async blockCard(
 		cardId: string,
 	): Promise<{ status: string; message: string }> {
-		const response = await apiService.post(`/cards/${cardId}/block`, {});
+		const response = await api.post(`/cards/${cardId}/block`, {});
 		return response.data;
 	}
 
@@ -124,7 +137,7 @@ class AccountService {
 	async unblockCard(
 		cardId: string,
 	): Promise<{ status: string; message: string }> {
-		const response = await apiService.post(`/cards/${cardId}/unblock`, {});
+		const response = await api.post(`/cards/${cardId}/unblock`, {});
 		return response.data;
 	}
 
@@ -134,7 +147,7 @@ class AccountService {
 	async deleteCard(
 		cardId: string,
 	): Promise<{ status: string; message: string }> {
-		const response = await apiService.delete(`/cards/${cardId}`);
+		const response = await api.delete(`/cards/${cardId}`);
 		return response.data;
 	}
 
@@ -146,7 +159,7 @@ class AccountService {
 		cardType: "DEBIT" | "CREDIT";
 		deliveryAddress: string;
 	}): Promise<{ status: string; data: Card }> {
-		const response = await apiService.post("/cards/request", data);
+		const response = await api.post("/cards/request", data);
 		return response.data;
 	}
 
@@ -158,7 +171,7 @@ class AccountService {
 		oldPin: string,
 		newPin: string,
 	): Promise<any> {
-		const response = await apiService.post(`/cards/${cardId}/update-pin`, {
+		const response = await api.post(`/cards/${cardId}/update-pin`, {
 			oldPin,
 			newPin,
 		});
@@ -171,13 +184,10 @@ class AccountService {
 	 */
 	changeAccountPIN = withErrorHandling(
 		async (accountId: string, oldPin: string, newPin: string) => {
-			const response = await apiService.put(
-				`/accounts/${accountId}/pin`,
-				{
-					oldPin,
-					newPin,
-				},
-			);
+			const response = await api.put(`/accounts/${accountId}/pin`, {
+				oldPin,
+				newPin,
+			});
 
 			console.log("CHANGE_PIN", response);
 			return response;
@@ -191,12 +201,9 @@ class AccountService {
 		accountId: string,
 		pin: string,
 	): Promise<{ status: string; message: string }> {
-		const response = await apiService.post(
-			`/accounts/${accountId}/verify-pin`,
-			{
-				pin,
-			},
-		);
+		const response = await api.post(`/accounts/${accountId}/verify-pin`, {
+			pin,
+		});
 		return response.data;
 	}
 
@@ -207,7 +214,7 @@ class AccountService {
 		cardId: string,
 		limit: number,
 	): Promise<{ status: string; message: string }> {
-		const response = await apiService.post(`/cards/${cardId}/set-limit`, {
+		const response = await api.post(`/cards/${cardId}/set-limit`, {
 			limit,
 		});
 		return response.data;

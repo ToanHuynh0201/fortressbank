@@ -13,3 +13,4 @@ export { default as OTPInput } from "./OTPInput";
 export { default as PINInput } from "./PINInput";
 export { default as DatePickerInput } from "./DatePickerInput";
 export { default as ConfirmationModal } from "./ConfirmationModal";
+export { default as SuccessModal } from "./SuccessModal";
