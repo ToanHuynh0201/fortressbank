@@ -9,7 +9,7 @@ import {
 	KeyboardAvoidingView,
 	Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -52,8 +52,67 @@ interface Bank {
 	logo: string;
 }
 
+// Move banks outside component to avoid re-creating on every render
+const BANKS: Bank[] = [
+	{
+		id: "0",
+		name: "Fortress Bank",
+		code: "FORTRESS",
+		logo: "🏰",
+	},
+	{
+		id: "1",
+		name: "Vietcombank",
+		code: "VCB",
+		logo: "🏦",
+	},
+	{
+		id: "2",
+		name: "VietinBank",
+		code: "CTG",
+		logo: "🏦",
+	},
+	{
+		id: "3",
+		name: "BIDV",
+		code: "BIDV",
+		logo: "🏦",
+	},
+	{
+		id: "4",
+		name: "Agribank",
+		code: "VBA",
+		logo: "🏦",
+	},
+	{
+		id: "5",
+		name: "Techcombank",
+		code: "TCB",
+		logo: "🏦",
+	},
+	{
+		id: "6",
+		name: "MB Bank",
+		code: "MB",
+		logo: "🏦",
+	},
+	{
+		id: "7",
+		name: "ACB",
+		code: "ACB",
+		logo: "🏦",
+	},
+	{
+		id: "8",
+		name: "VPBank",
+		code: "VPB",
+		logo: "🏦",
+	},
+];
+
 const Transfer = () => {
 	const router = useRouter();
+	const params = useLocalSearchParams();
 	const [selectedAccount, setSelectedAccount] = useState<string>("");
 	const [showAccountDropdown, setShowAccountDropdown] = useState(false);
 	const [showAccountNumbers, setShowAccountNumbers] = useState(false);
@@ -87,6 +146,36 @@ const Transfer = () => {
 		fetchAccounts();
 	}, []);
 
+	// Handle QR scan params - auto-fill form when QR code is scanned
+	useEffect(() => {
+		if (params.accountNumber && typeof params.accountNumber === 'string') {
+			// Set account number
+			setFieldValue("accountNumber", params.accountNumber);
+
+			// Set beneficiary name
+			if (params.accountName && typeof params.accountName === 'string') {
+				setBeneficiaryName(params.accountName);
+			}
+
+			// Set amount if provided
+			if (params.amount && typeof params.amount === 'string') {
+				setFieldValue("amount", params.amount);
+			}
+
+			// Set message if provided
+			if (params.message && typeof params.message === 'string') {
+				setFieldValue("content", params.message);
+			}
+
+			// Auto-select bank based on bankCode from QR (default to FORTRESS for internal transfers)
+			const bankCode = (params.bankCode as string) || "FORTRESS";
+			const bank = BANKS.find((b) => b.code === bankCode);
+			if (bank) {
+				setSelectedBank(bank.id);
+			}
+		}
+	}, [params.accountNumber, params.accountName, params.amount, params.message, params.bankCode]);
+
 	const fetchAccounts = async () => {
 		try {
 			const response = await accountService.getAccounts();
@@ -117,57 +206,6 @@ const Transfer = () => {
 		content: "",
 	});
 
-	const banks: Bank[] = [
-		{
-			id: "1",
-			name: "Vietcombank",
-			code: "VCB",
-			logo: "🏦",
-		},
-		{
-			id: "2",
-			name: "VietinBank",
-			code: "CTG",
-			logo: "🏦",
-		},
-		{
-			id: "3",
-			name: "BIDV",
-			code: "BIDV",
-			logo: "🏦",
-		},
-		{
-			id: "4",
-			name: "Agribank",
-			code: "VBA",
-			logo: "🏦",
-		},
-		{
-			id: "5",
-			name: "Techcombank",
-			code: "TCB",
-			logo: "🏦",
-		},
-		{
-			id: "6",
-			name: "MB Bank",
-			code: "MB",
-			logo: "🏦",
-		},
-		{
-			id: "7",
-			name: "ACB",
-			code: "ACB",
-			logo: "🏦",
-		},
-		{
-			id: "8",
-			name: "VPBank",
-			code: "VPB",
-			logo: "🏦",
-		},
-	];
-
 	// Get selected account balance
 	const selectedAccountData = accounts.find((a) => a.accountId === selectedAccount);
 	const availableBalance = selectedAccountData?.balance || 0;
@@ -176,7 +214,7 @@ const Transfer = () => {
 	const numericAmount = parseCurrency(values.amount);
 
 	// Get selected bank data
-	const selectedBankData = banks.find((b) => b.id === selectedBank);
+	const selectedBankData = BANKS.find((b) => b.id === selectedBank);
 
 	// Form validation
 	const isFormValid =
@@ -512,7 +550,7 @@ const Transfer = () => {
 										<ScrollView
 											style={styles.bankDropdownScroll}
 											nestedScrollEnabled={true}>
-											{banks.map((bank) => (
+											{BANKS.map((bank) => (
 												<TouchableOpacity
 													key={bank.id}
 													style={[

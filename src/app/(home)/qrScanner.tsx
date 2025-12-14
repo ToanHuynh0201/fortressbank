@@ -234,10 +234,12 @@ const QRScanner = () => {
 							size={64}
 							color={neutral.neutral6}
 						/>
-						<Text style={styles.errorTitle}>Camera Access Denied</Text>
+						<Text style={styles.errorTitle}>
+							Camera Access Denied
+						</Text>
 						<Text style={styles.errorText}>
-							Please enable camera permission in settings to scan QR
-							codes
+							Please enable camera permission in settings to scan
+							QR codes
 						</Text>
 						<TouchableOpacity
 							style={styles.primaryButton}
@@ -247,7 +249,9 @@ const QRScanner = () => {
 								size={20}
 								color={neutral.neutral6}
 							/>
-							<Text style={styles.primaryButtonText}>Go Back</Text>
+							<Text style={styles.primaryButtonText}>
+								Go Back
+							</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -260,7 +264,9 @@ const QRScanner = () => {
 					<CameraView
 						style={styles.camera}
 						facing="back"
-						onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+						onBarcodeScanned={
+							scanned ? undefined : handleBarCodeScanned
+						}
 						barcodeScannerSettings={{
 							barcodeTypes: ["qr"],
 						}}>
@@ -268,9 +274,15 @@ const QRScanner = () => {
 							<View style={styles.scanFrame}>
 								{/* Corner decorations */}
 								<View style={[styles.corner, styles.topLeft]} />
-								<View style={[styles.corner, styles.topRight]} />
-								<View style={[styles.corner, styles.bottomLeft]} />
-								<View style={[styles.corner, styles.bottomRight]} />
+								<View
+									style={[styles.corner, styles.topRight]}
+								/>
+								<View
+									style={[styles.corner, styles.bottomLeft]}
+								/>
+								<View
+									style={[styles.corner, styles.bottomRight]}
+								/>
 								<View style={styles.scanLine} />
 							</View>
 						</View>
@@ -354,7 +366,8 @@ const QRScanner = () => {
 					<TouchableOpacity
 						style={[
 							styles.pageModeToggleButton,
-							pageMode === "show" && styles.pageModeToggleButtonActive,
+							pageMode === "show" &&
+								styles.pageModeToggleButtonActive,
 						]}
 						onPress={() => handlePageModeSwitch("show")}
 						activeOpacity={0.7}>
@@ -362,7 +375,9 @@ const QRScanner = () => {
 							name="image"
 							size={18}
 							color={
-								pageMode === "show" ? neutral.neutral6 : primary.primary1
+								pageMode === "show"
+									? primary.primary1
+									: neutral.neutral6
 							}
 						/>
 						<Text
@@ -378,7 +393,8 @@ const QRScanner = () => {
 					<TouchableOpacity
 						style={[
 							styles.pageModeToggleButton,
-							pageMode === "scan" && styles.pageModeToggleButtonActive,
+							pageMode === "scan" &&
+								styles.pageModeToggleButtonActive,
 						]}
 						onPress={() => handlePageModeSwitch("scan")}
 						activeOpacity={0.7}>
@@ -386,13 +402,16 @@ const QRScanner = () => {
 							name="camera"
 							size={18}
 							color={
-								pageMode === "scan" ? neutral.neutral6 : primary.primary1
+								pageMode === "scan"
+									? primary.primary1
+									: neutral.neutral6
 							}
 						/>
 						<Text
 							style={[
 								styles.pageModeToggleText,
-								pageMode === "scan" && styles.pageModeToggleTextActive,
+								pageMode === "scan" &&
+									styles.pageModeToggleTextActive,
 							]}>
 							Scan QR
 						</Text>
@@ -406,372 +425,350 @@ const QRScanner = () => {
 						style={styles.scrollContent}
 						contentContainerStyle={styles.scrollContentContainer}
 						showsVerticalScrollIndicator={false}>
-					{/* Account Selector */}
-					<Animated.View
-						entering={FadeInDown.duration(400).delay(100)}
-						style={styles.accountSelectorContainer}>
-						<Text style={styles.sectionTitle}>Select Account</Text>
-						<ScrollView
-							horizontal
-							showsHorizontalScrollIndicator={false}
-							contentContainerStyle={
-								styles.accountScrollContainer
-							}>
-							{accounts.map((account, index) => (
-								<TouchableOpacity
-									key={account.accountId}
-									style={[
-										styles.accountChip,
-										selectedAccount?.accountId ===
-											account.accountId &&
-											styles.accountChipActive,
-									]}
-									onPress={() => handleAccountSelect(account)}
-									activeOpacity={0.7}>
-									<Text
-										style={[
-											styles.accountChipText,
-											selectedAccount?.accountId ===
-												account.accountId &&
-												styles.accountChipTextActive,
-										]}>
-										••• {account.accountNumber.slice(-4)}
-									</Text>
-									<Text
-										style={[
-											styles.accountChipBalance,
-											selectedAccount?.accountId ===
-												account.accountId &&
-												styles.accountChipBalanceActive,
-										]}>
-										${account.balance.toFixed(2)}
-									</Text>
-								</TouchableOpacity>
-							))}
-						</ScrollView>
-					</Animated.View>
-
-					{/* QR Mode Toggle */}
-					<Animated.View
-						entering={FadeInDown.duration(400).delay(150)}
-						style={styles.modeToggleContainer}>
-						<TouchableOpacity
-							style={[
-								styles.modeToggleButton,
-								qrMode === "static" && styles.modeToggleButtonActive,
-							]}
-							onPress={() => handleModeSwitch("static")}
-							activeOpacity={0.7}>
-							<Feather
-								name="lock"
-								size={16}
-								color={
-									qrMode === "static"
-										? neutral.neutral6
-										: primary.primary1
-								}
-							/>
-							<Text
-								style={[
-									styles.modeToggleText,
-									qrMode === "static" &&
-										styles.modeToggleTextActive,
-								]}>
-								Static QR
-							</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={[
-								styles.modeToggleButton,
-								qrMode === "dynamic" && styles.modeToggleButtonActive,
-							]}
-							onPress={() => handleModeSwitch("dynamic")}
-							activeOpacity={0.7}>
-							<Feather
-								name="edit-3"
-								size={16}
-								color={
-									qrMode === "dynamic"
-										? neutral.neutral6
-										: primary.primary1
-								}
-							/>
-							<Text
-								style={[
-									styles.modeToggleText,
-									qrMode === "dynamic" &&
-										styles.modeToggleTextActive,
-								]}>
-								Dynamic QR
-							</Text>
-						</TouchableOpacity>
-					</Animated.View>
-
-					{/* Dynamic QR Inputs */}
-					{qrMode === "dynamic" && (
+						{/* Account Selector - Compact */}
 						<Animated.View
-							entering={FadeInDown.duration(400).delay(200)}
-							style={styles.dynamicInputsContainer}>
-							{/* Amount Input */}
-							<View style={styles.inputGroup}>
-								<Text style={styles.inputLabel}>
-									Amount (Optional)
-								</Text>
-								<View style={styles.inputWrapper}>
-									<Text style={styles.currencySymbol}>$</Text>
-									<TextInput
-										style={styles.input}
-										placeholder="0.00"
-										placeholderTextColor={neutral.neutral4}
-										value={amount}
-										onChangeText={handleAmountChange}
-										keyboardType="decimal-pad"
-									/>
-								</View>
-							</View>
-
-							{/* Message Input */}
-							<View style={styles.inputGroup}>
-								<Text style={styles.inputLabel}>
-									Message (Optional)
-								</Text>
-								<TextInput
-									style={[styles.input, styles.messageInput]}
-									placeholder="Enter payment message..."
-									placeholderTextColor={neutral.neutral4}
-									value={message}
-									onChangeText={setMessage}
-									multiline
-									maxLength={100}
-								/>
-								<Text style={styles.charCount}>
-									{message.length}/100
-								</Text>
-							</View>
+							entering={FadeInDown.duration(400).delay(100)}
+							style={styles.accountSelectorContainer}>
+							<ScrollView
+								horizontal
+								showsHorizontalScrollIndicator={false}
+								contentContainerStyle={
+									styles.accountScrollContainer
+								}>
+								{accounts.map((account, index) => (
+									<TouchableOpacity
+										key={account.accountId}
+										style={[
+											styles.accountChip,
+											selectedAccount?.accountId ===
+												account.accountId &&
+												styles.accountChipActive,
+										]}
+										onPress={() =>
+											handleAccountSelect(account)
+										}
+										activeOpacity={0.7}>
+										<Text
+											style={[
+												styles.accountChipText,
+												selectedAccount?.accountId ===
+													account.accountId &&
+													styles.accountChipTextActive,
+											]}>
+											•••{" "}
+											{account.accountNumber.slice(-4)}
+										</Text>
+										<Text
+											style={[
+												styles.accountChipBalance,
+												selectedAccount?.accountId ===
+													account.accountId &&
+													styles.accountChipBalanceActive,
+											]}>
+											${account.balance.toFixed(2)}
+										</Text>
+									</TouchableOpacity>
+								))}
+							</ScrollView>
 						</Animated.View>
-					)}
 
-					{/* QR Code Card */}
-					<Animated.View
-						entering={FadeInDown.duration(400).delay(250)}
-						style={styles.qrCard}>
-						<LinearGradient
-							colors={["#FFFFFF", "#F8F9FF"]}
-							start={{ x: 0, y: 0 }}
-							end={{ x: 1, y: 1 }}
-							style={styles.qrCardGradient}>
-							{/* User Info */}
-							<View style={styles.userInfoSection}>
-								<View style={styles.userAvatar}>
-									<Feather
-										name="user"
-										size={32}
-										color={primary.primary1}
-									/>
-								</View>
-								<Text style={styles.userName}>
-									{user?.fullName || user?.name || "User"}
+						{/* QR Mode Toggle */}
+						<Animated.View
+							entering={FadeInDown.duration(400).delay(150)}
+							style={styles.modeToggleContainer}>
+							<TouchableOpacity
+								style={[
+									styles.modeToggleButton,
+									qrMode === "static" &&
+										styles.modeToggleButtonActive,
+								]}
+								onPress={() => handleModeSwitch("static")}
+								activeOpacity={0.7}>
+								<Feather
+									name="lock"
+									size={16}
+									color={
+										qrMode === "static"
+											? neutral.neutral6
+											: primary.primary1
+									}
+								/>
+								<Text
+									style={[
+										styles.modeToggleText,
+										qrMode === "static" &&
+											styles.modeToggleTextActive,
+									]}>
+									Static QR
 								</Text>
-								<View style={styles.bankBadge}>
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								style={[
+									styles.modeToggleButton,
+									qrMode === "dynamic" &&
+										styles.modeToggleButtonActive,
+								]}
+								onPress={() => handleModeSwitch("dynamic")}
+								activeOpacity={0.7}>
+								<Feather
+									name="edit-3"
+									size={16}
+									color={
+										qrMode === "dynamic"
+											? neutral.neutral6
+											: primary.primary1
+									}
+								/>
+								<Text
+									style={[
+										styles.modeToggleText,
+										qrMode === "dynamic" &&
+											styles.modeToggleTextActive,
+									]}>
+									Dynamic QR
+								</Text>
+							</TouchableOpacity>
+						</Animated.View>
+
+						{/* Dynamic QR Inputs */}
+						{qrMode === "dynamic" && (
+							<Animated.View
+								entering={FadeInDown.duration(400).delay(200)}
+								style={styles.dynamicInputsContainer}>
+								{/* Amount Input */}
+								<View style={styles.inputGroup}>
+									<Text style={styles.inputLabel}>
+										Amount (Optional)
+									</Text>
+									<View style={styles.inputWrapper}>
+										<Text style={styles.currencySymbol}>
+											$
+										</Text>
+										<TextInput
+											style={styles.input}
+											placeholder="0.00"
+											placeholderTextColor={
+												neutral.neutral4
+											}
+											value={amount}
+											onChangeText={handleAmountChange}
+											keyboardType="decimal-pad"
+										/>
+									</View>
+								</View>
+
+								{/* Message Input */}
+								<View style={styles.inputGroup}>
+									<Text style={styles.inputLabel}>
+										Message (Optional)
+									</Text>
+									<TextInput
+										style={[
+											styles.input,
+											styles.messageInput,
+										]}
+										placeholder="Enter payment message..."
+										placeholderTextColor={neutral.neutral4}
+										value={message}
+										onChangeText={setMessage}
+										multiline
+										maxLength={100}
+									/>
+									<Text style={styles.charCount}>
+										{message.length}/100
+									</Text>
+								</View>
+							</Animated.View>
+						)}
+
+						{/* QR Code Card */}
+						<Animated.View
+							entering={FadeInDown.duration(400).delay(250)}
+							style={styles.qrCard}>
+							<LinearGradient
+								colors={["#FFFFFF", "#F8F9FF"]}
+								start={{ x: 0, y: 0 }}
+								end={{ x: 1, y: 1 }}
+								style={styles.qrCardGradient}>
+								{/* User Info - Compact */}
+								<View style={styles.userInfoSection}>
+									<View style={styles.userAvatar}>
+										<Feather
+											name="user"
+											size={24}
+											color={primary.primary1}
+										/>
+									</View>
+									<Text style={styles.userName}>
+										{user?.fullName || user?.name || "User"}
+									</Text>
+									<View style={styles.bankBadge}>
+										<Feather
+											name="shield"
+											size={12}
+											color={primary.primary1}
+										/>
+										<Text style={styles.bankName}>
+											FortressBank
+										</Text>
+									</View>
+								</View>
+
+								{/* QR Code */}
+								<View style={styles.qrCodeContainer}>
+									<View style={styles.qrCodeWrapper}>
+										{qrValue && (
+											<QRCode
+												value={qrValue}
+												size={180}
+												color={primary.primary1}
+												backgroundColor="white"
+												logo={require("../../../assets/icon.png")}
+												logoSize={40}
+												logoBackgroundColor="white"
+												logoBorderRadius={8}
+											/>
+										)}
+									</View>
+								</View>
+
+								{/* Account Info */}
+								<View style={styles.accountInfoSection}>
+									<TouchableOpacity
+										style={styles.accountNumberContainer}
+										onPress={handleCopyAccountNumber}
+										activeOpacity={0.7}>
+										<Text style={styles.accountNumber}>
+											{selectedAccount?.accountNumber}
+										</Text>
+										<Feather
+											name="copy"
+											size={18}
+											color={primary.primary1}
+										/>
+									</TouchableOpacity>
+								</View>
+
+								{/* Dynamic QR Info Display */}
+								{qrMode === "dynamic" &&
+									(amount || message) && (
+										<View style={styles.dynamicInfoDisplay}>
+											{amount && (
+												<View
+													style={
+														styles.dynamicInfoItem
+													}>
+													<Feather
+														name="dollar-sign"
+														size={14}
+														color={primary.primary1}
+													/>
+													<Text
+														style={
+															styles.dynamicInfoLabel
+														}>
+														Amount:
+													</Text>
+													<Text
+														style={
+															styles.dynamicInfoValue
+														}>
+														${amount}
+													</Text>
+												</View>
+											)}
+											{message && (
+												<View
+													style={
+														styles.dynamicInfoItem
+													}>
+													<Feather
+														name="message-circle"
+														size={14}
+														color={primary.primary1}
+													/>
+													<Text
+														style={
+															styles.dynamicInfoLabel
+														}>
+														Message:
+													</Text>
+													<Text
+														style={
+															styles.dynamicInfoValue
+														}
+														numberOfLines={2}>
+														{message}
+													</Text>
+												</View>
+											)}
+										</View>
+									)}
+							</LinearGradient>
+						</Animated.View>
+
+						{/* Info Cards */}
+						<Animated.View
+							entering={FadeInDown.duration(400).delay(400)}
+							style={styles.infoCardsContainer}>
+							<View style={styles.infoCard}>
+								<View style={styles.infoCardHeader}>
 									<Feather
 										name="shield"
-										size={14}
+										size={20}
 										color={primary.primary1}
 									/>
-									<Text style={styles.bankName}>
-										FortressBank
+									<Text style={styles.infoCardTitle}>
+										Security Notice
 									</Text>
 								</View>
-							</View>
-
-							{/* QR Code */}
-							<View style={styles.qrCodeContainer}>
-								<View style={styles.qrCodeWrapper}>
-									{qrValue && (
-										<QRCode
-											value={qrValue}
-											size={220}
-											color={primary.primary1}
-											backgroundColor="white"
-											logo={require("../../../assets/icon.png")}
-											logoSize={50}
-											logoBackgroundColor="white"
-											logoBorderRadius={10}
-										/>
-									)}
-								</View>
-							</View>
-
-							{/* Account Info */}
-							<View style={styles.accountInfoSection}>
-								<Text style={styles.accountInfoLabel}>
-									Account Number
+								<Text style={styles.infoCardText}>
+									Never share your PIN or password. This QR
+									code only contains your account number for
+									receiving payments.
 								</Text>
-								<TouchableOpacity
-									style={styles.accountNumberContainer}
-									onPress={handleCopyAccountNumber}
-									activeOpacity={0.7}>
-									<Text style={styles.accountNumber}>
-										{selectedAccount?.accountNumber}
-									</Text>
-									<Feather
-										name="copy"
-										size={18}
-										color={primary.primary1}
-									/>
-								</TouchableOpacity>
 							</View>
 
-							{/* Dynamic QR Info Display */}
-							{qrMode === "dynamic" && (amount || message) && (
-								<View style={styles.dynamicInfoDisplay}>
-									{amount && (
-										<View style={styles.dynamicInfoItem}>
-											<Feather
-												name="dollar-sign"
-												size={14}
-												color={primary.primary1}
-											/>
-											<Text style={styles.dynamicInfoLabel}>
-												Amount:
-											</Text>
-											<Text style={styles.dynamicInfoValue}>
-												${amount}
-											</Text>
-										</View>
-									)}
-									{message && (
-										<View style={styles.dynamicInfoItem}>
-											<Feather
-												name="message-circle"
-												size={14}
-												color={primary.primary1}
-											/>
-											<Text style={styles.dynamicInfoLabel}>
-												Message:
-											</Text>
-											<Text
-												style={styles.dynamicInfoValue}
-												numberOfLines={2}>
-												{message}
-											</Text>
-										</View>
-									)}
+							{qrMode === "static" ? (
+								<View style={styles.infoCard}>
+									<View style={styles.infoCardHeader}>
+										<Feather
+											name="zap"
+											size={20}
+											color={primary.primary1}
+										/>
+										<Text style={styles.infoCardTitle}>
+											Static QR Code
+										</Text>
+									</View>
+									<Text style={styles.infoCardText}>
+										This QR code can be used for any amount.
+										The payer can scan and enter their
+										desired amount.
+									</Text>
+								</View>
+							) : (
+								<View style={styles.infoCard}>
+									<View style={styles.infoCardHeader}>
+										<Feather
+											name="edit-3"
+											size={20}
+											color={primary.primary1}
+										/>
+										<Text style={styles.infoCardTitle}>
+											Dynamic QR Code
+										</Text>
+									</View>
+									<Text style={styles.infoCardText}>
+										This QR code includes the amount and
+										message you specified. Perfect for
+										specific payment requests.
+									</Text>
 								</View>
 							)}
-
-							{/* Instruction */}
-							<View style={styles.instructionSection}>
-								<Feather
-									name="info"
-									size={16}
-									color={neutral.neutral3}
-								/>
-								<Text style={styles.instructionText}>
-									{qrMode === "dynamic"
-										? "This QR includes amount and message for the payment"
-										: "Show this QR code to receive payments"}
-								</Text>
-							</View>
-						</LinearGradient>
-					</Animated.View>
-
-					{/* Action Buttons */}
-					<Animated.View
-						entering={FadeInDown.duration(400).delay(300)}
-						style={styles.actionButtonsContainer}>
-						<TouchableOpacity
-							style={styles.actionButton}
-							onPress={handleShare}
-							activeOpacity={0.7}>
-							<View style={styles.actionButtonIconContainer}>
-								<Feather
-									name="share-2"
-									size={20}
-									color={primary.primary1}
-								/>
-							</View>
-							<Text style={styles.actionButtonText}>
-								Share QR
-							</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							style={styles.actionButton}
-							onPress={handleCopyAccountNumber}
-							activeOpacity={0.7}>
-							<View style={styles.actionButtonIconContainer}>
-								<Feather
-									name="copy"
-									size={20}
-									color={primary.primary1}
-								/>
-							</View>
-							<Text style={styles.actionButtonText}>
-								Copy Account
-							</Text>
-						</TouchableOpacity>
-					</Animated.View>
-
-					{/* Info Cards */}
-					<Animated.View
-						entering={FadeInDown.duration(400).delay(400)}
-						style={styles.infoCardsContainer}>
-						<View style={styles.infoCard}>
-							<View style={styles.infoCardHeader}>
-								<Feather
-									name="shield"
-									size={20}
-									color={primary.primary1}
-								/>
-								<Text style={styles.infoCardTitle}>
-									Security Notice
-								</Text>
-							</View>
-							<Text style={styles.infoCardText}>
-								Never share your PIN or password. This QR code only
-								contains your account number for receiving payments.
-							</Text>
-						</View>
-
-						{qrMode === "static" ? (
-							<View style={styles.infoCard}>
-								<View style={styles.infoCardHeader}>
-									<Feather
-										name="zap"
-										size={20}
-										color={primary.primary1}
-									/>
-									<Text style={styles.infoCardTitle}>
-										Static QR Code
-									</Text>
-								</View>
-								<Text style={styles.infoCardText}>
-									This QR code can be used for any amount. The
-									payer can scan and enter their desired amount.
-								</Text>
-							</View>
-						) : (
-							<View style={styles.infoCard}>
-								<View style={styles.infoCardHeader}>
-									<Feather
-										name="edit-3"
-										size={20}
-										color={primary.primary1}
-									/>
-									<Text style={styles.infoCardTitle}>
-										Dynamic QR Code
-									</Text>
-								</View>
-								<Text style={styles.infoCardText}>
-									This QR code includes the amount and message you
-									specified. Perfect for specific payment requests.
-								</Text>
-							</View>
-						)}
-					</Animated.View>
-				</ScrollView>
+						</Animated.View>
+					</ScrollView>
 				)}
 			</SafeAreaView>
 		</LinearGradient>
@@ -786,6 +783,7 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
+		paddingBottom: 50,
 	},
 	centerContainer: {
 		flex: 1,
@@ -823,16 +821,17 @@ const styles = StyleSheet.create({
 	},
 	scrollContentContainer: {
 		paddingHorizontal: 24,
-		paddingBottom: 120,
+		paddingBottom: 100,
+		paddingTop: 8,
 	},
 	accountSelectorContainer: {
-		marginBottom: 20,
+		marginBottom: 12,
 	},
 	sectionTitle: {
-		fontSize: 16,
+		fontSize: 14,
 		fontWeight: "600",
 		color: neutral.neutral6,
-		marginBottom: 12,
+		marginBottom: 8,
 		fontFamily: "Poppins",
 	},
 	accountScrollContainer: {
@@ -840,29 +839,29 @@ const styles = StyleSheet.create({
 	},
 	accountChip: {
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
-		borderRadius: 16,
-		paddingHorizontal: 20,
-		paddingVertical: 12,
+		borderRadius: 12,
+		paddingHorizontal: 16,
+		paddingVertical: 10,
 		borderWidth: 1.5,
 		borderColor: "rgba(255, 255, 255, 0.3)",
-		minWidth: 140,
+		minWidth: 120,
 	},
 	accountChipActive: {
 		backgroundColor: neutral.neutral6,
 		borderColor: neutral.neutral6,
 	},
 	accountChipText: {
-		fontSize: 14,
+		fontSize: 13,
 		fontWeight: "600",
 		color: neutral.neutral6,
-		marginBottom: 4,
+		marginBottom: 2,
 		fontFamily: "Poppins",
 	},
 	accountChipTextActive: {
 		color: primary.primary1,
 	},
 	accountChipBalance: {
-		fontSize: 12,
+		fontSize: 11,
 		fontWeight: "500",
 		color: "rgba(255, 255, 255, 0.8)",
 		fontFamily: "Poppins",
@@ -871,79 +870,79 @@ const styles = StyleSheet.create({
 		color: neutral.neutral2,
 	},
 	qrCard: {
-		borderRadius: 24,
+		borderRadius: 20,
 		overflow: "hidden",
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 8 },
-		shadowOpacity: 0.15,
-		shadowRadius: 16,
-		elevation: 10,
-		marginBottom: 20,
+		shadowOffset: { width: 0, height: 6 },
+		shadowOpacity: 0.12,
+		shadowRadius: 12,
+		elevation: 8,
+		marginBottom: 16,
 	},
 	qrCardGradient: {
-		padding: 28,
+		padding: 20,
 		alignItems: "center",
 	},
 	userInfoSection: {
 		alignItems: "center",
-		marginBottom: 24,
+		marginBottom: 16,
 	},
 	userAvatar: {
-		width: 72,
-		height: 72,
-		borderRadius: 36,
+		width: 56,
+		height: 56,
+		borderRadius: 28,
 		backgroundColor: "rgba(74, 63, 219, 0.1)",
 		justifyContent: "center",
 		alignItems: "center",
-		marginBottom: 12,
+		marginBottom: 8,
 		borderWidth: 2,
 		borderColor: "rgba(74, 63, 219, 0.2)",
 	},
 	userName: {
-		fontSize: 22,
+		fontSize: 18,
 		fontWeight: "700",
 		color: neutral.neutral1,
-		marginBottom: 8,
+		marginBottom: 6,
 		fontFamily: "Poppins",
 	},
 	bankBadge: {
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: "rgba(74, 63, 219, 0.1)",
-		paddingHorizontal: 16,
-		paddingVertical: 6,
-		borderRadius: 20,
-		gap: 6,
+		paddingHorizontal: 12,
+		paddingVertical: 4,
+		borderRadius: 16,
+		gap: 4,
 	},
 	bankName: {
-		fontSize: 13,
+		fontSize: 11,
 		fontWeight: "600",
 		color: primary.primary1,
 		fontFamily: "Poppins",
 	},
 	qrCodeContainer: {
-		marginBottom: 24,
+		marginBottom: 16,
 	},
 	qrCodeWrapper: {
-		padding: 20,
+		padding: 16,
 		backgroundColor: "white",
-		borderRadius: 20,
+		borderRadius: 16,
 		shadowColor: primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.1,
-		shadowRadius: 12,
-		elevation: 5,
+		shadowOffset: { width: 0, height: 3 },
+		shadowOpacity: 0.08,
+		shadowRadius: 8,
+		elevation: 4,
 	},
 	accountInfoSection: {
 		width: "100%",
 		alignItems: "center",
-		marginBottom: 16,
+		marginBottom: 12,
 	},
 	accountInfoLabel: {
-		fontSize: 12,
+		fontSize: 11,
 		fontWeight: "500",
 		color: neutral.neutral3,
-		marginBottom: 8,
+		marginBottom: 6,
 		textTransform: "uppercase",
 		letterSpacing: 0.5,
 		fontFamily: "Poppins",
@@ -952,121 +951,121 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: "rgba(74, 63, 219, 0.08)",
-		paddingHorizontal: 20,
-		paddingVertical: 12,
-		borderRadius: 12,
-		gap: 10,
+		paddingHorizontal: 16,
+		paddingVertical: 10,
+		borderRadius: 10,
+		gap: 8,
 	},
 	accountNumber: {
-		fontSize: 18,
+		fontSize: 16,
 		fontWeight: "600",
 		color: primary.primary1,
-		letterSpacing: 1,
+		letterSpacing: 0.8,
 		fontFamily: "Poppins",
 	},
 	instructionSection: {
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: "rgba(74, 63, 219, 0.05)",
-		paddingHorizontal: 16,
-		paddingVertical: 12,
-		borderRadius: 12,
-		gap: 8,
+		paddingHorizontal: 12,
+		paddingVertical: 10,
+		borderRadius: 10,
+		gap: 6,
 		width: "100%",
 	},
 	instructionText: {
-		fontSize: 12,
+		fontSize: 11,
 		color: neutral.neutral3,
 		flex: 1,
 		fontFamily: "Poppins",
 	},
 	actionButtonsContainer: {
 		flexDirection: "row",
-		gap: 12,
-		marginBottom: 20,
+		gap: 10,
+		marginBottom: 16,
 	},
 	actionButton: {
 		flex: 1,
 		backgroundColor: neutral.neutral6,
-		borderRadius: 16,
-		padding: 16,
+		borderRadius: 14,
+		padding: 12,
 		alignItems: "center",
 		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.1,
-		shadowRadius: 8,
-		elevation: 3,
+		shadowOpacity: 0.08,
+		shadowRadius: 6,
+		elevation: 2,
 	},
 	actionButtonIconContainer: {
-		width: 48,
-		height: 48,
-		borderRadius: 24,
+		width: 40,
+		height: 40,
+		borderRadius: 20,
 		backgroundColor: "rgba(74, 63, 219, 0.1)",
 		justifyContent: "center",
 		alignItems: "center",
-		marginBottom: 8,
+		marginBottom: 6,
 	},
 	actionButtonText: {
-		fontSize: 13,
+		fontSize: 12,
 		fontWeight: "600",
 		color: neutral.neutral1,
 		fontFamily: "Poppins",
 	},
 	infoCardsContainer: {
-		gap: 12,
+		gap: 10,
 	},
 	infoCard: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 16,
-		padding: 16,
+		borderRadius: 14,
+		padding: 14,
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.05,
-		shadowRadius: 8,
-		elevation: 2,
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.04,
+		shadowRadius: 6,
+		elevation: 1,
 	},
 	infoCardHeader: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
-		marginBottom: 8,
+		gap: 6,
+		marginBottom: 6,
 	},
 	infoCardTitle: {
-		fontSize: 14,
+		fontSize: 13,
 		fontWeight: "600",
 		color: neutral.neutral1,
 		fontFamily: "Poppins",
 	},
 	infoCardText: {
-		fontSize: 12,
+		fontSize: 11,
 		color: neutral.neutral2,
-		lineHeight: 18,
+		lineHeight: 16,
 		fontFamily: "Poppins",
 	},
 	// Mode Toggle Styles
 	modeToggleContainer: {
 		flexDirection: "row",
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
-		borderRadius: 16,
-		padding: 4,
-		marginBottom: 20,
-		gap: 4,
+		borderRadius: 14,
+		padding: 3,
+		marginBottom: 12,
+		gap: 3,
 	},
 	modeToggleButton: {
 		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingVertical: 12,
-		paddingHorizontal: 16,
-		borderRadius: 12,
-		gap: 6,
+		paddingVertical: 10,
+		paddingHorizontal: 12,
+		borderRadius: 11,
+		gap: 5,
 	},
 	modeToggleButtonActive: {
 		backgroundColor: primary.primary1,
 	},
 	modeToggleText: {
-		fontSize: 14,
+		fontSize: 13,
 		fontWeight: "600",
 		color: primary.primary1,
 		fontFamily: "Poppins",
@@ -1077,21 +1076,21 @@ const styles = StyleSheet.create({
 	// Dynamic Inputs Styles
 	dynamicInputsContainer: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 20,
-		padding: 20,
-		marginBottom: 20,
+		borderRadius: 16,
+		padding: 16,
+		marginBottom: 12,
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.08,
-		shadowRadius: 12,
-		elevation: 4,
-		gap: 16,
+		shadowOffset: { width: 0, height: 3 },
+		shadowOpacity: 0.06,
+		shadowRadius: 8,
+		elevation: 3,
+		gap: 12,
 	},
 	inputGroup: {
-		gap: 8,
+		gap: 6,
 	},
 	inputLabel: {
-		fontSize: 13,
+		fontSize: 12,
 		fontWeight: "600",
 		color: neutral.neutral1,
 		fontFamily: "Poppins",
@@ -1100,35 +1099,35 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: "rgba(74, 63, 219, 0.05)",
-		borderRadius: 12,
+		borderRadius: 10,
 		borderWidth: 1.5,
 		borderColor: "rgba(74, 63, 219, 0.1)",
-		paddingHorizontal: 16,
+		paddingHorizontal: 14,
 	},
 	currencySymbol: {
-		fontSize: 18,
+		fontSize: 16,
 		fontWeight: "600",
 		color: primary.primary1,
-		marginRight: 8,
+		marginRight: 6,
 		fontFamily: "Poppins",
 	},
 	input: {
 		flex: 1,
-		fontSize: 16,
+		fontSize: 14,
 		fontWeight: "500",
 		color: neutral.neutral1,
-		paddingVertical: 14,
+		paddingVertical: 12,
 		fontFamily: "Poppins",
 		backgroundColor: "rgba(74, 63, 219, 0.05)",
-		borderRadius: 12,
+		borderRadius: 10,
 		borderWidth: 1.5,
 		borderColor: "rgba(74, 63, 219, 0.1)",
-		paddingHorizontal: 16,
+		paddingHorizontal: 14,
 	},
 	messageInput: {
-		minHeight: 80,
+		minHeight: 70,
 		textAlignVertical: "top",
-		paddingTop: 12,
+		paddingTop: 10,
 	},
 	charCount: {
 		fontSize: 11,
@@ -1141,24 +1140,24 @@ const styles = StyleSheet.create({
 	dynamicInfoDisplay: {
 		width: "100%",
 		backgroundColor: "rgba(74, 63, 219, 0.05)",
-		borderRadius: 12,
-		padding: 12,
-		marginBottom: 16,
-		gap: 8,
+		borderRadius: 10,
+		padding: 10,
+		marginBottom: 12,
+		gap: 6,
 	},
 	dynamicInfoItem: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 6,
+		gap: 5,
 	},
 	dynamicInfoLabel: {
-		fontSize: 12,
+		fontSize: 11,
 		fontWeight: "500",
 		color: neutral.neutral2,
 		fontFamily: "Poppins",
 	},
 	dynamicInfoValue: {
-		fontSize: 13,
+		fontSize: 12,
 		fontWeight: "600",
 		color: primary.primary1,
 		fontFamily: "Poppins",
