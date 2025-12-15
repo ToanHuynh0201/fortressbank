@@ -3,18 +3,20 @@
  */
 
 export interface Beneficiary {
-	id: string;
+	id: number;
+	ownerId: string;
 	accountNumber: string;
 	accountName: string;
-	bankName?: string;
-	nickname?: string;
-	createdAt: number;
-	updatedAt: number;
+	bankName: string;
+	nickName: string;
 }
 
 export interface BeneficiaryFormData {
 	accountNumber: string;
-	accountName: string;
-	bankName?: string;
-	nickname?: string;
+	bankName: string;
+	nickName: string;
+}
+
+export interface UpdateBeneficiaryRequest {
+	nickName: string;
 }

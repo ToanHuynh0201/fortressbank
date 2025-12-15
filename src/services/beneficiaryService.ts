@@ -1,175 +1,107 @@
-import { STORAGE_KEYS } from "@/constants";
 import apiService from "@/lib/api";
-import { getStorageItem, setStorageItem } from "@/utils/storage";
+import {
+	Beneficiary,
+	BeneficiaryFormData,
+	UpdateBeneficiaryRequest,
+} from "@/types/beneficiary";
 
 /**
  * Beneficiary Service
- * Handles all beneficiary-related operations
+ * Handles all beneficiary-related operations with FortressBank API
  */
 
-export interface Beneficiary {
-	id: string;
-	name: string;
-	accountNumber: string;
-	bankName?: string;
-	bankCode?: string;
-	nickname?: string;
-	createdAt: string;
-}
-
-export interface CreateBeneficiaryRequest {
-	name: string;
-	accountNumber: string;
-	bankName?: string;
-	bankCode?: string;
-	nickname?: string;
+interface ApiResponse<T> {
+	code: number;
+	message: string;
+	data: T;
 }
 
 class BeneficiaryService {
 	/**
 	 * Get all beneficiaries
+	 * GET /beneficiaries
 	 */
 	async getBeneficiaries(): Promise<Beneficiary[]> {
-		try {
-			// Try to get from server first
-			const response = await apiService.get("/beneficiaries");
+		const response = await apiService.get<ApiResponse<Beneficiary[]>>(
+			"/beneficiaries",
+		);
 
-			if (response.data.status === "success") {
-				// Cache locally
-				await setStorageItem(
-					STORAGE_KEYS.BENEFICIARIES,
-					response.data.data,
-				);
-				return response.data.data;
-			}
-		} catch (error) {
-			console.warn(
-				"Failed to fetch beneficiaries from server, using local cache",
-			);
+		if (response.data.code === 1000) {
+			return response.data.data;
 		}
 
-		// Fallback to local storage
-		const localBeneficiaries = await getStorageItem(
-			STORAGE_KEYS.BENEFICIARIES,
-			[],
-		);
-		return localBeneficiaries;
+		return [];
 	}
 
 	/**
 	 * Get beneficiary by ID
 	 */
-	async getBeneficiaryById(id: string): Promise<Beneficiary | null> {
-		try {
-			const response = await apiService.get(`/beneficiaries/${id}`);
+	async getBeneficiaryById(id: number): Promise<Beneficiary | null> {
+		const response = await apiService.get<ApiResponse<Beneficiary>>(
+			`/beneficiaries/${id}`,
+		);
+
+		if (response.data.code === 1000) {
 			return response.data.data;
-		} catch (error) {
-			// Fallback to local storage
-			const beneficiaries = await this.getBeneficiaries();
-			return beneficiaries.find((b) => b.id === id) || null;
 		}
+
+		return null;
 	}
 
 	/**
 	 * Add new beneficiary
+	 * POST /beneficiaries
+	 * Request: { accountNumber, bankName, nickName }
+	 * Response: { code, message, data: Beneficiary }
 	 */
-	async addBeneficiary(data: CreateBeneficiaryRequest): Promise<Beneficiary> {
-		try {
-			const response = await apiService.post("/beneficiaries", data);
+	async addBeneficiary(
+		data: BeneficiaryFormData,
+	): Promise<Beneficiary | null> {
+		const response = await apiService.post<ApiResponse<Beneficiary>>(
+			"/beneficiaries",
+			data,
+		);
 
-			if (response.data.status === "success") {
-				// Update local cache
-				const beneficiaries = await this.getBeneficiaries();
-				beneficiaries.push(response.data.data);
-				await setStorageItem(STORAGE_KEYS.BENEFICIARIES, beneficiaries);
-
-				return response.data.data;
-			}
-		} catch (error) {
-			console.warn("Failed to add beneficiary to server, saving locally");
+		if (response.data.code === 1000) {
+			return response.data.data;
 		}
 
-		// Fallback: Save locally
-		const newBeneficiary: Beneficiary = {
-			id: Date.now().toString(),
-			...data,
-			createdAt: new Date().toISOString(),
-		};
-
-		const beneficiaries = await this.getBeneficiaries();
-		beneficiaries.push(newBeneficiary);
-		await setStorageItem(STORAGE_KEYS.BENEFICIARIES, beneficiaries);
-
-		return newBeneficiary;
+		return null;
 	}
 
 	/**
-	 * Update beneficiary
+	 * Update beneficiary nickname
+	 * PUT /beneficiaries/{id}
+	 * Request: { nickName }
+	 * Response: { code, message, data: Beneficiary }
 	 */
 	async updateBeneficiary(
-		id: string,
-		data: Partial<CreateBeneficiaryRequest>,
-	): Promise<Beneficiary> {
-		try {
-			const response = await apiService.patch(
-				`/beneficiaries/${id}`,
-				data,
-			);
+		id: number,
+		data: UpdateBeneficiaryRequest,
+	): Promise<Beneficiary | null> {
+		const response = await apiService.put<ApiResponse<Beneficiary>>(
+			`/beneficiaries/${id}`,
+			data,
+		);
 
-			if (response.data.status === "success") {
-				// Update local cache
-				const beneficiaries = await this.getBeneficiaries();
-				const index = beneficiaries.findIndex((b) => b.id === id);
-
-				if (index !== -1) {
-					beneficiaries[index] = response.data.data;
-					await setStorageItem(
-						STORAGE_KEYS.BENEFICIARIES,
-						beneficiaries,
-					);
-				}
-
-				return response.data.data;
-			}
-		} catch (error) {
-			console.warn(
-				"Failed to update beneficiary on server, updating locally",
-			);
+		if (response.data.code === 1000) {
+			return response.data.data;
 		}
 
-		// Fallback: Update locally
-		const beneficiaries = await this.getBeneficiaries();
-		const index = beneficiaries.findIndex((b) => b.id === id);
-
-		if (index !== -1) {
-			beneficiaries[index] = { ...beneficiaries[index], ...data };
-			await setStorageItem(STORAGE_KEYS.BENEFICIARIES, beneficiaries);
-			return beneficiaries[index];
-		}
-
-		throw new Error("Beneficiary not found");
+		return null;
 	}
 
 	/**
 	 * Delete beneficiary
+	 * DELETE /beneficiaries/{id}
+	 * No request body, no response body
 	 */
-	async deleteBeneficiary(id: string): Promise<void> {
-		try {
-			await apiService.delete(`/beneficiaries/${id}`);
-		} catch (error) {
-			console.warn(
-				"Failed to delete beneficiary from server, deleting locally",
-			);
-		}
-
-		// Delete from local storage
-		const beneficiaries = await this.getBeneficiaries();
-		const filtered = beneficiaries.filter((b) => b.id !== id);
-		await setStorageItem(STORAGE_KEYS.BENEFICIARIES, filtered);
+	async deleteBeneficiary(id: number): Promise<void> {
+		await apiService.delete(`/beneficiaries/${id}`);
 	}
 
 	/**
-	 * Search beneficiaries by name or account number
+	 * Search beneficiaries by name, account number, or nickname
 	 */
 	async searchBeneficiaries(query: string): Promise<Beneficiary[]> {
 		const beneficiaries = await this.getBeneficiaries();
@@ -177,9 +109,9 @@ class BeneficiaryService {
 
 		return beneficiaries.filter(
 			(b) =>
-				b.name.toLowerCase().includes(lowerQuery) ||
+				b.accountName.toLowerCase().includes(lowerQuery) ||
 				b.accountNumber.includes(query) ||
-				b.nickname?.toLowerCase().includes(lowerQuery),
+				b.nickName?.toLowerCase().includes(lowerQuery),
 		);
 	}
 

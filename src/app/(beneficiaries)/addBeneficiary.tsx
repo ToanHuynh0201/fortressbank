@@ -31,6 +31,7 @@ import colors from "@/constants/colors";
 import { PrimaryButton, CustomInput, AccountNumberInput } from "@/components";
 import { useForm } from "@/hooks";
 import { BeneficiaryFormData } from "@/types/beneficiary";
+import beneficiaryService from "@/services/beneficiaryService";
 import type { AccountLookupData } from "@/services/transferService";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
@@ -53,9 +54,8 @@ const AddBeneficiary = () => {
 	const { values, handleChange, setFieldValue, resetForm } =
 		useForm<BeneficiaryFormData>({
 			accountNumber: "",
-			accountName: "",
 			bankName: "FortressBank",
-			nickname: "",
+			nickName: "",
 		});
 
 	useEffect(() => {
@@ -72,7 +72,39 @@ const AddBeneficiary = () => {
 			damping: 20,
 			stiffness: 90,
 		});
-	}, []);
+
+		// Load beneficiary data if editing
+		if (beneficiaryId) {
+			loadBeneficiaryData();
+		}
+	}, [beneficiaryId]);
+
+	const loadBeneficiaryData = async () => {
+		if (!beneficiaryId) return;
+
+		setIsLoading(true);
+		try {
+			// Get data from params instead of API call
+			const accountNumber = params.accountNumber as string;
+			const accountName = params.accountName as string;
+			const bankName = params.bankName as string;
+			const nickName = params.nickName as string;
+
+			if (accountNumber) {
+				setIsEditing(true);
+				setFieldValue("accountNumber", accountNumber);
+				setFieldValue("bankName", bankName || "FortressBank");
+				setFieldValue("nickName", nickName || "");
+				setBeneficiaryName(accountName);
+			}
+		} catch (error) {
+			console.error("Error loading beneficiary:", error);
+			Alert.alert("Error", "Failed to load beneficiary data");
+			router.back();
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	const headerAnimatedStyle = useAnimatedStyle(() => ({
 		opacity: headerOpacity.value,
@@ -86,17 +118,49 @@ const AddBeneficiary = () => {
 	const handleAccountFound = (accountData: AccountLookupData) => {
 		setBeneficiaryName(accountData.fullName);
 		setBeneficiaryAccountData(accountData);
-		setFieldValue("accountName", accountData.fullName);
 	};
 
 	const handleAccountNotFound = () => {
 		setBeneficiaryName("");
 		setBeneficiaryAccountData(null);
-		setFieldValue("accountName", "");
 	};
 
 	const isFormValid =
-		values.accountNumber && beneficiaryName && values.accountName;
+		values.accountNumber && beneficiaryName && values.bankName;
+
+	const handleSave = async () => {
+		if (!isFormValid) return;
+
+		setIsSaving(true);
+		try {
+			if (isEditing && beneficiaryId) {
+				// Update existing beneficiary (only nickname can be updated)
+				await beneficiaryService.updateBeneficiary(parseInt(beneficiaryId), {
+					nickName: values.nickName,
+				});
+				Alert.alert("Success", "Beneficiary updated successfully");
+			} else {
+				// Add new beneficiary
+				await beneficiaryService.addBeneficiary({
+					accountNumber: values.accountNumber,
+					bankName: values.bankName,
+					nickName: values.nickName,
+				});
+				Alert.alert("Success", "Beneficiary added successfully");
+			}
+			router.back();
+		} catch (error) {
+			console.error("Error saving beneficiary:", error);
+			Alert.alert(
+				"Error",
+				isEditing
+					? "Failed to update beneficiary"
+					: "Failed to add beneficiary",
+			);
+		} finally {
+			setIsSaving(false);
+		}
+	};
 
 	return (
 		<SafeAreaView
@@ -237,9 +301,9 @@ const AddBeneficiary = () => {
 							</View>
 							<CustomInput
 								placeholder="e.g., Mom, Best Friend..."
-								value={values.nickname}
+								value={values.nickName}
 								onChangeText={(text) =>
-									handleChange("nickname", text)
+									handleChange("nickName", text)
 								}
 								containerStyle={styles.input}
 							/>
@@ -256,7 +320,7 @@ const AddBeneficiary = () => {
 									? "Update Beneficiary"
 									: "Save Beneficiary"
 							}
-							onPress={() => console.log("Pressed")}
+							onPress={handleSave}
 							disabled={!isFormValid || isSaving}
 						/>
 					</Animated.View>

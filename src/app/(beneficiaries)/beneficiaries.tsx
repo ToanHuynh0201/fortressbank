@@ -23,6 +23,7 @@ import Animated, {
 import { Plus, CaretLeft } from "phosphor-react-native";
 import { BeneficiaryCard } from "@/components/beneficiaries";
 import { Beneficiary } from "@/types/beneficiary";
+import beneficiaryService from "@/services/beneficiaryService";
 import colors from "@/constants/colors";
 
 const Beneficiaries = () => {
@@ -86,8 +87,8 @@ const Beneficiaries = () => {
 	const loadBeneficiaries = async () => {
 		setIsLoading(true);
 		try {
-			// const data = await getAllBeneficiaries();
-			// setBeneficiaries(data);
+			const data = await beneficiaryService.getBeneficiaries();
+			setBeneficiaries(data);
 		} catch (error) {
 			console.error("Error loading beneficiaries:", error);
 			Alert.alert("Error", "Failed to load beneficiaries");
@@ -109,7 +110,13 @@ const Beneficiaries = () => {
 	const handleEdit = (beneficiary: Beneficiary) => {
 		router.push({
 			pathname: "/addBeneficiary",
-			params: { beneficiaryId: beneficiary.id },
+			params: {
+				beneficiaryId: beneficiary.id,
+				accountNumber: beneficiary.accountNumber,
+				accountName: beneficiary.accountName,
+				bankName: beneficiary.bankName,
+				nickName: beneficiary.nickName,
+			},
 		});
 	};
 
@@ -117,7 +124,7 @@ const Beneficiaries = () => {
 		Alert.alert(
 			"Delete Beneficiary",
 			`Are you sure you want to delete ${
-				beneficiary.nickname || beneficiary.accountName
+				beneficiary.nickName || beneficiary.accountName
 			}?`,
 			[
 				{ text: "Cancel", style: "cancel" },
@@ -126,8 +133,9 @@ const Beneficiaries = () => {
 					style: "destructive",
 					onPress: async () => {
 						try {
-							// await deleteBeneficiary(beneficiary.id);
-							// await loadBeneficiaries();
+							await beneficiaryService.deleteBeneficiary(beneficiary.id);
+							await loadBeneficiaries();
+							Alert.alert("Success", "Beneficiary deleted successfully");
 						} catch (error) {
 							console.error("Error deleting beneficiary:", error);
 							Alert.alert(
@@ -205,7 +213,7 @@ const Beneficiaries = () => {
 				) : (
 					<FlatList
 						data={beneficiaries}
-						keyExtractor={(item) => item.id}
+						keyExtractor={(item) => item.id.toString()}
 						renderItem={({ item, index }) => (
 							<Animated.View
 								entering={FadeInDown.delay(index * 50).duration(

@@ -42,9 +42,9 @@ const BeneficiaryCard: React.FC<BeneficiaryCardProps> = ({
 					<Text
 						style={styles.name}
 						numberOfLines={1}>
-						{beneficiary.nickname || beneficiary.accountName}
+						{beneficiary.nickName || beneficiary.accountName}
 					</Text>
-					{beneficiary.nickname && (
+					{beneficiary.nickName && (
 						<Text
 							style={styles.accountName}
 							numberOfLines={1}>

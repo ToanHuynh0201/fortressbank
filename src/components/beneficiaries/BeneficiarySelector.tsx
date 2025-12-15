@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { MagnifyingGlass, X } from "phosphor-react-native";
 import { Beneficiary } from "@/types/beneficiary";
-import { getAllBeneficiaries, searchBeneficiaries } from "@/utils";
+import beneficiaryService from "@/services/beneficiaryService";
 import colors from "@/constants/colors";
 import BeneficiaryCard from "./BeneficiaryCard";
 
@@ -57,7 +57,7 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
 	const loadBeneficiaries = async () => {
 		setIsLoading(true);
 		try {
-			const data = await getAllBeneficiaries();
+			const data = await beneficiaryService.getBeneficiaries();
 			setBeneficiaries(data);
 			setFilteredBeneficiaries(data);
 		} catch (error) {
@@ -69,7 +69,7 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
 
 	const performSearch = async () => {
 		try {
-			const results = await searchBeneficiaries(searchQuery);
+			const results = await beneficiaryService.searchBeneficiaries(searchQuery);
 			setFilteredBeneficiaries(results);
 		} catch (error) {
 			console.error("Error searching beneficiaries:", error);
@@ -153,7 +153,7 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
 					) : (
 						<FlatList
 							data={filteredBeneficiaries}
-							keyExtractor={(item) => item.id}
+							keyExtractor={(item) => item.id.toString()}
 							renderItem={({ item }) => (
 								<BeneficiaryCard
 									beneficiary={item}
