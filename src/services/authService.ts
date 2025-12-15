@@ -5,7 +5,7 @@ import {
 	setStorageItem,
 	clearStorageItems,
 } from "@/utils/storage";
-import { withErrorHandling } from "@/utils/error";
+import { biometricService } from "./biometricService";
 import type {
 	LoginRequest,
 	ValidateAndSendOtpRequest,
@@ -34,14 +34,9 @@ class AuthService {
 			});
 
 			const result = await response.json();
-			console.log(
-				"User profile response:",
-				JSON.stringify(result, null, 2),
-			);
 
 			if (result.code === 1000 && result.data) {
 				const userData = result.data;
-				console.log("USERDATA:", userData);
 
 				// Save user data to storage
 				await setStorageItem(STORAGE_KEYS.USER_DATA, userData);
@@ -71,7 +66,6 @@ class AuthService {
 			});
 
 			const result = await response.json();
-			console.log("Login response:", JSON.stringify(result, null, 2));
 
 			if (result.code === 1000 && result.data) {
 				const { access_token, refresh_token } = result.data;
@@ -120,31 +114,28 @@ class AuthService {
 		try {
 			const refreshToken = await this.getRefreshToken();
 			if (refreshToken) {
-				// Use native fetch instead of api library
-				const response = await fetch(
-					"http://10.0.2.2:8000/auth/logout",
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							refreshToken: refreshToken,
-						}),
+				await fetch("http://10.0.2.2:8000/auth/logout", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
 					},
-				);
-
-				const data = await response.json();
-				console.log("Logout response:", data);
+					body: JSON.stringify({
+						refreshToken: refreshToken,
+					}),
+				});
 			}
 		} catch (error) {
 			console.error("Logout error:", error);
 		} finally {
+			// Clear auth data but keep biometric credentials for future logins
 			clearStorageItems([
 				STORAGE_KEYS.AUTH_TOKEN,
 				STORAGE_KEYS.SESSION_DATA,
 				STORAGE_KEYS.USER_DATA,
 			]);
+
+			// Note: Biometric credentials are intentionally kept to allow biometric login
+			// They will only be removed when user explicitly disables biometric or changes password
 		}
 	}
 
@@ -162,16 +153,25 @@ class AuthService {
 	 * @param {string} newPassword - New password
 	 * @returns {Promise<any>} API response
 	 */
-	changePassword = withErrorHandling(
-		async (oldPassword: string, newPassword: string) => {
+	changePassword = async (oldPassword: string, newPassword: string) => {
+		try {
 			const response = await api.post("/users/me/change-password", {
 				oldPassword,
 				newPassword,
 			});
 
+			// If password change is successful, remove biometric credentials
+			// User will need to re-enable biometric with new password
+			if (response.data?.code === 1000 || response.status === 200) {
+				await biometricService.removeCredentials();
+			}
+
 			return response;
-		},
-	);
+		} catch (error) {
+			console.error("Change password error:", error);
+			throw error;
+		}
+	};
 
 	/**
 	 * Check if user is authenticated
@@ -263,6 +263,124 @@ class AuthService {
 	}
 
 	/**
+	 * Save credentials for biometric authentication
+	 * @param {string} username - Username to save
+	 * @param {string} password - Password to save (encrypted by SecureStore)
+	 * @returns {Promise<boolean>} Success status
+	 */
+	async saveBiometricCredentials(
+		username: string,
+		password: string,
+	): Promise<boolean> {
+		try {
+			return await biometricService.saveCredentials(username, password);
+		} catch (error) {
+			console.error("Save biometric credentials error:", error);
+			return false;
+		}
+	}
+
+	/**
+	 * Remove biometric credentials
+	 * @returns {Promise<boolean>} Success status
+	 */
+	async removeBiometricCredentials(): Promise<boolean> {
+		try {
+			return await biometricService.removeCredentials();
+		} catch (error) {
+			console.error("Remove biometric credentials error:", error);
+			return false;
+		}
+	}
+
+	/**
+	 * Check if biometric authentication is enabled
+	 * @returns {Promise<boolean>} True if enabled
+	 */
+	async isBiometricEnabled(): Promise<boolean> {
+		try {
+			return await biometricService.isBiometricEnabled();
+		} catch (error) {
+			console.error("Check biometric enabled error:", error);
+			return false;
+		}
+	}
+
+	/**
+	 * Check if biometric authentication is available on device
+	 * @returns {Promise<boolean>} True if available
+	 */
+	async isBiometricAvailable(): Promise<boolean> {
+		try {
+			return await biometricService.isBiometricAvailable();
+		} catch (error) {
+			console.error("Check biometric available error:", error);
+			return false;
+		}
+	}
+
+	/**
+	 * Login with biometric authentication
+	 * @returns {Promise<any>} Login response
+	 */
+	async loginWithBiometric(): Promise<any> {
+		try {
+			// Check if biometric is available
+			const isAvailable = await biometricService.isBiometricAvailable();
+			if (!isAvailable) {
+				return {
+					code: -1,
+					message: "Biometric authentication is not available",
+				};
+			}
+
+			// Check if biometric is enabled
+			const isEnabled = await biometricService.isBiometricEnabled();
+			if (!isEnabled) {
+				return {
+					code: -1,
+					message: "Biometric authentication is not enabled",
+				};
+			}
+
+			// Authenticate with biometric
+			const authenticated = await biometricService.authenticate();
+			if (!authenticated) {
+				return {
+					code: -1,
+					message: "Biometric authentication failed",
+				};
+			}
+
+			// Get stored credentials
+			const credentials = await biometricService.getCredentials();
+			if (!credentials) {
+				return {
+					code: -1,
+					message: "No stored credentials found",
+				};
+			}
+
+			// Login with stored credentials
+			const loginResponse = await this.login({
+				username: credentials.username,
+				password: credentials.password,
+			});
+
+			return loginResponse;
+		} catch (error) {
+			console.error("Biometric login error:", error);
+			return {
+				code: -1,
+				message:
+					error instanceof Error
+						? error.message
+						: "Biometric login failed",
+			};
+		}
+	}
+
+	/**
 	 * Store authentication data in localStorage
 	 * @private
 	 * @param {Object} user - User object
@@ -284,11 +402,6 @@ class AuthService {
 		request: ValidateAndSendOtpRequest,
 	): Promise<ValidateAndSendOtpResponse> {
 		try {
-			console.log(
-				"Sending OTP request:",
-				JSON.stringify(request, null, 2),
-			);
-
 			const response = await fetch(
 				"http://10.0.2.2:8000/auth/validate-and-send-otp",
 				{
@@ -301,10 +414,8 @@ class AuthService {
 			);
 
 			const data: ValidateAndSendOtpResponse = await response.json();
-			console.log("OTP response:", JSON.stringify(data, null, 2));
 
 			// Return the response regardless of success or error
-			// The response will have code, message, and optionally data
 			return data;
 		} catch (error) {
 			console.error("Validate and send OTP error:", error);
@@ -339,14 +450,11 @@ class AuthService {
 
 			const data: VerifyOtpResponse = await response.json();
 
-			console.log("OTP response:", JSON.stringify(data, null, 2));
 			// Return the response regardless of success or error
-			// The response will have code, message, and optionally data
 			return data;
 		} catch (error) {
 			console.error("Verify OTP error:", error);
 			// Return error response in the same format
-
 			return {
 				code: -1,
 				message:
@@ -373,7 +481,6 @@ class AuthService {
 			});
 
 			const data: RegisterResponse = await response.json();
-			console.log(data);
 
 			// Return the response regardless of success or error
 			return data;

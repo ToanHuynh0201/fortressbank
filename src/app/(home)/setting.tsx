@@ -29,7 +29,7 @@ import {
 	LockKey,
 } from "phosphor-react-native";
 import { AppHeader, ConfirmationModal } from "@/components/common";
-import { SettingRow } from "@/components/settings";
+import { SettingRow, BiometricSettings } from "@/components/settings";
 import { primary, neutral } from "@/constants/colors";
 import { UserAvatar } from "@/components";
 import { useAuth } from "@/hooks";
@@ -93,12 +93,10 @@ const Setting = () => {
 
 	const handleTouchIDPress = () => {
 		// Handle Touch ID settings
-		console.log("Touch ID pressed");
 	};
 
 	const handleCustomerCarePress = () => {
 		// Handle customer care
-		console.log("Customer care pressed");
 	};
 
 	const handleLogoutPress = () => {
@@ -160,6 +158,10 @@ const Setting = () => {
 				{/* Security Section */}
 				<View style={styles.section}>
 					<Text style={styles.sectionTitle}>Security</Text>
+
+					{/* Biometric Settings */}
+					<BiometricSettings />
+
 					<SettingRow
 						title="Password"
 						icon={
@@ -181,17 +183,6 @@ const Setting = () => {
 							/>
 						}
 						onPress={handlePINPress}
-					/>
-					<SettingRow
-						title="Touch ID"
-						icon={
-							<Fingerprint
-								size={20}
-								color={primary.primary1}
-								weight="bold"
-							/>
-						}
-						onPress={handleTouchIDPress}
 					/>
 				</View>
 

@@ -17,7 +17,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { CheckCircle } from 'phosphor-react-native';
 import { neutral, primary } from '@/constants/colors';
-import { PrimaryButton } from '@/components';
+import PrimaryButton from './PrimaryButton';
 
 interface SuccessModalProps {
   visible: boolean;

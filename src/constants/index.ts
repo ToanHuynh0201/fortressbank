@@ -23,6 +23,7 @@ export const STORAGE_KEYS = {
 	AUTH_TOKEN: "fortressbank_auth_token",
 	USER_DATA: "fortressbank_user_data",
 	BIOMETRIC_ENABLED: "fortressbank_biometric_enabled",
+	BIOMETRIC_CREDENTIALS: "fortressbank_biometric_credentials",
 	PIN_CODE: "fortressbank_pin_code",
 	SESSION_DATA: "fortressbank_session_data",
 	BENEFICIARIES: "fortressbank_beneficiaries",

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import Animated, {
 	useSharedValue,
@@ -7,6 +7,7 @@ import Animated, {
 	withTiming,
 	Easing,
 } from "react-native-reanimated";
+import { Fingerprint } from "phosphor-react-native";
 import { primary, neutral } from "@/constants";
 import {
 	AuthLayout,
@@ -20,8 +21,16 @@ import { useForm, useAuth } from "@/hooks";
 
 const SignIn = () => {
 	const router = useRouter();
-	const { login } = useAuth();
+	const {
+		login,
+		loginWithBiometric,
+		biometricAvailable,
+		biometricEnabled,
+		enableBiometric,
+		checkBiometricStatus,
+	} = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
+	const [isBiometricLoading, setIsBiometricLoading] = useState(false);
 	const [generalError, setGeneralError] = useState<string | null>(null);
 
 	const {
@@ -68,7 +77,57 @@ const SignIn = () => {
 			const result = await login(values.username, values.password);
 
 			if (result.code === 1000) {
-				router.replace("/(home)");
+				// Check if biometric is available but not enabled
+				if (biometricAvailable && !biometricEnabled) {
+					// Prompt user to enable biometric
+					Alert.alert(
+						"Enable Biometric Login?",
+						"Would you like to enable biometric login for faster access next time?",
+						[
+							{
+								text: "Not Now",
+								style: "cancel",
+								onPress: () => router.replace("/(home)"),
+							},
+							{
+								text: "Enable",
+								onPress: async () => {
+									try {
+										const success = await enableBiometric(
+											values.username,
+											values.password,
+										);
+										if (success) {
+											Alert.alert(
+												"Success",
+												"Biometric login enabled successfully!",
+												[
+													{
+														text: "OK",
+														onPress: () =>
+															router.replace(
+																"/(home)",
+															),
+													},
+												],
+											);
+										} else {
+											router.replace("/(home)");
+										}
+									} catch (error) {
+										console.error(
+											"Enable biometric error:",
+											error,
+										);
+										router.replace("/(home)");
+									}
+								},
+							},
+						],
+					);
+				} else {
+					router.replace("/(home)");
+				}
 			} else {
 				const errorMsg =
 					result.error ||
@@ -86,7 +145,26 @@ const SignIn = () => {
 			setIsLoading(false);
 		}
 	};
+	const handleBiometricLogin = async () => {
+		setGeneralError(null);
+		setIsBiometricLoading(true);
 
+		try {
+			const result = await loginWithBiometric();
+
+			if (result.code === 1000) {
+				router.replace("/(home)");
+			} else {
+				const errorMsg = result.message || "Biometric login failed";
+				setGeneralError(errorMsg);
+			}
+		} catch (error: any) {
+			const errorMsg = error.message || "Biometric authentication failed";
+			setGeneralError(errorMsg);
+		} finally {
+			setIsBiometricLoading(false);
+		}
+	};
 	const isValid =
 		values.username.trim() !== "" && values.password.trim().length >= 6;
 
@@ -233,22 +311,36 @@ const SignIn = () => {
 				<View style={styles.divider} />
 			</Animated.View>
 
-			{/* Fingerprint */}
-			<Animated.View
-				style={[styles.fingerprintContainer, fingerprintAnimatedStyle]}>
-				<TouchableOpacity
-					style={styles.fingerprint}
-					activeOpacity={0.7}
-					onPress={() => {
-						// Handle biometric auth
-						console.log("Biometric auth");
-					}}>
-					<View style={styles.fingerprintIconContainer}>
-						<Text style={styles.fingerprintIcon}>🔐</Text>
-					</View>
-					<Text style={styles.fingerprintText}>Biometric Login</Text>
-				</TouchableOpacity>
-			</Animated.View>
+			{/* Fingerprint - Only show if biometric is available and enabled */}
+			{biometricAvailable && biometricEnabled && (
+				<Animated.View
+					style={[
+						styles.fingerprintContainer,
+						fingerprintAnimatedStyle,
+					]}>
+					<TouchableOpacity
+						style={[
+							styles.fingerprint,
+							isBiometricLoading && styles.fingerprintDisabled,
+						]}
+						activeOpacity={0.7}
+						onPress={handleBiometricLogin}
+						disabled={isBiometricLoading}>
+						<View style={styles.fingerprintIconContainer}>
+							<Fingerprint
+								size={24}
+								color={primary.primary1}
+								weight="duotone"
+							/>
+						</View>
+						<Text style={styles.fingerprintText}>
+							{isBiometricLoading
+								? "Authenticating..."
+								: "Biometric Login"}
+						</Text>
+					</TouchableOpacity>
+				</Animated.View>
+			)}
 
 			{/* Sign Up Link */}
 			<Animated.View style={[styles.signUpContainer, formAnimatedStyle]}>
@@ -366,6 +458,9 @@ const styles = StyleSheet.create({
 		shadowRadius: 8,
 		elevation: 3,
 	},
+	fingerprintDisabled: {
+		opacity: 0.6,
+	},
 	fingerprintIconContainer: {
 		width: 36,
 		height: 36,
@@ -373,9 +468,6 @@ const styles = StyleSheet.create({
 		backgroundColor: neutral.neutral6,
 		justifyContent: "center",
 		alignItems: "center",
-	},
-	fingerprintIcon: {
-		fontSize: 20,
 	},
 	fingerprintText: {
 		fontFamily: "Poppins",

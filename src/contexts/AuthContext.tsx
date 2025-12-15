@@ -1,5 +1,5 @@
-import { authService } from "@/services";
-import { createContext, useReducer, useEffect } from "react";
+import { authService, biometricService } from "@/services";
+import { createContext, useReducer, useEffect, useState } from "react";
 import { getStorageItem, setStorageItem } from "@/utils";
 import { STORAGE_KEYS } from "@/constants";
 
@@ -16,7 +16,10 @@ interface AuthContextType {
 	isAuthenticated: boolean;
 	isLoading: boolean;
 	error: string | null;
+	biometricAvailable: boolean;
+	biometricEnabled: boolean;
 	login: (username: string, password: string) => Promise<any>;
+	loginWithBiometric: () => Promise<any>;
 	logout: () => Promise<void>;
 	clearError: () => void;
 	updateUser: (user: any) => void;
@@ -24,6 +27,9 @@ interface AuthContextType {
 		currentPassword: string,
 		newPassword: string,
 	) => Promise<any>;
+	enableBiometric: (username: string, password: string) => Promise<boolean>;
+	disableBiometric: () => Promise<boolean>;
+	checkBiometricStatus: () => Promise<void>;
 }
 
 // Initial state
@@ -104,6 +110,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Auth provider component
 export const AuthProvider = ({ children }: any) => {
 	const [state, dispatch] = useReducer(authReducer, initialState);
+	const [biometricAvailable, setBiometricAvailable] = useState(false);
+	const [biometricEnabled, setBiometricEnabled] = useState(false);
 
 	// Check for existing authentication on mount
 	useEffect(() => {
@@ -128,6 +136,7 @@ export const AuthProvider = ({ children }: any) => {
 		};
 
 		checkAuth();
+		checkBiometricStatus();
 	}, []);
 
 	// Login function
@@ -193,13 +202,114 @@ export const AuthProvider = ({ children }: any) => {
 		return await authService.changePassword(oldPassword, newPassword);
 	};
 
+	// Check biometric status
+	const checkBiometricStatus = async () => {
+		try {
+			const available = await authService.isBiometricAvailable();
+			const enabled = await authService.isBiometricEnabled();
+			setBiometricAvailable(available);
+			setBiometricEnabled(enabled);
+		} catch (error) {
+			console.error("Error checking biometric status:", error);
+			setBiometricAvailable(false);
+			setBiometricEnabled(false);
+		}
+	};
+
+	// Login with biometric
+	const loginWithBiometric = async () => {
+		dispatch({ type: AUTH_ACTIONS.LOGIN_START });
+
+		try {
+			const response = await authService.loginWithBiometric();
+
+			const user = await getStorageItem(STORAGE_KEYS.USER_DATA);
+
+			if (response.code === 1000 && user) {
+				const userData = user;
+				dispatch({
+					type: AUTH_ACTIONS.LOGIN_SUCCESS,
+					payload: { user: userData },
+				});
+				return response;
+			} else {
+				const errorMsg = response.message || "Biometric login failed";
+				throw new Error(errorMsg);
+			}
+		} catch (error: any) {
+			const errorMessage =
+				error.message || "Biometric login failed. Please try again.";
+			dispatch({
+				type: AUTH_ACTIONS.LOGIN_FAILURE,
+				payload: { error: errorMessage },
+			});
+			throw error;
+		}
+	};
+
+	// Enable biometric authentication
+	const enableBiometric = async (username: string, password: string) => {
+		try {
+			// Check if biometric is available
+			const available = await authService.isBiometricAvailable();
+			if (!available) {
+				throw new Error(
+					"Biometric authentication is not available on this device",
+				);
+			}
+
+			// Authenticate with biometric first
+			const authenticated = await biometricService.authenticate();
+			if (!authenticated) {
+				throw new Error("Biometric authentication failed");
+			}
+
+			// Save credentials
+			const saved = await authService.saveBiometricCredentials(
+				username,
+				password,
+			);
+			if (saved) {
+				// Refresh biometric status to ensure it's up to date
+				await checkBiometricStatus();
+				return true;
+			}
+			return false;
+		} catch (error) {
+			console.error("Enable biometric error:", error);
+			throw error;
+		}
+	};
+
+	// Disable biometric authentication
+	const disableBiometric = async () => {
+		try {
+			const removed = await authService.removeBiometricCredentials();
+			if (removed) {
+				// Refresh biometric status to ensure it's up to date
+				await checkBiometricStatus();
+				return true;
+			}
+			return false;
+		} catch (error) {
+			console.error("Disable biometric error:", error);
+			return false;
+		}
+	};
+
 	const value = {
 		...state,
+		biometricAvailable,
+		biometricEnabled,
 		login,
+		loginWithBiometric,
 		changePassword,
 		logout,
 		clearError,
 		updateUser,
+		enableBiometric,
+		disableBiometric,
+		checkBiometricStatus,
 	};
 
 	return (

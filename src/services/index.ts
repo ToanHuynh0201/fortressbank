@@ -5,6 +5,7 @@
 
 // Services
 export * from "./authService";
+export * from "./biometricService";
 export { transferService, default as TransferService } from "./transferService";
 export { accountService, default as AccountService } from "./accountService";
 export {

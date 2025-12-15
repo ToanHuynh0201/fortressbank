@@ -72,114 +72,6 @@ class AccountService {
 	);
 
 	/**
-	 * Get account by ID
-	 */
-	async getAccountById(
-		accountId: string,
-	): Promise<{ status: string; data: Account }> {
-		const response = await api.get(`/accounts/${accountId}`);
-		return response.data;
-	}
-
-	/**
-	 * Get account balance
-	 */
-	async getAccountBalance(
-		accountId: string,
-	): Promise<{ status: string; data: AccountBalance }> {
-		const response = await api.get(`/accounts/${accountId}/balance`);
-		return response.data;
-	}
-
-	/**
-	 * Get account statement
-	 */
-	async getAccountStatement(
-		accountId: string,
-		startDate: string,
-		endDate: string,
-	): Promise<{ status: string; data: AccountStatement }> {
-		const response = await api.get(
-			`/accounts/${accountId}/statement?startDate=${startDate}&endDate=${endDate}`,
-		);
-		return response.data;
-	}
-
-	/**
-	 * Get all user cards
-	 */
-	async getCards(): Promise<{ status: string; data: Card[] }> {
-		const response = await api.get("/cards");
-		return response.data;
-	}
-
-	/**
-	 * Get card by ID
-	 */
-	async getCardById(cardId: string): Promise<{ status: string; data: Card }> {
-		const response = await api.get(`/cards/${cardId}`);
-		return response.data;
-	}
-
-	/**
-	 * Block/freeze card
-	 */
-	async blockCard(
-		cardId: string,
-	): Promise<{ status: string; message: string }> {
-		const response = await api.post(`/cards/${cardId}/block`, {});
-		return response.data;
-	}
-
-	/**
-	 * Unblock card
-	 */
-	async unblockCard(
-		cardId: string,
-	): Promise<{ status: string; message: string }> {
-		const response = await api.post(`/cards/${cardId}/unblock`, {});
-		return response.data;
-	}
-
-	/**
-	 * Delete/cancel card
-	 */
-	async deleteCard(
-		cardId: string,
-	): Promise<{ status: string; message: string }> {
-		const response = await api.delete(`/cards/${cardId}`);
-		return response.data;
-	}
-
-	/**
-	 * Request new card
-	 */
-	async requestCard(data: {
-		accountId: string;
-		cardType: "DEBIT" | "CREDIT";
-		deliveryAddress: string;
-	}): Promise<{ status: string; data: Card }> {
-		const response = await api.post("/cards/request", data);
-		return response.data;
-	}
-
-	/**
-	 * Update card PIN
-	 */
-	async updateCardPin(
-		cardId: string,
-		oldPin: string,
-		newPin: string,
-	): Promise<any> {
-		const response = await api.post(`/cards/${cardId}/update-pin`, {
-			oldPin,
-			newPin,
-		});
-
-		return response;
-	}
-
-	/**
 	 * Change account PIN
 	 */
 	changeAccountPIN = withErrorHandling(
@@ -189,7 +81,6 @@ class AccountService {
 				newPin,
 			});
 
-			console.log("CHANGE_PIN", response);
 			return response;
 		},
 	);
@@ -203,19 +94,6 @@ class AccountService {
 	): Promise<{ status: string; message: string }> {
 		const response = await api.post(`/accounts/${accountId}/verify-pin`, {
 			pin,
-		});
-		return response.data;
-	}
-
-	/**
-	 * Set card limit
-	 */
-	async setCardLimit(
-		cardId: string,
-		limit: number,
-	): Promise<{ status: string; message: string }> {
-		const response = await api.post(`/cards/${cardId}/set-limit`, {
-			limit,
 		});
 		return response.data;
 	}
