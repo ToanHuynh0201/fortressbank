@@ -43,3 +43,6 @@ yarn-error.*
 
 # Android local properties (contains SDK path)
 android/local.properties
+
+#IDE
+.claude
