@@ -1,15 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import {
 	View,
 	Text,
 	StyleSheet,
 	ViewStyle,
 	TouchableOpacity,
+	Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { Eye, EyeSlash } from "phosphor-react-native";
 import { neutral } from "@/constants/colors";
 import type { Card } from "@/types/card";
+import { biometricService } from "@/services/biometricService";
 
 interface CardItemProps {
 	card: Card;
@@ -17,7 +20,7 @@ interface CardItemProps {
 	onPress?: () => void;
 }
 
-const getCardTypeGradient = (cardType: string) => {
+const getCardTypeGradient = (cardType: string): [string, string, string] => {
 	switch (cardType) {
 		case "PHYSICAL":
 			return ["#1E3A8A", "#3B82F6", "#60A5FA"];
@@ -49,11 +52,84 @@ const formatExpiryDate = (dateString: string) => {
 	return `${month}/${year}`;
 };
 
+// Format card number into groups of 4 digits
+const formatCardNumber = (cardNumber: string) => {
+	// Remove all spaces first
+	const cleaned = cardNumber.replace(/\s/g, "");
+	// Split into groups of 4
+	const groups = cleaned.match(/.{1,4}/g) || [];
+	return groups.join(" ");
+};
+
+// Mask card number (show only last 4 digits)
+const maskCardNumber = (cardNumber: string) => {
+	const cleaned = cardNumber.replace(/\s/g, "");
+	const lastFour = cleaned.slice(-4);
+	// Create masked version: •••• •••• •••• 1234
+	const numberOfGroups = Math.ceil(cleaned.length / 4);
+	const maskedGroups = Array(numberOfGroups - 1).fill("••••");
+	maskedGroups.push(lastFour);
+	return maskedGroups.join(" ");
+};
+
 const CardItem: React.FC<CardItemProps> = ({
 	card,
 	containerStyle,
 	onPress,
 }) => {
+	const [showFullNumber, setShowFullNumber] = useState(false);
+	const [hasAuthenticated, setHasAuthenticated] = useState(false);
+
+	const displayCardNumber = showFullNumber
+		? formatCardNumber(card.cardNumber)
+		: maskCardNumber(card.cardNumber);
+
+	const handleToggleCardNumber = async () => {
+		// If showing full number, just hide it
+		if (showFullNumber) {
+			setShowFullNumber(false);
+			return;
+		}
+
+		// If not authenticated yet, require biometric authentication
+		if (!hasAuthenticated) {
+			try {
+				// Check if biometric is available
+				const isAvailable = await biometricService.isBiometricAvailable();
+
+				if (!isAvailable) {
+					Alert.alert(
+						"Biometric Not Available",
+						"Please enable biometric authentication in your device settings to view card details.",
+					);
+					return;
+				}
+
+				// Authenticate with biometric
+				const authenticated = await biometricService.authenticate();
+
+				if (authenticated) {
+					setHasAuthenticated(true);
+					setShowFullNumber(true);
+				} else {
+					Alert.alert(
+						"Authentication Failed",
+						"Please try again to view card number.",
+					);
+				}
+			} catch (error) {
+				console.error("Biometric authentication error:", error);
+				Alert.alert(
+					"Error",
+					"Failed to authenticate. Please try again.",
+				);
+			}
+		} else {
+			// Already authenticated, just toggle
+			setShowFullNumber(true);
+		}
+	};
+
 	const CardContent = () => (
 		<Animated.View
 			entering={FadeInDown.duration(400).springify()}
@@ -81,6 +157,22 @@ const CardItem: React.FC<CardItemProps> = ({
 					<Text style={styles.statusText}>{card.status}</Text>
 				</View>
 
+				{/* Toggle Eye Button */}
+				<TouchableOpacity
+					style={styles.eyeButton}
+					onPress={handleToggleCardNumber}
+					activeOpacity={0.7}>
+					{showFullNumber ? (
+						<Eye size={20} color={neutral.neutral6} weight="bold" />
+					) : (
+						<EyeSlash
+							size={20}
+							color="rgba(255, 255, 255, 0.8)"
+							weight="bold"
+						/>
+					)}
+				</TouchableOpacity>
+
 				{/* Chip Design */}
 				<View style={styles.chipContainer}>
 					<View style={styles.chip}>
@@ -89,7 +181,7 @@ const CardItem: React.FC<CardItemProps> = ({
 				</View>
 
 				{/* Card Number */}
-				<Text style={styles.cardNumber}>{card.cardNumber}</Text>
+				<Text style={styles.cardNumber}>{displayCardNumber}</Text>
 
 				{/* Card Details Row */}
 				<View style={styles.cardDetailsRow}>
@@ -118,9 +210,7 @@ const CardItem: React.FC<CardItemProps> = ({
 
 	if (onPress) {
 		return (
-			<TouchableOpacity
-				onPress={onPress}
-				activeOpacity={0.8}>
+			<TouchableOpacity onPress={onPress} activeOpacity={0.8}>
 				<CardContent />
 			</TouchableOpacity>
 		);
@@ -274,6 +364,15 @@ const styles = StyleSheet.create({
 		height: 32,
 		borderRadius: 16,
 		backgroundColor: "rgba(255, 255, 255, 0.25)",
+	},
+	eyeButton: {
+		position: "absolute",
+		top: 16,
+		right: 100,
+		padding: 8,
+		backgroundColor: "rgba(255, 255, 255, 0.15)",
+		borderRadius: 8,
+		zIndex: 3,
 	},
 });
 

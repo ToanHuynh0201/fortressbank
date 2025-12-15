@@ -11,6 +11,7 @@ import {
 	FlatList,
 	ViewToken,
 	ActivityIndicator,
+	Clipboard,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import {
@@ -21,6 +22,8 @@ import {
 	CreditCard,
 	Lock,
 	LockOpen,
+	Eye,
+	EyeSlash,
 } from "phosphor-react-native";
 import Animated, {
 	FadeInDown,
@@ -43,6 +46,7 @@ import {
 } from "@/components";
 import { cardService } from "@/services/cardService";
 import { accountService } from "@/services/accountService";
+import { biometricService } from "@/services/biometricService";
 import type { Card } from "@/types/card";
 import type { Account } from "@/services/accountService";
 
@@ -120,6 +124,8 @@ const CardDetail = () => {
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [isLockAction, setIsLockAction] = useState(false);
+	const [showAccountNumber, setShowAccountNumber] = useState(false);
+	const [hasAuthenticatedForAccount, setHasAuthenticatedForAccount] = useState(false);
 	const flatListRef = useRef<FlatList>(null);
 	const scrollX = useSharedValue(0);
 
@@ -256,8 +262,105 @@ const CardDetail = () => {
 		index,
 	});
 
-	const handleCopyAccountNumber = () => {
-		Alert.alert("Copied", "Account number has been copied to clipboard");
+	// Mask account number (show only last 4 digits)
+	const maskAccountNumber = (accountNumber: string) => {
+		if (!accountNumber) return "";
+		const lastFour = accountNumber.slice(-4);
+		const maskedPart = "•".repeat(accountNumber.length - 4);
+		return `${maskedPart}${lastFour}`;
+	};
+
+	const handleToggleAccountNumber = async () => {
+		// If showing account number, just hide it
+		if (showAccountNumber) {
+			setShowAccountNumber(false);
+			return;
+		}
+
+		// If not authenticated yet, require biometric authentication
+		if (!hasAuthenticatedForAccount) {
+			try {
+				// Check if biometric is available
+				const isAvailable = await biometricService.isBiometricAvailable();
+
+				if (!isAvailable) {
+					Alert.alert(
+						"Biometric Not Available",
+						"Please enable biometric authentication in your device settings to view account number.",
+					);
+					return;
+				}
+
+				// Authenticate with biometric
+				const authenticated = await biometricService.authenticate();
+
+				if (authenticated) {
+					setHasAuthenticatedForAccount(true);
+					setShowAccountNumber(true);
+				} else {
+					Alert.alert(
+						"Authentication Failed",
+						"Please try again to view account number.",
+					);
+				}
+			} catch (error) {
+				console.error("Biometric authentication error:", error);
+				Alert.alert(
+					"Error",
+					"Failed to authenticate. Please try again.",
+				);
+			}
+		} else {
+			// Already authenticated, just toggle
+			setShowAccountNumber(true);
+		}
+	};
+
+	const handleCopyAccountNumber = async () => {
+		// If not authenticated yet, require biometric authentication
+		if (!hasAuthenticatedForAccount) {
+			try {
+				// Check if biometric is available
+				const isAvailable = await biometricService.isBiometricAvailable();
+
+				if (!isAvailable) {
+					Alert.alert(
+						"Biometric Not Available",
+						"Please enable biometric authentication in your device settings to copy account number.",
+					);
+					return;
+				}
+
+				// Authenticate with biometric
+				const authenticated = await biometricService.authenticate();
+
+				if (authenticated) {
+					setHasAuthenticatedForAccount(true);
+					setShowAccountNumber(true);
+					if (linkedAccount) {
+						Clipboard.setString(linkedAccount.accountNumber);
+						Alert.alert("Copied", "Account number has been copied to clipboard");
+					}
+				} else {
+					Alert.alert(
+						"Authentication Failed",
+						"Please try again to copy account number.",
+					);
+				}
+			} catch (error) {
+				console.error("Biometric authentication error:", error);
+				Alert.alert(
+					"Error",
+					"Failed to authenticate. Please try again.",
+				);
+			}
+		} else {
+			// Already authenticated, just copy
+			if (linkedAccount) {
+				Clipboard.setString(linkedAccount.accountNumber);
+				Alert.alert("Copied", "Account number has been copied to clipboard");
+			}
+		}
 	};
 
 	const handleToggleLockCard = () => {
@@ -475,17 +578,38 @@ const CardDetail = () => {
 							</View>
 							<View style={styles.accountNumberContainer}>
 								<Text style={styles.infoValue}>
-									{linkedAccount.accountNumber}
+									{showAccountNumber
+										? linkedAccount.accountNumber
+										: maskAccountNumber(linkedAccount.accountNumber)}
 								</Text>
-								<TouchableOpacity
-									onPress={handleCopyAccountNumber}
-									style={styles.copyButton}>
-									<Copy
-										size={18}
-										color={colors.primary.primary1}
-										weight="regular"
-									/>
-								</TouchableOpacity>
+								<View style={styles.accountNumberActions}>
+									<TouchableOpacity
+										onPress={handleToggleAccountNumber}
+										style={styles.eyeIconButton}>
+										{showAccountNumber ? (
+											<Eye
+												size={18}
+												color={colors.primary.primary1}
+												weight="bold"
+											/>
+										) : (
+											<EyeSlash
+												size={18}
+												color={colors.neutral.neutral3}
+												weight="bold"
+											/>
+										)}
+									</TouchableOpacity>
+									<TouchableOpacity
+										onPress={handleCopyAccountNumber}
+										style={styles.copyButton}>
+										<Copy
+											size={18}
+											color={colors.primary.primary1}
+											weight="regular"
+										/>
+									</TouchableOpacity>
+								</View>
 							</View>
 						</View>
 					)}
@@ -608,7 +732,7 @@ const styles = StyleSheet.create({
 	},
 	flatList: {
 		marginBottom: 16,
-		height: 220,
+		height: 240,
 		flexGrow: 0,
 	},
 	flatListContent: {
@@ -616,7 +740,7 @@ const styles = StyleSheet.create({
 	},
 	cardItemContainer: {
 		width: SCREEN_WIDTH,
-		height: 220,
+		height: 240,
 		paddingHorizontal: 24,
 		justifyContent: "center",
 	},
@@ -680,6 +804,16 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
+	},
+	accountNumberActions: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+	},
+	eyeIconButton: {
+		padding: 8,
+		backgroundColor: colors.neutral.neutral5,
+		borderRadius: 8,
 	},
 	copyButton: {
 		padding: 8,

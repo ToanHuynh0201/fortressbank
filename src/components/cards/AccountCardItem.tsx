@@ -5,11 +5,13 @@ import {
 	StyleSheet,
 	ViewStyle,
 	TouchableOpacity,
+	Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Bank, Eye, EyeSlash } from "phosphor-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { neutral, primary } from "@/constants/colors";
+import { biometricService } from "@/services/biometricService";
 
 interface AccountCardItemProps {
 	accountName: string;
@@ -27,9 +29,52 @@ const AccountCardItem: React.FC<AccountCardItemProps> = ({
 	containerStyle,
 }) => {
 	const [isVisible, setIsVisible] = useState(false);
+	const [hasAuthenticated, setHasAuthenticated] = useState(false);
 
-	const toggleVisibility = () => {
-		setIsVisible(!isVisible);
+	const toggleVisibility = async () => {
+		// If showing information, just hide it
+		if (isVisible) {
+			setIsVisible(false);
+			return;
+		}
+
+		// If not authenticated yet, require biometric authentication
+		if (!hasAuthenticated) {
+			try {
+				// Check if biometric is available
+				const isAvailable = await biometricService.isBiometricAvailable();
+
+				if (!isAvailable) {
+					Alert.alert(
+						"Biometric Not Available",
+						"Please enable biometric authentication in your device settings to view account details.",
+					);
+					return;
+				}
+
+				// Authenticate with biometric
+				const authenticated = await biometricService.authenticate();
+
+				if (authenticated) {
+					setHasAuthenticated(true);
+					setIsVisible(true);
+				} else {
+					Alert.alert(
+						"Authentication Failed",
+						"Please try again to view account details.",
+					);
+				}
+			} catch (error) {
+				console.error("Biometric authentication error:", error);
+				Alert.alert(
+					"Error",
+					"Failed to authenticate. Please try again.",
+				);
+			}
+		} else {
+			// Already authenticated, just toggle
+			setIsVisible(true);
+		}
 	};
 
 	const maskAccountNumber = (number: string) => {

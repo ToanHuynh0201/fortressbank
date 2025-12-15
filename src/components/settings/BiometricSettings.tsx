@@ -139,9 +139,9 @@ export const BiometricSettings = () => {
 				<View style={styles.header}>
 					<View style={styles.iconContainer}>
 						<Fingerprint
-							size={24}
+							size={20}
 							color={primary.primary1}
-							weight="duotone"
+							weight="bold"
 						/>
 					</View>
 					<View style={styles.textContainer}>
@@ -187,8 +187,15 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		backgroundColor: neutral.neutral6,
 		borderRadius: 16,
-		padding: 16,
-		marginBottom: 16,
+		paddingVertical: 16,
+		paddingHorizontal: 16,
+		marginHorizontal: 24,
+		marginBottom: 12,
+		shadowColor: primary.primary1,
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.06,
+		shadowRadius: 8,
+		elevation: 2,
 		borderWidth: 1,
 		borderColor: neutral.neutral5,
 	},
@@ -199,9 +206,9 @@ const styles = StyleSheet.create({
 		gap: 12,
 	},
 	iconContainer: {
-		width: 48,
-		height: 48,
-		borderRadius: 12,
+		width: 40,
+		height: 40,
+		borderRadius: 20,
 		backgroundColor: primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
