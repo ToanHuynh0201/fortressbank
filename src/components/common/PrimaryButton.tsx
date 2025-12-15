@@ -45,19 +45,21 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
 
 const styles = StyleSheet.create({
 	button: {
-		height: 44,
+		height: 48,
 		backgroundColor: primary.primary1,
-		borderRadius: 15,
+		borderRadius: 16,
 		justifyContent: "center",
 		alignItems: "center",
+		paddingHorizontal: 24,
 	},
 	buttonDisabled: {
 		backgroundColor: primary.primary4,
 	},
 	buttonText: {
-		fontSize: 16,
-		fontWeight: "500",
+		fontSize: 15,
+		fontWeight: "600",
 		color: neutral.neutral6,
+		fontFamily: "Poppins",
 	},
 	buttonTextDisabled: {
 		color: neutral.neutral6,

@@ -25,10 +25,13 @@ import {
 	UserAvatar,
 	AccountCardItem,
 	CreditCardItem,
+	CardItem,
 } from "@/components";
 import { useAuth } from "@/hooks";
 import { accountService } from "@/services/accountService";
+import { cardService } from "@/services/cardService";
 import type { Account } from "@/services/accountService";
+import type { Card } from "@/types/card";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -116,7 +119,9 @@ const AccountCard = () => {
 	const router = useRouter();
 	const [activeTab, setActiveTab] = useState<"account" | "card">("account");
 	const [accounts, setAccounts] = useState<Account[]>([]);
+	const [cards, setCards] = useState<Card[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [isLoadingCards, setIsLoadingCards] = useState(false);
 
 	const headerOpacity = useSharedValue(0);
 	const userOpacity = useSharedValue(0);
@@ -162,6 +167,10 @@ const AccountCard = () => {
 
 			if (response.success && response.data) {
 				setAccounts(response.data);
+				// Fetch cards for all accounts
+				if (response.data.length > 0) {
+					await fetchCardsForAllAccounts(response.data);
+				}
 			} else {
 				console.error("Failed to fetch accounts:", response.error);
 			}
@@ -169,6 +178,34 @@ const AccountCard = () => {
 			console.error("Error fetching accounts:", error);
 		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const fetchCardsForAllAccounts = async (accountList: Account[]) => {
+		try {
+			setIsLoadingCards(true);
+
+			// Fetch cards for all accounts in parallel
+			const cardPromises = accountList.map((account) =>
+				cardService.getCardsByAccountId(account.accountId)
+			);
+
+			const cardResponses = await Promise.all(cardPromises);
+
+			// Combine all cards from all accounts
+			const allCards: Card[] = [];
+			cardResponses.forEach((response) => {
+				if (response.success && response.data) {
+					allCards.push(...response.data);
+				}
+			});
+
+			setCards(allCards);
+		} catch (error) {
+			console.error("Error fetching cards:", error);
+			setCards([]);
+		} finally {
+			setIsLoadingCards(false);
 		}
 	};
 
@@ -209,6 +246,19 @@ const AccountCard = () => {
 				router.push({
 					pathname: "/(account)/cardDetail",
 					params: { cardId: card.id },
+				})
+			}
+		/>
+	);
+
+	const renderCard = (card: Card) => (
+		<CardItem
+			key={card.cardId}
+			card={card}
+			onPress={() =>
+				router.push({
+					pathname: "/(account)/cardDetail",
+					params: { cardId: card.cardId },
 				})
 			}
 		/>
@@ -304,8 +354,20 @@ const AccountCard = () => {
 								No accounts found
 							</Text>
 						)
+					) : isLoadingCards ? (
+						<View style={styles.loadingContainer}>
+							<ActivityIndicator
+								size="large"
+								color={colors.primary.primary1}
+							/>
+							<Text style={styles.loadingText}>
+								Loading cards...
+							</Text>
+						</View>
+					) : cards.length > 0 ? (
+						cards.map((card) => renderCard(card))
 					) : (
-						cardsData.map((card) => renderBankCard(card))
+						<Text style={styles.emptyText}>No cards found</Text>
 					)}
 				</AnimatedScrollView>
 			)}

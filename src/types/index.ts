@@ -9,3 +9,4 @@ export type {
 	AuthContextState,
 } from "./auth";
 export type { Beneficiary, BeneficiaryFormData } from "./beneficiary";
+export type { Card, GetCardsResponse } from "./card";

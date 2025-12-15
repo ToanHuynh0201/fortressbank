@@ -10,8 +10,7 @@ import {
 	Dimensions,
 	FlatList,
 	ViewToken,
-	Modal,
-	Pressable,
+	ActivityIndicator,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import {
@@ -19,11 +18,9 @@ import {
 	User,
 	Wallet,
 	Copy,
-	Eye,
-	EyeSlash,
-	X,
 	CreditCard,
-	CalendarBlank,
+	Lock,
+	LockOpen,
 } from "phosphor-react-native";
 import Animated, {
 	FadeInDown,
@@ -37,7 +34,17 @@ import Animated, {
 	Easing,
 } from "react-native-reanimated";
 import colors from "@/constants/colors";
-import { ScreenContainer, CreditCardItem } from "@/components";
+import {
+	ScreenContainer,
+	CreditCardItem,
+	CardItem,
+	ConfirmationModal,
+	SuccessModal,
+} from "@/components";
+import { cardService } from "@/services/cardService";
+import { accountService } from "@/services/accountService";
+import type { Card } from "@/types/card";
+import type { Account } from "@/services/accountService";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -55,13 +62,13 @@ interface CardDetailData {
 }
 
 // Separate component for card item to use hooks properly
-const CardItem = React.memo(
+const CardItemComponent = React.memo(
 	({
 		item,
 		index,
 		scrollX,
 	}: {
-		item: CardDetailData;
+		item: Card;
 		index: number;
 		scrollX: SharedValue<number>;
 	}) => {
@@ -87,22 +94,14 @@ const CardItem = React.memo(
 		return (
 			<Animated.View
 				style={[styles.cardItemContainer, cardAnimatedStyle]}>
-				<CreditCardItem
-					cardName={item.cardName}
-					cardNumber={item.cardNumber}
-					cardType={item.cardType}
-					expiryDate={item.expiryDate}
-					cardHolder={item.cardHolder}
-					cardLimit={item.cardLimit}
-					availableCredit={item.availableCredit}
-				/>
+				<CardItem card={item} />
 			</Animated.View>
 		);
 	},
 	(prevProps, nextProps) => {
 		// Custom comparison - only re-render if item changes, ignore scrollX changes
 		return (
-			prevProps.item.id === nextProps.item.id &&
+			prevProps.item.cardId === nextProps.item.cardId &&
 			prevProps.index === nextProps.index
 		);
 	},
@@ -110,61 +109,82 @@ const CardItem = React.memo(
 
 const CardDetail = () => {
 	const router = useRouter();
-	const headerOpacity = useSharedValue(0);
-	// Mock data - Multiple cards for swipe functionality
-	const cardsData: CardDetailData[] = [
-		{
-			id: "1",
-			cardName: "Platinum Visa",
-			cardNumber: "4532 **** **** 8765",
-			cardType: "Visa",
-			expiryDate: "12/26",
-			cardHolder: "HUYNH NHAT TOAN",
-			cardLimit: "$50,000",
-			availableCredit: "$35,000",
-			linkedAccountNumber: "1040868669",
-			linkedAccountName: "HUYNH NHAT TOAN",
-		},
-		{
-			id: "2",
-			cardName: "Gold Mastercard",
-			cardNumber: "5412 **** **** 3456",
-			cardType: "Mastercard",
-			expiryDate: "09/27",
-			cardHolder: "HUYNH NHAT TOAN",
-			cardLimit: "$30,000",
-			availableCredit: "$22,000",
-			linkedAccountNumber: "1040868670",
-			linkedAccountName: "HUYNH NHAT TOAN",
-		},
-		{
-			id: "3",
-			cardName: "Premium Visa",
-			cardNumber: "4916 **** **** 7890",
-			cardType: "Visa",
-			expiryDate: "03/28",
-			cardHolder: "HUYNH NHAT TOAN",
-			cardLimit: "$75,000",
-			availableCredit: "$60,000",
-			linkedAccountNumber: "1040868671",
-			linkedAccountName: "HUYNH NHAT TOAN",
-		},
-	];
+	const params = useLocalSearchParams();
+	const cardId = params.cardId as string;
 
+	const headerOpacity = useSharedValue(0);
+	const [cards, setCards] = useState<Card[]>([]);
+	const [accounts, setAccounts] = useState<Account[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 	const [currentCardIndex, setCurrentCardIndex] = useState(0);
-	const [showDetailModal, setShowDetailModal] = useState(false);
-	const [showCardNumber, setShowCardNumber] = useState(false);
+	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+	const [isLockAction, setIsLockAction] = useState(false);
 	const flatListRef = useRef<FlatList>(null);
 	const scrollX = useSharedValue(0);
 
-	const currentCardData = cardsData[currentCardIndex];
+	const currentCard = cards[currentCardIndex];
 
 	useEffect(() => {
 		headerOpacity.value = withTiming(1, {
 			duration: 400,
 			easing: Easing.out(Easing.ease),
 		});
-	});
+
+		// Fetch all cards and accounts
+		fetchAllData();
+	}, []);
+
+	const fetchAllData = async () => {
+		try {
+			setIsLoading(true);
+
+			// Fetch accounts first
+			const accountsResponse = await accountService.getAccounts();
+			if (accountsResponse.success && accountsResponse.data) {
+				setAccounts(accountsResponse.data);
+
+				// Fetch cards for all accounts
+				const cardPromises = accountsResponse.data.map(
+					(account: Account) =>
+						cardService.getCardsByAccountId(account.accountId),
+				);
+
+				const cardResponses = await Promise.all(cardPromises);
+
+				// Combine all cards
+				const allCards: Card[] = [];
+				cardResponses.forEach((response) => {
+					if (response.success && response.data) {
+						allCards.push(...response.data);
+					}
+				});
+
+				setCards(allCards);
+
+				// Find the index of the current card
+				if (cardId) {
+					const index = allCards.findIndex(
+						(card) => card.cardId === cardId,
+					);
+					if (index !== -1) {
+						setCurrentCardIndex(index);
+						// Scroll to the current card
+						setTimeout(() => {
+							flatListRef.current?.scrollToIndex({
+								index,
+								animated: false,
+							});
+						}, 100);
+					}
+				}
+			}
+		} catch (error) {
+			console.error("Error fetching data:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	// Animated scroll handler for FlatList
 	const scrollHandler = useAnimatedScrollHandler({
@@ -198,11 +218,25 @@ const CardDetail = () => {
 		itemVisiblePercentThreshold: 50,
 	}).current;
 
+	// Helper function to format expiry date
+	const formatExpiryDate = (dateString: string) => {
+		const date = new Date(dateString);
+		const month = String(date.getMonth() + 1).padStart(2, "0");
+		const year = String(date.getFullYear()).slice(-2);
+		return `${month}/${year}`;
+	};
+
+	// Helper function to get linked account (for now, just return first account)
+	// In real app, you would need to link card to specific account via API
+	const getLinkedAccount = () => {
+		return accounts.length > 0 ? accounts[0] : null;
+	};
+
 	// Render each card item - memoized to prevent re-renders
 	const renderCardItem = useCallback(
-		({ item, index }: { item: CardDetailData; index: number }) => {
+		({ item, index }: { item: Card; index: number }) => {
 			return (
-				<CardItem
+				<CardItemComponent
 					item={item}
 					index={index}
 					scrollX={scrollX}
@@ -213,7 +247,7 @@ const CardDetail = () => {
 	);
 
 	// Key extractor
-	const keyExtractor = (item: CardDetailData) => item.id;
+	const keyExtractor = (item: Card) => item.cardId;
 
 	// Get item layout for optimization
 	const getItemLayout = (_: any, index: number) => ({
@@ -223,35 +257,81 @@ const CardDetail = () => {
 	});
 
 	const handleCopyAccountNumber = () => {
-		Alert.alert(
-			"Copied",
-			"Account number has been copied to clipboard",
+		Alert.alert("Copied", "Account number has been copied to clipboard");
+	};
+
+	const handleToggleLockCard = () => {
+		setShowConfirmModal(true);
+	};
+
+	const handleConfirmToggleLock = async () => {
+		setShowConfirmModal(false);
+		const isLocked = currentCard.status === "LOCKED";
+		const action = isLocked ? "unlocked" : "locked";
+
+		try {
+			// Call API to lock/unlock card
+			const response = await cardService.toggleLock(currentCard.cardId);
+
+			if (response.success) {
+				// Update local card status
+				const updatedCards = cards.map((card) => {
+					if (card.cardId === currentCard.cardId) {
+						return {
+							...card,
+							status: isLocked ? "ACTIVE" : "LOCKED",
+						} as Card;
+					}
+					return card;
+				});
+				setCards(updatedCards);
+
+				// Show success modal
+				setIsLockAction(!isLocked);
+				setShowSuccessModal(true);
+			} else {
+				Alert.alert(
+					"Error",
+					response.error || `Failed to ${action} card`,
+				);
+			}
+		} catch (error) {
+			console.error("Toggle lock error:", error);
+			Alert.alert("Error", `Failed to ${action} card. Please try again.`);
+		}
+	};
+
+	const handleCancelToggleLock = () => {
+		setShowConfirmModal(false);
+	};
+
+	const handleCloseSuccessModal = () => {
+		setShowSuccessModal(false);
+		router.back();
+	};
+
+	const linkedAccount = getLinkedAccount();
+
+	// Show loading state
+	if (isLoading || !currentCard) {
+		return (
+			<ScreenContainer backgroundColor={colors.neutral.neutral6}>
+				<StatusBar
+					barStyle="dark-content"
+					backgroundColor={colors.neutral.neutral6}
+				/>
+				<View style={styles.loadingContainer}>
+					<ActivityIndicator
+						size="large"
+						color={colors.primary.primary1}
+					/>
+					<Text style={styles.loadingText}>
+						Loading card details...
+					</Text>
+				</View>
+			</ScreenContainer>
 		);
-	};
-
-	const handleShowDetail = () => {
-		setShowDetailModal(true);
-	};
-
-	const handleCloseModal = () => {
-		setShowDetailModal(false);
-		setShowCardNumber(false); // Reset khi đóng modal
-	};
-
-	const toggleCardNumberVisibility = () => {
-		setShowCardNumber(!showCardNumber);
-	};
-
-	const getFullCardNumber = (maskedNumber: string) => {
-		// Giả sử số thẻ đầy đủ, thay thế **** bằng số thật
-		// Trong thực tế, bạn cần lưu số thẻ đầy đủ ở backend
-		const cardFullNumbers: { [key: string]: string } = {
-			"4532 **** **** 8765": "4532 1234 5678 8765",
-			"5412 **** **** 3456": "5412 7890 1234 3456",
-			"4916 **** **** 7890": "4916 5555 6666 7890",
-		};
-		return cardFullNumbers[maskedNumber] || maskedNumber;
-	};
+	}
 
 	return (
 		<ScreenContainer backgroundColor={colors.neutral.neutral6}>
@@ -282,7 +362,7 @@ const CardDetail = () => {
 				{/* Bank Card Carousel */}
 				<Animated.FlatList
 					ref={flatListRef}
-					data={cardsData}
+					data={cards}
 					renderItem={renderCardItem}
 					keyExtractor={keyExtractor}
 					getItemLayout={getItemLayout}
@@ -304,18 +384,20 @@ const CardDetail = () => {
 				/>
 
 				{/* Card Indicators */}
-				<View style={styles.cardIndicators}>
-					{cardsData.map((_, index) => (
-						<View
-							key={index}
-							style={[
-								styles.indicatorDot,
-								index === currentCardIndex &&
-									styles.indicatorDotActive,
-							]}
-						/>
-					))}
-				</View>
+				{cards.length > 1 && (
+					<View style={styles.cardIndicators}>
+						{cards.map((_, index) => (
+							<View
+								key={index}
+								style={[
+									styles.indicatorDot,
+									index === currentCardIndex &&
+										styles.indicatorDotActive,
+								]}
+							/>
+						))}
+					</View>
+				)}
 
 				{/* Account Information */}
 				<Animated.View
@@ -333,11 +415,37 @@ const CardDetail = () => {
 							<Text style={styles.infoLabel}>Card Owner</Text>
 						</View>
 						<Text style={styles.infoValue}>
-							{currentCardData.cardHolder}
+							{currentCard.cardHolderName}
 						</Text>
 					</View>
 
-					{/* Linked Account Number */}
+					{/* Card Status */}
+					<View style={styles.infoRow}>
+						<View style={styles.infoLabelContainer}>
+							<CreditCard
+								size={16}
+								color={colors.neutral.neutral2}
+								weight="regular"
+							/>
+							<Text style={styles.infoLabel}>Card Status</Text>
+						</View>
+						<Text
+							style={[
+								styles.infoValue,
+								{
+									color:
+										currentCard.status === "ACTIVE"
+											? "#10B981"
+											: currentCard.status === "LOCKED"
+											? "#EF4444"
+											: "#6B7280",
+								},
+							]}>
+							{currentCard.status}
+						</Text>
+					</View>
+
+					{/* Card Type */}
 					<View style={styles.infoRow}>
 						<View style={styles.infoLabelContainer}>
 							<Wallet
@@ -345,152 +453,123 @@ const CardDetail = () => {
 								color={colors.neutral.neutral2}
 								weight="regular"
 							/>
-							<Text style={styles.infoLabel}>
-								Linked Account Number
-							</Text>
+							<Text style={styles.infoLabel}>Card Type</Text>
 						</View>
-						<View style={styles.accountNumberContainer}>
-							<Text style={styles.infoValue}>
-								{currentCardData.linkedAccountNumber}
-							</Text>
-							<TouchableOpacity
-								onPress={handleCopyAccountNumber}
-								style={styles.copyButton}>
-								<Copy
-									size={18}
-									color={colors.primary.primary1}
-									weight="regular"
-								/>
-							</TouchableOpacity>
-						</View>
+						<Text style={styles.infoValue}>
+							{currentCard.cardType}
+						</Text>
 					</View>
 
-					{/* Show Account Info Button */}
+					{/* Linked Account Number */}
+					{linkedAccount && (
+						<View style={styles.infoRow}>
+							<View style={styles.infoLabelContainer}>
+								<Wallet
+									size={16}
+									color={colors.neutral.neutral2}
+									weight="regular"
+								/>
+								<Text style={styles.infoLabel}>
+									Linked Account Number
+								</Text>
+							</View>
+							<View style={styles.accountNumberContainer}>
+								<Text style={styles.infoValue}>
+									{linkedAccount.accountNumber}
+								</Text>
+								<TouchableOpacity
+									onPress={handleCopyAccountNumber}
+									style={styles.copyButton}>
+									<Copy
+										size={18}
+										color={colors.primary.primary1}
+										weight="regular"
+									/>
+								</TouchableOpacity>
+							</View>
+						</View>
+					)}
+
+					{/* Lock/Unlock Card Button */}
 					<TouchableOpacity
-						style={styles.showInfoButton}
-						onPress={handleShowDetail}>
-						<Text style={styles.showInfoText}>Show Details</Text>
-						<Eye
-							size={20}
-							color={colors.neutral.neutral6}
-							weight="regular"
-						/>
+						style={[
+							styles.lockButton,
+							currentCard.status === "LOCKED" &&
+								styles.unlockButton,
+						]}
+						onPress={handleToggleLockCard}>
+						{currentCard.status === "LOCKED" ? (
+							<LockOpen
+								size={20}
+								color={colors.neutral.neutral6}
+								weight="bold"
+							/>
+						) : (
+							<Lock
+								size={20}
+								color={colors.neutral.neutral6}
+								weight="bold"
+							/>
+						)}
+						<Text style={styles.lockButtonText}>
+							{currentCard.status === "LOCKED"
+								? "Unlock Card"
+								: "Lock Card"}
+						</Text>
 					</TouchableOpacity>
 				</Animated.View>
 			</ScrollView>
 
-			{/* Card Detail Modal */}
-			<Modal
-				visible={showDetailModal}
-				transparent={true}
-				animationType="fade"
-				onRequestClose={handleCloseModal}>
-				<Pressable
-					style={styles.modalOverlay}
-					onPress={handleCloseModal}>
-					<Pressable
-						style={styles.modalContent}
-						onPress={(e) => e.stopPropagation()}>
-						{/* Modal Header */}
-						<View style={styles.modalHeader}>
-							<Text style={styles.modalTitle}>Card Details</Text>
-							<TouchableOpacity
-								onPress={handleCloseModal}
-								style={styles.closeButton}>
-								<X
-									size={24}
-									color={colors.neutral.neutral1}
-									weight="bold"
-								/>
-							</TouchableOpacity>
-						</View>
+			{/* Confirmation Modal */}
+			<ConfirmationModal
+				visible={showConfirmModal}
+				title={
+					currentCard?.status === "LOCKED"
+						? "Unlock Card"
+						: "Lock Card"
+				}
+				message={
+					currentCard?.status === "LOCKED"
+						? "Are you sure you want to unlock this card?"
+						: "Are you sure you want to lock this card?"
+				}
+				confirmText={
+					currentCard?.status === "LOCKED" ? "Unlock" : "Lock"
+				}
+				cancelText="Cancel"
+				confirmButtonVariant={
+					currentCard?.status === "LOCKED" ? "primary" : "danger"
+				}
+				onConfirm={handleConfirmToggleLock}
+				onCancel={handleCancelToggleLock}
+			/>
 
-						{/* Modal Body */}
-						<View style={styles.modalBody}>
-							{/* Card Number */}
-							<View style={styles.detailRow}>
-								<View style={styles.detailLabelContainer}>
-									<CreditCard
-										size={20}
-										color={colors.primary.primary1}
-										weight="regular"
-									/>
-									<Text style={styles.detailLabel}>
-										Card Number
-									</Text>
-								</View>
-								<View style={styles.cardNumberRow}>
-									<Text style={styles.detailValue}>
-										{showCardNumber
-											? getFullCardNumber(
-													currentCardData.cardNumber,
-											  )
-											: currentCardData.cardNumber}
-									</Text>
-									<TouchableOpacity
-										onPress={toggleCardNumberVisibility}
-										style={styles.eyeButton}>
-										{showCardNumber ? (
-											<EyeSlash
-												size={20}
-												color={colors.primary.primary1}
-												weight="regular"
-											/>
-										) : (
-											<Eye
-												size={20}
-												color={colors.primary.primary1}
-												weight="regular"
-											/>
-										)}
-									</TouchableOpacity>
-								</View>
-							</View>
-
-							{/* Card Holder */}
-							<View style={styles.detailRow}>
-								<View style={styles.detailLabelContainer}>
-									<User
-										size={20}
-										color={colors.primary.primary1}
-										weight="regular"
-									/>
-									<Text style={styles.detailLabel}>
-										Card Holder
-									</Text>
-								</View>
-								<Text style={styles.detailValue}>
-									{currentCardData.cardHolder}
-								</Text>
-							</View>
-
-							{/* Expiry Date */}
-							<View style={styles.detailRow}>
-								<View style={styles.detailLabelContainer}>
-									<CalendarBlank
-										size={20}
-										color={colors.primary.primary1}
-										weight="regular"
-									/>
-									<Text style={styles.detailLabel}>
-										Expiry Date
-									</Text>
-								</View>
-								<Text style={styles.detailValue}>
-									{currentCardData.expiryDate}
-								</Text>
-							</View>
-						</View>
-
-						{/* Modal Footer */}
-						<TouchableOpacity
-							style={styles.modalCloseButton}
-							onPress={handleCloseModal}>
-							<Text style={styles.modalCloseText}>Close</Text>
-						</TouchableOpacity>
-					</Pressable>
-				</Pressable>
-			</Modal>
+			{/* Success Modal */}
+			<SuccessModal
+				visible={showSuccessModal}
+				title="Success!"
+				subtitle={
+					isLockAction
+						? "Your card has been locked successfully"
+						: "Your card has been unlocked successfully"
+				}
+				details={[
+					{
+						label: "Card Number",
+						value: currentCard?.cardNumber || "",
+					},
+					{
+						label: "Card Holder",
+						value: currentCard?.cardHolderName || "",
+					},
+					{
+						label: "Status",
+						value: isLockAction ? "LOCKED" : "ACTIVE",
+					},
+				]}
+				buttonText="Done"
+				onClose={handleCloseSuccessModal}
+			/>
 		</ScreenContainer>
 	);
 };
@@ -607,8 +686,8 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.primary.primary4,
 		borderRadius: 8,
 	},
-	showInfoButton: {
-		backgroundColor: colors.primary.primary1,
+	lockButton: {
+		backgroundColor: "#EF4444",
 		borderRadius: 12,
 		paddingVertical: 14,
 		flexDirection: "row",
@@ -616,7 +695,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		gap: 10,
 		marginTop: 8,
-		shadowColor: colors.primary.primary1,
+		shadowColor: "#EF4444",
 		shadowOffset: {
 			width: 0,
 			height: 4,
@@ -625,7 +704,11 @@ const styles = StyleSheet.create({
 		shadowRadius: 8,
 		elevation: 5,
 	},
-	showInfoText: {
+	unlockButton: {
+		backgroundColor: "#10B981",
+		shadowColor: "#10B981",
+	},
+	lockButtonText: {
 		fontFamily: "Poppins",
 		fontSize: 14,
 		fontWeight: "600",
@@ -647,105 +730,18 @@ const styles = StyleSheet.create({
 		borderRadius: 2.5,
 		backgroundColor: colors.neutral.neutral4,
 	},
-	// Modal Styles
-	modalOverlay: {
+	loadingContainer: {
 		flex: 1,
-		backgroundColor: "rgba(0, 0, 0, 0.5)",
 		justifyContent: "center",
 		alignItems: "center",
-		padding: 24,
+		paddingVertical: 60,
 	},
-	modalContent: {
-		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 20,
-		width: "100%",
-		maxWidth: 400,
-		shadowColor: "#000",
-		shadowOffset: {
-			width: 0,
-			height: 8,
-		},
-		shadowOpacity: 0.25,
-		shadowRadius: 16,
-		elevation: 10,
-	},
-	modalHeader: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		padding: 20,
-		borderBottomWidth: 1,
-		borderBottomColor: colors.neutral.neutral5,
-	},
-	modalTitle: {
-		fontFamily: "Poppins",
-		fontSize: 18,
-		fontWeight: "700",
-		color: colors.neutral.neutral1,
-	},
-	closeButton: {
-		padding: 4,
-	},
-	modalBody: {
-		padding: 20,
-	},
-	detailRow: {
-		marginBottom: 20,
-	},
-	detailLabelContainer: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 10,
-		marginBottom: 10,
-	},
-	detailLabel: {
+	loadingText: {
 		fontFamily: "Poppins",
 		fontSize: 14,
-		fontWeight: "600",
-		color: colors.neutral.neutral2,
-	},
-	cardNumberRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
-		paddingLeft: 30,
-	},
-	detailValue: {
-		fontFamily: "Poppins",
-		fontSize: 16,
-		fontWeight: "700",
-		color: colors.neutral.neutral1,
-		letterSpacing: 0.5,
-		flex: 1,
-	},
-	eyeButton: {
-		padding: 8,
-		backgroundColor: colors.primary.primary4,
-		borderRadius: 8,
-		marginLeft: 8,
-	},
-	modalCloseButton: {
-		backgroundColor: colors.primary.primary1,
-		borderRadius: 12,
-		paddingVertical: 14,
-		marginHorizontal: 20,
-		marginBottom: 20,
-		alignItems: "center",
-		justifyContent: "center",
-		shadowColor: colors.primary.primary1,
-		shadowOffset: {
-			width: 0,
-			height: 4,
-		},
-		shadowOpacity: 0.25,
-		shadowRadius: 8,
-		elevation: 5,
-	},
-	modalCloseText: {
-		fontFamily: "Poppins",
-		fontSize: 14,
-		fontWeight: "600",
-		color: colors.neutral.neutral6,
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+		marginTop: 12,
 	},
 });
 

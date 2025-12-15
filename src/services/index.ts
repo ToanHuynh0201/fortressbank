@@ -12,6 +12,7 @@ export {
 	beneficiaryService,
 	default as BeneficiaryService,
 } from "./beneficiaryService";
+export { cardService, default as CardService } from "./cardService";
 
 export type {
 	TransferRequest,
