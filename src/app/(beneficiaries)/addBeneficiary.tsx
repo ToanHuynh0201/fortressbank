@@ -31,6 +31,7 @@ import colors from "@/constants/colors";
 import { PrimaryButton, CustomInput, AccountNumberInput } from "@/components";
 import { useForm } from "@/hooks";
 import { BeneficiaryFormData } from "@/types/beneficiary";
+import type { AccountLookupData } from "@/services/transferService";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -42,6 +43,7 @@ const AddBeneficiary = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const [beneficiaryName, setBeneficiaryName] = useState<string>("");
+	const [beneficiaryAccountData, setBeneficiaryAccountData] = useState<AccountLookupData | null>(null);
 	const [isEditing, setIsEditing] = useState(false);
 
 	const headerOpacity = useSharedValue(0);
@@ -81,13 +83,15 @@ const AddBeneficiary = () => {
 		transform: [{ translateY: contentTranslateY.value }],
 	}));
 
-	const handleBeneficiaryFound = (name: string) => {
-		setBeneficiaryName(name);
-		setFieldValue("accountName", name);
+	const handleAccountFound = (accountData: AccountLookupData) => {
+		setBeneficiaryName(accountData.fullName);
+		setBeneficiaryAccountData(accountData);
+		setFieldValue("accountName", accountData.fullName);
 	};
 
-	const handleBeneficiaryNotFound = () => {
+	const handleAccountNotFound = () => {
 		setBeneficiaryName("");
+		setBeneficiaryAccountData(null);
 		setFieldValue("accountName", "");
 	};
 
@@ -191,10 +195,8 @@ const AddBeneficiary = () => {
 								onChangeText={(text) =>
 									handleChange("accountNumber", text)
 								}
-								onBeneficiaryFound={handleBeneficiaryFound}
-								onBeneficiaryNotFound={
-									handleBeneficiaryNotFound
-								}
+								onAccountFound={handleAccountFound}
+								onAccountNotFound={handleAccountNotFound}
 								placeholder="Enter account number"
 								containerStyle={styles.customInputContainer}
 							/>

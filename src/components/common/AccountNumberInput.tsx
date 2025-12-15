@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
 	View,
 	Text,
@@ -10,20 +10,13 @@ import {
 import CustomInput from "./CustomInput";
 import colors from "@/constants/colors";
 import { transferService } from "@/services";
-
-// Mock data for testing (will be replaced by actual API)
-const MOCK_ACCOUNTS = [
-	{ accountNumber: "1234567890", name: "John Doe" },
-	{ accountNumber: "0987654321", name: "Jane Smith" },
-	{ accountNumber: "1111222233", name: "Alice Johnson" },
-	{ accountNumber: "4444555566", name: "Bob Williams" },
-];
+import type { AccountLookupData } from "@/services/transferService";
 
 interface AccountNumberInputProps {
 	value: string;
 	onChangeText: (text: string) => void;
-	onBeneficiaryFound?: (name: string) => void;
-	onBeneficiaryNotFound?: () => void;
+	onAccountFound?: (accountData: AccountLookupData) => void;
+	onAccountNotFound?: () => void;
 	containerStyle?: any;
 	placeholder?: string;
 }
@@ -35,8 +28,8 @@ interface AccountNumberInputProps {
 const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 	value,
 	onChangeText,
-	onBeneficiaryFound,
-	onBeneficiaryNotFound,
+	onAccountFound,
+	onAccountNotFound,
 	containerStyle,
 	placeholder = "Account number",
 }) => {
@@ -44,6 +37,16 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string>("");
 	const [showErrorModal, setShowErrorModal] = useState(false);
+
+	// Use refs to store callbacks to avoid dependency issues
+	const onAccountFoundRef = useRef(onAccountFound);
+	const onAccountNotFoundRef = useRef(onAccountNotFound);
+
+	// Update refs when callbacks change
+	useEffect(() => {
+		onAccountFoundRef.current = onAccountFound;
+		onAccountNotFoundRef.current = onAccountNotFound;
+	}, [onAccountFound, onAccountNotFound]);
 
 	// Debounce timer
 	useEffect(() => {
@@ -63,46 +66,28 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 		// Debounce: wait 1000ms (1 second) after user stops typing
 		const timer = setTimeout(async () => {
 			try {
-				// Try to fetch from API first
-				const result = await transferService.getBeneficiaryName(cleanedValue);
+				const result = await transferService.lookupAccount(
+					cleanedValue,
+				);
+				console.log(result.data);
 
 				if (result.success && result.data) {
-					setBeneficiaryName(result.data.name);
-					onBeneficiaryFound?.(result.data.name);
+					setBeneficiaryName(result.data.fullName);
+					onAccountFoundRef.current?.(result.data);
 					setError("");
 				} else {
-					// Fallback to mock data for testing
-					const mockAccount = MOCK_ACCOUNTS.find(
-						acc => acc.accountNumber === cleanedValue
-					);
-
-					if (mockAccount) {
-						setBeneficiaryName(mockAccount.name);
-						onBeneficiaryFound?.(mockAccount.name);
-						setError("");
-					} else {
-						setBeneficiaryName("");
-						onBeneficiaryNotFound?.();
-						setError(result.error || "Account not found");
-						setShowErrorModal(true);
-					}
-				}
-			} catch (err) {
-				// If API fails, try mock data
-				const mockAccount = MOCK_ACCOUNTS.find(
-					acc => acc.accountNumber === cleanedValue
-				);
-
-				if (mockAccount) {
-					setBeneficiaryName(mockAccount.name);
-					onBeneficiaryFound?.(mockAccount.name);
-					setError("");
-				} else {
+					// Account not found or error
 					setBeneficiaryName("");
-					onBeneficiaryNotFound?.();
-					setError("Failed to fetch account information");
+					onAccountNotFoundRef.current?.();
+					setError(result.error || "Account not found");
 					setShowErrorModal(true);
 				}
+			} catch (err) {
+				// Unexpected error (should be rare with withErrorHandling)
+				setBeneficiaryName("");
+				onAccountNotFoundRef.current?.();
+				setError("Failed to fetch account information");
+				setShowErrorModal(true);
 			} finally {
 				setIsLoading(false);
 			}
@@ -112,7 +97,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 			clearTimeout(timer);
 			setIsLoading(false);
 		};
-	}, [value]); // Remove onBeneficiaryFound and onBeneficiaryNotFound from dependencies
+	}, [value]); // Only depend on value to avoid infinite loops
 
 	return (
 		<View style={[styles.container, containerStyle]}>

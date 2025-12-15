@@ -42,6 +42,7 @@ import { useForm } from "@/hooks";
 import { parseCurrency } from "@/utils/currency";
 import { Beneficiary } from "@/types/beneficiary";
 import { Account, accountService } from "@/services/accountService";
+import type { AccountLookupData } from "@/services/transferService";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -117,6 +118,7 @@ const Transfer = () => {
 	const [showAccountDropdown, setShowAccountDropdown] = useState(false);
 	const [showAccountNumbers, setShowAccountNumbers] = useState(false);
 	const [beneficiaryName, setBeneficiaryName] = useState<string>("");
+	const [beneficiaryAccountData, setBeneficiaryAccountData] = useState<AccountLookupData | null>(null);
 	const [showBeneficiarySelector, setShowBeneficiarySelector] =
 		useState(false);
 	const [selectedBank, setSelectedBank] = useState<string>("");
@@ -222,13 +224,26 @@ const Transfer = () => {
 		selectedBank &&
 		values.accountNumber &&
 		beneficiaryName && // Must have found beneficiary
+		beneficiaryAccountData?.accountId && // Must have accountId for transfer
 		values.amount &&
 		numericAmount > 0 &&
 		numericAmount <= availableBalance;
 
+	const handleAccountFound = (accountData: AccountLookupData) => {
+		setBeneficiaryName(accountData.fullName);
+		setBeneficiaryAccountData(accountData);
+	};
+
+	const handleAccountNotFound = () => {
+		setBeneficiaryName("");
+		setBeneficiaryAccountData(null);
+	};
+
 	const handleBeneficiarySelect = (beneficiary: Beneficiary) => {
 		setFieldValue("accountNumber", beneficiary.accountNumber);
 		setBeneficiaryName(beneficiary.accountName);
+		// Note: Beneficiary data doesn't have accountId, so API lookup will still occur
+		setBeneficiaryAccountData(null);
 	};
 
 	return (
@@ -607,12 +622,8 @@ const Transfer = () => {
 								onChangeText={(text) =>
 									handleChange("accountNumber", text)
 								}
-								onBeneficiaryFound={(name) =>
-									setBeneficiaryName(name)
-								}
-								onBeneficiaryNotFound={() =>
-									setBeneficiaryName("")
-								}
+								onAccountFound={handleAccountFound}
+								onAccountNotFound={handleAccountNotFound}
 								placeholder="Enter account number"
 							/>
 						</View>
@@ -677,6 +688,7 @@ const Transfer = () => {
 									fromAccountId: selectedAccount,
 									fromAccountLabel: `Account ${selectedAccountData?.accountNumber}` || "",
 									fromAccountNumber: selectedAccountData?.accountNumber || "",
+									toAccountId: beneficiaryAccountData?.accountId || "",
 									toAccountNumber: values.accountNumber,
 									recipientName: beneficiaryName || "Unknown",
 									amount: values.amount,

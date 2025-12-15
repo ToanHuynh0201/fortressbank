@@ -1,4 +1,5 @@
 import apiService from '@/lib/api';
+import { withErrorHandling } from '@/utils/error';
 
 /**
  * Transfer Service
@@ -47,13 +48,24 @@ export interface VerifyOTPResponse {
   data: Transaction;
 }
 
-export interface BeneficiaryNameResponse {
+// Complete account lookup data from API
+export interface AccountLookupData {
+  accountId: string;
+  userId: string;
+  balance: number;
+  createdAt: string;
+  accountNumber: string;
+  accountStatus: 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'CLOSED';
+  fullName: string;
+}
+
+// Response structure matching withErrorHandling pattern
+export interface AccountLookupResponse {
   success: boolean;
-  data?: {
-    name: string;
-    accountNumber: string;
-  };
+  data?: AccountLookupData;
   error?: string;
+  code?: string;
+  message?: string;
 }
 
 export interface TransactionHistoryParams {
@@ -96,19 +108,15 @@ class TransferService {
   }
 
   /**
-   * Get beneficiary name by account number
+   * Look up account details by account number
+   * Returns complete account information including accountId needed for transfers
    */
-  async getBeneficiaryName(accountNumber: string): Promise<BeneficiaryNameResponse> {
-    try {
-      const response = await apiService.get(`/accounts/lookup/${accountNumber}`);
-      return response.data;
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || 'Failed to fetch beneficiary information',
-      };
-    }
-  }
+  lookupAccount = withErrorHandling(async (accountNumber: string) => {
+    const response = await apiService.get('/accounts/lookup', {
+      params: { accountNumber }
+    });
+    return response;
+  });
 
   /**
    * Validate transfer before processing
