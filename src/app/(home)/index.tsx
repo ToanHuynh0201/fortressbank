@@ -5,7 +5,6 @@ import {
 	ScrollView,
 	Image,
 	TouchableOpacity,
-	Alert,
 	FlatList,
 	Dimensions,
 	ViewToken,
@@ -22,6 +21,7 @@ import {
 	NotificationBell,
 	AccountCardItem,
 	ConfirmationModal,
+	AlertModal,
 } from "@/components";
 import { useNotifications } from "@/contexts";
 import { SignOut } from "phosphor-react-native";
@@ -98,6 +98,12 @@ const Home = () => {
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [accounts, setAccounts] = useState<Account[]>([]);
 	const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
 
 	// Fetch accounts from API
 	useEffect(() => {
@@ -139,7 +145,12 @@ const Home = () => {
 			router.replace("/(auth)/signIn");
 		} catch (error) {
 			console.error("Error during logout:", error);
-			Alert.alert("Error", "Failed to logout. Please try again.");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Failed to logout. Please try again.",
+				variant: "error",
+			});
 		}
 	};
 
@@ -417,6 +428,14 @@ const Home = () => {
 				onConfirm={handleLogoutConfirm}
 				onCancel={handleLogoutCancel}
 				confirmButtonVariant="danger"
+			/>
+
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
 			/>
 		</SafeAreaView>
 	);

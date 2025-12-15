@@ -5,7 +5,6 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	StatusBar,
-	Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,7 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { CaretLeft, ShieldCheck } from "phosphor-react-native";
 import colors from "@/constants/colors";
-import { PrimaryButton, OTPInput } from "@/components";
+import { PrimaryButton, OTPInput, AlertModal } from "@/components";
 import { transferService } from "@/services";
 
 const OTPVerification = () => {
@@ -32,6 +31,12 @@ const OTPVerification = () => {
 	const [timer, setTimer] = useState(60);
 	const [canResend, setCanResend] = useState(false);
 	const [isVerifying, setIsVerifying] = useState(false);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
 
 	const headerOpacity = useSharedValue(0);
 	const contentOpacity = useSharedValue(0);
@@ -82,24 +87,41 @@ const OTPVerification = () => {
 			setTimer(60);
 			setCanResend(false);
 			setOtp("");
-			Alert.alert("OTP Sent", "A new OTP has been sent to your phone");
+			setAlertModal({
+				visible: true,
+				title: "OTP Sent",
+				message: "A new OTP has been sent to your phone",
+				variant: "success",
+			});
 		} catch (error: any) {
 			console.error("Resend OTP error:", error);
-			Alert.alert(
-				"Error",
-				error.message || "Failed to resend OTP. Please try again.",
-			);
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: error.message || "Failed to resend OTP. Please try again.",
+				variant: "error",
+			});
 		}
 	};
 
 	const handleVerifyOTP = async () => {
 		if (otp.length !== 6) {
-			Alert.alert("Invalid OTP", "Please enter a 6-digit OTP");
+			setAlertModal({
+				visible: true,
+				title: "Invalid OTP",
+				message: "Please enter a 6-digit OTP",
+				variant: "error",
+			});
 			return;
 		}
 		if (!txId) {
 			console.log(txId);
-			Alert.alert("Error", "Transaction ID not found");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Transaction ID not found",
+				variant: "error",
+			});
 			return;
 		}
 		setIsVerifying(true);
@@ -117,15 +139,21 @@ const OTPVerification = () => {
 				console.log("Transaction completed:", response.data);
 				router.push("(transfer)/transferSuccess");
 			} else {
-				Alert.alert("Error", "Transaction verification failed");
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: "Transaction verification failed",
+					variant: "error",
+				});
 			}
 		} catch (error: any) {
 			console.error("OTP verification error:", error);
-			Alert.alert(
-				"Verification Failed",
-				error.message ||
-					"The OTP you entered is incorrect. Please try again.",
-			);
+			setAlertModal({
+				visible: true,
+				title: "Verification Failed",
+				message: error.message || "The OTP you entered is incorrect. Please try again.",
+				variant: "error",
+			});
 			setOtp("");
 		} finally {
 			setIsVerifying(false);
@@ -252,6 +280,14 @@ const OTPVerification = () => {
 						<Text style={styles.helpLink}>Contact Support</Text>
 					</Text>
 				</Animated.View>
+
+				<AlertModal
+					visible={alertModal.visible}
+					title={alertModal.title}
+					message={alertModal.message}
+					variant={alertModal.variant}
+					onClose={() => setAlertModal({ ...alertModal, visible: false })}
+				/>
 			</Animated.View>
 		</SafeAreaView>
 	);

@@ -4,7 +4,6 @@ import {
   Text,
   View,
   Pressable,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { neutral, primary, commonStyles } from '@/constants';
@@ -15,6 +14,8 @@ import {
   PrimaryButton,
   CardContainer,
   ScreenContainer,
+  AlertModal,
+  ConfirmationModal,
 } from '@/components';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
@@ -25,7 +26,17 @@ type Step = 'enter-phone' | 'confirm-phone' | 'enter-code' | 'change-password';
 const ForgotPassword = () => {
   const router = useRouter();
   const [step, setStep] = useState<Step>('enter-phone');
-  
+  const [alertModal, setAlertModal] = useState({
+    visible: false,
+    title: "",
+    message: "",
+    variant: "error" as "success" | "error" | "info" | "warning",
+  });
+  const [confirmModal, setConfirmModal] = useState({
+    visible: false,
+    onConfirm: () => {},
+  });
+
   const { values, handleChange } = useForm({
     phoneNumber: '',
     code: '',
@@ -35,7 +46,12 @@ const ForgotPassword = () => {
 
   const handleSendCode = () => {
     if (!values.phoneNumber.trim()) {
-      Alert.alert('Error', 'Please enter your phone number');
+      setAlertModal({
+        visible: true,
+        title: "Error",
+        message: "Please enter your phone number",
+        variant: "error",
+      });
       return;
     }
     // TODO: Call API to send verification code
@@ -52,12 +68,22 @@ const ForgotPassword = () => {
   const handleResendCode = () => {
     // TODO: Call API to resend code
     console.log('Resending code to:', values.phoneNumber);
-    Alert.alert('Success', 'Code has been resent to your phone');
+    setAlertModal({
+      visible: true,
+      title: "Success",
+      message: "Code has been resent to your phone",
+      variant: "success",
+    });
   };
 
   const handleVerifyCode = () => {
     if (values.code.length < 4) {
-      Alert.alert('Error', 'Please enter the verification code');
+      setAlertModal({
+        visible: true,
+        title: "Error",
+        message: "Please enter the verification code",
+        variant: "error",
+      });
       return;
     }
     // TODO: Call API to verify code
@@ -67,18 +93,32 @@ const ForgotPassword = () => {
 
   const handleChangePassword = () => {
     if (!values.newPassword.trim() || !values.confirmPassword.trim()) {
-      Alert.alert('Error', 'Please enter both password fields');
+      setAlertModal({
+        visible: true,
+        title: "Error",
+        message: "Please enter both password fields",
+        variant: "error",
+      });
       return;
     }
     if (values.newPassword !== values.confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      setAlertModal({
+        visible: true,
+        title: "Error",
+        message: "Passwords do not match",
+        variant: "error",
+      });
       return;
     }
     // TODO: Call API to change password
     console.log('Changing password with code:', values.code);
-    Alert.alert('Success', 'Your password has been changed successfully', [
-      { text: 'OK', onPress: () => router.replace('/signIn') },
-    ]);
+    setConfirmModal({
+      visible: true,
+      onConfirm: () => {
+        setConfirmModal({ ...confirmModal, visible: false });
+        router.replace('/signIn');
+      },
+    });
   };
 
   const handleChangePhoneNumber = () => {
@@ -267,6 +307,23 @@ const ForgotPassword = () => {
           {renderStep()}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <AlertModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        variant={alertModal.variant}
+        onClose={() => setAlertModal({ ...alertModal, visible: false })}
+      />
+
+      <ConfirmationModal
+        visible={confirmModal.visible}
+        title="Success"
+        message="Your password has been changed successfully"
+        confirmText="OK"
+        onConfirm={confirmModal.onConfirm}
+        showCancelButton={false}
+      />
     </ScreenContainer>
   );
 };

@@ -5,7 +5,6 @@ import {
 	View,
 	ScrollView,
 	Image,
-	Alert,
 	Pressable,
 	TouchableOpacity,
 } from "react-native";
@@ -28,7 +27,7 @@ import {
 	PencilSimple,
 	LockKey,
 } from "phosphor-react-native";
-import { AppHeader, ConfirmationModal } from "@/components/common";
+import { AppHeader, ConfirmationModal, AlertModal } from "@/components/common";
 import { SettingRow, BiometricSettings } from "@/components/settings";
 import { primary, neutral } from "@/constants/colors";
 import { UserAvatar } from "@/components";
@@ -40,6 +39,7 @@ const Setting = () => {
 	const router = useRouter();
 	const { logout, user } = useAuth();
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
+	const [alertModal, setAlertModal] = useState({ visible: false, title: "", message: "", variant: "info" as "success" | "error" | "info" });
 
 	const profileOpacity = useSharedValue(0);
 	const profileScale = useSharedValue(0.8);
@@ -110,7 +110,7 @@ const Setting = () => {
 			router.replace("/(auth)/signIn");
 		} catch (error) {
 			console.error("Error during logout:", error);
-			Alert.alert("Error", "Failed to logout. Please try again.");
+			setAlertModal({ visible: true, title: "Error", message: "Failed to logout. Please try again.", variant: "error" });
 		}
 	};
 
@@ -232,6 +232,14 @@ const Setting = () => {
 				onConfirm={handleLogoutConfirm}
 				onCancel={handleLogoutCancel}
 				confirmButtonVariant="danger"
+			/>
+
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
 			/>
 		</SafeAreaView>
 	);

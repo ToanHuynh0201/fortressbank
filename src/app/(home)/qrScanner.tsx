@@ -4,7 +4,6 @@ import {
 	View,
 	TouchableOpacity,
 	ScrollView,
-	Alert,
 	Share,
 	TextInput,
 } from "react-native";
@@ -19,6 +18,7 @@ import { useAuth } from "@/hooks";
 import { Account, accountService } from "@/services/accountService";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { CameraView, Camera } from "expo-camera";
+import { AlertModal, ConfirmationModal } from "@/components";
 
 type QRMode = "static" | "dynamic";
 type PageMode = "show" | "scan";
@@ -40,6 +40,20 @@ const QRScanner = () => {
 	const [pageMode, setPageMode] = useState<PageMode>("show");
 	const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 	const [scanned, setScanned] = useState(false);
+
+	// Modal states
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
+	const [confirmModal, setConfirmModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		onConfirm: () => {},
+	});
 
 	useEffect(() => {
 		fetchAccounts();
@@ -67,11 +81,21 @@ const QRScanner = () => {
 				setSelectedAccount(response.data[0]);
 				generateQRData(response.data[0]);
 			} else {
-				Alert.alert("Error", "No accounts found");
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: "No accounts found",
+					variant: "error",
+				});
 			}
 		} catch (error) {
 			console.error("Error fetching accounts:", error);
-			Alert.alert("Error", "Failed to fetch accounts");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Failed to fetch accounts",
+				variant: "error",
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -156,20 +180,15 @@ const QRScanner = () => {
 				},
 			});
 		} catch (error) {
-			Alert.alert(
-				"Invalid QR Code",
-				"The scanned QR code is not a valid payment QR code.",
-				[
-					{
-						text: "Scan Again",
-						onPress: () => setScanned(false),
-					},
-					{
-						text: "Cancel",
-						onPress: () => setPageMode("show"),
-					},
-				],
-			);
+			setConfirmModal({
+				visible: true,
+				title: "Invalid QR Code",
+				message: "The scanned QR code is not a valid payment QR code.",
+				onConfirm: () => {
+					setConfirmModal({ ...confirmModal, visible: false });
+					setScanned(false);
+				},
+			});
 		}
 	};
 
@@ -194,11 +213,12 @@ const QRScanner = () => {
 	};
 
 	const handleCopyAccountNumber = () => {
-		Alert.alert(
-			"Account Number Copied",
-			`${selectedAccount?.accountNumber} has been copied to clipboard`,
-			[{ text: "OK" }],
-		);
+		setAlertModal({
+			visible: true,
+			title: "Account Number Copied",
+			message: `${selectedAccount?.accountNumber} has been copied to clipboard`,
+			variant: "success",
+		});
 	};
 
 	if (isLoading) {
@@ -770,6 +790,27 @@ const QRScanner = () => {
 						</Animated.View>
 					</ScrollView>
 				)}
+
+				<AlertModal
+					visible={alertModal.visible}
+					title={alertModal.title}
+					message={alertModal.message}
+					variant={alertModal.variant}
+					onClose={() => setAlertModal({ ...alertModal, visible: false })}
+				/>
+
+				<ConfirmationModal
+					visible={confirmModal.visible}
+					title={confirmModal.title}
+					message={confirmModal.message}
+					confirmText="Scan Again"
+					cancelText="Cancel"
+					onConfirm={confirmModal.onConfirm}
+					onCancel={() => {
+						setConfirmModal({ ...confirmModal, visible: false });
+						setPageMode("show");
+					}}
+				/>
 			</SafeAreaView>
 		</LinearGradient>
 	);

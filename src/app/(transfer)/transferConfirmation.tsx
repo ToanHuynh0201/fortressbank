@@ -5,7 +5,6 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	StatusBar,
-	Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Animated, {
@@ -26,7 +25,7 @@ import {
 	ArrowRight,
 } from "phosphor-react-native";
 import colors from "@/constants/colors";
-import { ScreenContainer, PrimaryButton } from "@/components";
+import { ScreenContainer, PrimaryButton, AlertModal } from "@/components";
 import { transferService, TransferRequest } from "@/services";
 
 const TransferConfirmation = () => {
@@ -43,6 +42,12 @@ const TransferConfirmation = () => {
 	}>();
 
 	const [isProcessing, setIsProcessing] = useState(false);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
 
 	// Animation values
 	const headerOpacity = useSharedValue(0);
@@ -133,15 +138,21 @@ const TransferConfirmation = () => {
 					},
 				});
 			} else {
-				Alert.alert("Error", "Failed to create transaction");
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: "Failed to create transaction",
+					variant: "error",
+				});
 			}
 		} catch (error: any) {
 			console.error("Transfer error:", error);
-			Alert.alert(
-				"Transfer Failed",
-				error.message ||
-					"Unable to process transfer. Please try again.",
-			);
+			setAlertModal({
+				visible: true,
+				title: "Transfer Failed",
+				message: error.message || "Unable to process transfer. Please try again.",
+				variant: "error",
+			});
 		} finally {
 			setIsProcessing(false);
 		}
@@ -317,6 +328,14 @@ const TransferConfirmation = () => {
 					</TouchableOpacity>
 				</Animated.View>
 			</View>
+
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
 		</ScreenContainer>
 	);
 };

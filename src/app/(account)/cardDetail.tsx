@@ -6,7 +6,6 @@ import {
 	ScrollView,
 	TouchableOpacity,
 	StatusBar,
-	Alert,
 	Dimensions,
 	FlatList,
 	ViewToken,
@@ -44,6 +43,7 @@ import {
 	ConfirmationModal,
 	SuccessModal,
 } from "@/components";
+import AlertModal from "@/components/common/AlertModal";
 import { cardService } from "@/services/cardService";
 import { accountService } from "@/services/accountService";
 import { biometricService } from "@/services/biometricService";
@@ -128,6 +128,14 @@ const CardDetail = () => {
 	const [hasAuthenticatedForAccount, setHasAuthenticatedForAccount] = useState(false);
 	const flatListRef = useRef<FlatList>(null);
 	const scrollX = useSharedValue(0);
+
+	// Alert Modal states
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: '',
+		message: '',
+		variant: 'info' as 'info' | 'success' | 'error' | 'warning',
+	});
 
 	const currentCard = cards[currentCardIndex];
 
@@ -284,10 +292,12 @@ const CardDetail = () => {
 				const isAvailable = await biometricService.isBiometricAvailable();
 
 				if (!isAvailable) {
-					Alert.alert(
-						"Biometric Not Available",
-						"Please enable biometric authentication in your device settings to view account number.",
-					);
+					setAlertModal({
+						visible: true,
+						title: "Biometric Not Available",
+						message: "Please enable biometric authentication in your device settings to view account number.",
+						variant: 'warning',
+					});
 					return;
 				}
 
@@ -298,17 +308,21 @@ const CardDetail = () => {
 					setHasAuthenticatedForAccount(true);
 					setShowAccountNumber(true);
 				} else {
-					Alert.alert(
-						"Authentication Failed",
-						"Please try again to view account number.",
-					);
+					setAlertModal({
+						visible: true,
+						title: "Authentication Failed",
+						message: "Please try again to view account number.",
+						variant: 'error',
+					});
 				}
 			} catch (error) {
 				console.error("Biometric authentication error:", error);
-				Alert.alert(
-					"Error",
-					"Failed to authenticate. Please try again.",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: "Failed to authenticate. Please try again.",
+					variant: 'error',
+				});
 			}
 		} else {
 			// Already authenticated, just toggle
@@ -324,10 +338,12 @@ const CardDetail = () => {
 				const isAvailable = await biometricService.isBiometricAvailable();
 
 				if (!isAvailable) {
-					Alert.alert(
-						"Biometric Not Available",
-						"Please enable biometric authentication in your device settings to copy account number.",
-					);
+					setAlertModal({
+						visible: true,
+						title: "Biometric Not Available",
+						message: "Please enable biometric authentication in your device settings to copy account number.",
+						variant: 'warning',
+					});
 					return;
 				}
 
@@ -339,26 +355,40 @@ const CardDetail = () => {
 					setShowAccountNumber(true);
 					if (linkedAccount) {
 						Clipboard.setString(linkedAccount.accountNumber);
-						Alert.alert("Copied", "Account number has been copied to clipboard");
+						setAlertModal({
+							visible: true,
+							title: "Copied",
+							message: "Account number has been copied to clipboard",
+							variant: 'success',
+						});
 					}
 				} else {
-					Alert.alert(
-						"Authentication Failed",
-						"Please try again to copy account number.",
-					);
+					setAlertModal({
+						visible: true,
+						title: "Authentication Failed",
+						message: "Please try again to copy account number.",
+						variant: 'error',
+					});
 				}
 			} catch (error) {
 				console.error("Biometric authentication error:", error);
-				Alert.alert(
-					"Error",
-					"Failed to authenticate. Please try again.",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: "Failed to authenticate. Please try again.",
+					variant: 'error',
+				});
 			}
 		} else {
 			// Already authenticated, just copy
 			if (linkedAccount) {
 				Clipboard.setString(linkedAccount.accountNumber);
-				Alert.alert("Copied", "Account number has been copied to clipboard");
+				setAlertModal({
+					visible: true,
+					title: "Copied",
+					message: "Account number has been copied to clipboard",
+					variant: 'success',
+				});
 			}
 		}
 	};
@@ -393,14 +423,21 @@ const CardDetail = () => {
 				setIsLockAction(!isLocked);
 				setShowSuccessModal(true);
 			} else {
-				Alert.alert(
-					"Error",
-					response.error || `Failed to ${action} card`,
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: response.error || `Failed to ${action} card`,
+					variant: 'error',
+				});
 			}
 		} catch (error) {
 			console.error("Toggle lock error:", error);
-			Alert.alert("Error", `Failed to ${action} card. Please try again.`);
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: `Failed to ${action} card. Please try again.`,
+				variant: 'error',
+			});
 		}
 	};
 
@@ -693,6 +730,15 @@ const CardDetail = () => {
 				]}
 				buttonText="Done"
 				onClose={handleCloseSuccessModal}
+			/>
+
+			{/* Alert Modal */}
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
 			/>
 		</ScreenContainer>
 	);

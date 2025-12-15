@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import Animated, {
 	useSharedValue,
@@ -16,6 +16,8 @@ import {
 	PrimaryButton,
 	LinkText,
 	DecorativeIllustration,
+	AlertModal,
+	ConfirmationModal,
 } from "@/components";
 import { useForm, useAuth } from "@/hooks";
 
@@ -32,6 +34,9 @@ const SignIn = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isBiometricLoading, setIsBiometricLoading] = useState(false);
 	const [generalError, setGeneralError] = useState<string | null>(null);
+	const [alertModal, setAlertModal] = useState({ visible: false, title: "", message: "", variant: "info" as "success" | "error" | "info" });
+	const [enableBiometricModal, setEnableBiometricModal] = useState({ visible: false });
+	const [biometricSuccessModal, setBiometricSuccessModal] = useState({ visible: false });
 
 	const {
 		values,
@@ -80,51 +85,7 @@ const SignIn = () => {
 				// Check if biometric is available but not enabled
 				if (biometricAvailable && !biometricEnabled) {
 					// Prompt user to enable biometric
-					Alert.alert(
-						"Enable Biometric Login?",
-						"Would you like to enable biometric login for faster access next time?",
-						[
-							{
-								text: "Not Now",
-								style: "cancel",
-								onPress: () => router.replace("/(home)"),
-							},
-							{
-								text: "Enable",
-								onPress: async () => {
-									try {
-										const success = await enableBiometric(
-											values.username,
-											values.password,
-										);
-										if (success) {
-											Alert.alert(
-												"Success",
-												"Biometric login enabled successfully!",
-												[
-													{
-														text: "OK",
-														onPress: () =>
-															router.replace(
-																"/(home)",
-															),
-													},
-												],
-											);
-										} else {
-											router.replace("/(home)");
-										}
-									} catch (error) {
-										console.error(
-											"Enable biometric error:",
-											error,
-										);
-										router.replace("/(home)");
-									}
-								},
-							},
-						],
-					);
+					setEnableBiometricModal({ visible: true });
 				} else {
 					router.replace("/(home)");
 				}
@@ -165,6 +126,34 @@ const SignIn = () => {
 			setIsBiometricLoading(false);
 		}
 	};
+	const handleEnableBiometric = async () => {
+		setEnableBiometricModal({ visible: false });
+		try {
+			const success = await enableBiometric(
+				values.username,
+				values.password,
+			);
+			if (success) {
+				setBiometricSuccessModal({ visible: true });
+			} else {
+				router.replace("/(home)");
+			}
+		} catch (error) {
+			console.error("Enable biometric error:", error);
+			router.replace("/(home)");
+		}
+	};
+
+	const handleSkipBiometric = () => {
+		setEnableBiometricModal({ visible: false });
+		router.replace("/(home)");
+	};
+
+	const handleBiometricSuccess = () => {
+		setBiometricSuccessModal({ visible: false });
+		router.replace("/(home)");
+	};
+
 	const isValid =
 		values.username.trim() !== "" && values.password.trim().length >= 6;
 
@@ -350,6 +339,26 @@ const SignIn = () => {
 					onPress={() => router.navigate("(auth)/signUp")}
 				/>
 			</Animated.View>
+
+			{/* Enable Biometric Modal */}
+			<ConfirmationModal
+				visible={enableBiometricModal.visible}
+				title="Enable Biometric Login?"
+				message="Would you like to enable biometric login for faster access next time?"
+				confirmText="Enable"
+				cancelText="Not Now"
+				onConfirm={handleEnableBiometric}
+				onCancel={handleSkipBiometric}
+			/>
+
+			{/* Biometric Success Modal */}
+			<AlertModal
+				visible={biometricSuccessModal.visible}
+				title="Success"
+				message="Biometric login enabled successfully!"
+				variant="success"
+				onClose={handleBiometricSuccess}
+			/>
 		</AuthLayout>
 	);
 };

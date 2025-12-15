@@ -5,13 +5,13 @@ import {
 	StyleSheet,
 	ViewStyle,
 	TouchableOpacity,
-	Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Bank, Eye, EyeSlash } from "phosphor-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { neutral, primary } from "@/constants/colors";
 import { biometricService } from "@/services/biometricService";
+import AlertModal from "@/components/common/AlertModal";
 
 interface AccountCardItemProps {
 	accountName: string;
@@ -30,6 +30,12 @@ const AccountCardItem: React.FC<AccountCardItemProps> = ({
 }) => {
 	const [isVisible, setIsVisible] = useState(false);
 	const [hasAuthenticated, setHasAuthenticated] = useState(false);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: '',
+		message: '',
+		variant: 'info' as 'info' | 'success' | 'error' | 'warning',
+	});
 
 	const toggleVisibility = async () => {
 		// If showing information, just hide it
@@ -45,10 +51,12 @@ const AccountCardItem: React.FC<AccountCardItemProps> = ({
 				const isAvailable = await biometricService.isBiometricAvailable();
 
 				if (!isAvailable) {
-					Alert.alert(
-						"Biometric Not Available",
-						"Please enable biometric authentication in your device settings to view account details.",
-					);
+					setAlertModal({
+						visible: true,
+						title: "Biometric Not Available",
+						message: "Please enable biometric authentication in your device settings to view account details.",
+						variant: 'warning',
+					});
 					return;
 				}
 
@@ -59,17 +67,21 @@ const AccountCardItem: React.FC<AccountCardItemProps> = ({
 					setHasAuthenticated(true);
 					setIsVisible(true);
 				} else {
-					Alert.alert(
-						"Authentication Failed",
-						"Please try again to view account details.",
-					);
+					setAlertModal({
+						visible: true,
+						title: "Authentication Failed",
+						message: "Please try again to view account details.",
+						variant: 'error',
+					});
 				}
 			} catch (error) {
 				console.error("Biometric authentication error:", error);
-				Alert.alert(
-					"Error",
-					"Failed to authenticate. Please try again.",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: "Failed to authenticate. Please try again.",
+					variant: 'error',
+				});
 			}
 		} else {
 			// Already authenticated, just toggle
@@ -150,6 +162,15 @@ const AccountCardItem: React.FC<AccountCardItemProps> = ({
 				{/* Bottom Accent */}
 				<View style={styles.bottomAccent} />
 			</LinearGradient>
+
+			{/* Alert Modal */}
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
 		</Animated.View>
 	);
 };

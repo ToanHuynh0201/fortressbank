@@ -3,7 +3,6 @@ import {
 	StyleSheet,
 	Text,
 	View,
-	Alert,
 	TouchableOpacity,
 	ScrollView,
 	KeyboardAvoidingView,
@@ -38,6 +37,7 @@ import {
 	AppHeader,
 	DatePickerInput,
 	ConfirmationModal,
+	AlertModal,
 } from "@/components";
 import { useForm } from "@/hooks";
 import { validationRules } from "@/utils";
@@ -57,6 +57,12 @@ const SignUp = () => {
 	const [canResend, setCanResend] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [showExitModal, setShowExitModal] = useState(false);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
 
 	// Animation values
 	const contentOpacity = useSharedValue(0);
@@ -222,15 +228,27 @@ const SignUp = () => {
 				setStep("otp-verification");
 				setTimer(60);
 				setCanResend(false);
-				Alert.alert("Success", "OTP code has been sent to your email");
+				setAlertModal({
+					visible: true,
+					title: "Success",
+					message: "OTP code has been sent to your email",
+					variant: "success",
+				});
 			} else {
-				Alert.alert(
-					"Error",
-					result.message || "Cannot send OTP code. Please try again.",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: result.message || "Cannot send OTP code. Please try again.",
+					variant: "error",
+				});
 			}
 		} catch (error) {
-			Alert.alert("Error", "Cannot send OTP code. Please try again.");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Cannot send OTP code. Please try again.",
+				variant: "error",
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -250,25 +268,38 @@ const SignUp = () => {
 				setTimer(60);
 				setCanResend(false);
 				setFieldValue("otp", "");
-				Alert.alert(
-					"Success",
-					"A new OTP code has been sent to your email",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Success",
+					message: "A new OTP code has been sent to your email",
+					variant: "success",
+				});
 			} else {
-				Alert.alert(
-					"Error",
-					result.message ||
-						"Cannot resend OTP code. Please try again.",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: result.message || "Cannot resend OTP code. Please try again.",
+					variant: "error",
+				});
 			}
 		} catch (error) {
-			Alert.alert("Error", "Cannot resend OTP code. Please try again.");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Cannot resend OTP code. Please try again.",
+				variant: "error",
+			});
 		}
 	};
 
 	const handleOTPVerification = async () => {
 		if (values.otp.length !== 6) {
-			Alert.alert("Error", "Please enter all 6 digits of the OTP code");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Please enter all 6 digits of the OTP code",
+				variant: "error",
+			});
 			return;
 		}
 
@@ -281,17 +312,28 @@ const SignUp = () => {
 
 			if (result.code === 1000 && result.data?.valid) {
 				setStep("complete-registration");
-				Alert.alert("Success", "OTP verified successfully");
+				setAlertModal({
+					visible: true,
+					title: "Success",
+					message: "OTP verified successfully",
+					variant: "success",
+				});
 			} else {
-				Alert.alert(
-					"Error",
-					result.message ||
-						"OTP code is incorrect. Please try again.",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: result.message || "OTP code is incorrect. Please try again.",
+					variant: "error",
+				});
 				setFieldValue("otp", "");
 			}
 		} catch (error) {
-			Alert.alert("Error", "OTP code is incorrect. Please try again.");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "OTP code is incorrect. Please try again.",
+				variant: "error",
+			});
 			setFieldValue("otp", "");
 		} finally {
 			setIsLoading(false);
@@ -327,13 +369,23 @@ const SignUp = () => {
 
 		// Validate account number option
 		if (!values.accountNumberOption) {
-			Alert.alert("Error", "Please select an account number type");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Please select an account number type",
+				variant: "error",
+			});
 			isValid = false;
 		}
 
 		// Validate terms
 		if (!values.agreedToTerms) {
-			Alert.alert("Note", "Please agree to the terms and conditions");
+			setAlertModal({
+				visible: true,
+				title: "Note",
+				message: "Please agree to the terms and conditions",
+				variant: "warning",
+			});
 			isValid = false;
 		}
 
@@ -370,18 +422,27 @@ const SignUp = () => {
 
 			if (result.code === 1000 && result.data) {
 				setStep("success");
-				Alert.alert(
-					"Success",
-					"Your account has been created successfully!",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Success",
+					message: "Your account has been created successfully!",
+					variant: "success",
+				});
 			} else {
-				Alert.alert(
-					"Error",
-					result.message || "Registration failed. Please try again.",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: result.message || "Registration failed. Please try again.",
+					variant: "error",
+				});
 			}
 		} catch (error) {
-			Alert.alert("Error", "Cannot create account. Please try again.");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Cannot create account. Please try again.",
+				variant: "error",
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -1087,6 +1148,15 @@ const SignUp = () => {
 				cancelText="Continue Registration"
 				onConfirm={handleConfirmExit}
 				onCancel={handleCancelExit}
+			/>
+
+			{/* Alert Modal */}
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
 			/>
 		</ScreenContainer>
 	);

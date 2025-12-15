@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Alert, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { primary, neutral } from "@/constants";
 import {
@@ -9,6 +9,7 @@ import {
 	CardContainer,
 	ScreenContainer,
 	DecorativeIllustration,
+	AlertModal,
 } from "@/components";
 import { StatusBar } from "expo-status-bar";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
@@ -25,6 +26,12 @@ const ChangePIN = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [accounts, setAccounts] = useState<Account[]>([]);
 	const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
 
 	const { values, setFieldValue } = useForm({
 		oldPIN: "",
@@ -49,7 +56,12 @@ const ChangePIN = () => {
 			}
 		} catch (error) {
 			console.error("Error loading accounts:", error);
-			Alert.alert("Error", "Failed to load accounts");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Failed to load accounts",
+				variant: "error",
+			});
 		}
 	};
 
@@ -68,29 +80,54 @@ const ChangePIN = () => {
 
 	const handleChangePIN = async () => {
 		if (!selectedAccount) {
-			Alert.alert("Error", "Please select an account");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Please select an account",
+				variant: "error",
+			});
 			return;
 		}
 
 		if (!isFormValid) {
-			Alert.alert("Error", "Please fill in all PIN fields (6 digits each)");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Please fill in all PIN fields (6 digits each)",
+				variant: "error",
+			});
 			return;
 		}
 
 		if (values.newPIN !== values.confirmPIN) {
-			Alert.alert("Error", "New PINs do not match");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "New PINs do not match",
+				variant: "error",
+			});
 			return;
 		}
 
 		if (values.oldPIN === values.newPIN) {
-			Alert.alert("Error", "New PIN must be different from old PIN");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "New PIN must be different from old PIN",
+				variant: "error",
+			});
 			return;
 		}
 
 		// Validate PIN format (only numbers)
 		const pinRegex = /^\d{6}$/;
 		if (!pinRegex.test(values.newPIN)) {
-			Alert.alert("Error", "PIN must be 6 digits");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "PIN must be 6 digits",
+				variant: "error",
+			});
 			return;
 		}
 
@@ -105,10 +142,20 @@ const ChangePIN = () => {
 			if (response.success) {
 				setStep("success");
 			} else {
-				Alert.alert("Error", response.error || "Failed to change PIN");
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: response.error || "Failed to change PIN",
+					variant: "error",
+				});
 			}
 		} catch (error: any) {
-			Alert.alert("Error", error.message || "Failed to change PIN");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: error.message || "Failed to change PIN",
+				variant: "error",
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -318,6 +365,14 @@ const ChangePIN = () => {
 					</CardContainer>
 				</ScrollView>
 			</KeyboardAvoidingView>
+
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
 		</ScreenContainer>
 	);
 };

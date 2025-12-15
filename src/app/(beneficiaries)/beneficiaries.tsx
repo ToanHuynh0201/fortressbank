@@ -5,7 +5,6 @@ import {
 	StyleSheet,
 	FlatList,
 	TouchableOpacity,
-	Alert,
 	RefreshControl,
 	StatusBar,
 } from "react-native";
@@ -25,12 +24,15 @@ import { BeneficiaryCard } from "@/components/beneficiaries";
 import { Beneficiary } from "@/types/beneficiary";
 import beneficiaryService from "@/services/beneficiaryService";
 import colors from "@/constants/colors";
+import { AlertModal, ConfirmationModal } from "@/components/common";
 
 const Beneficiaries = () => {
 	const router = useRouter();
 	const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
+	const [alertModal, setAlertModal] = useState({ visible: false, title: "", message: "", variant: "info" as "success" | "error" | "info" });
+	const [deleteModal, setDeleteModal] = useState({ visible: false, beneficiary: null as Beneficiary | null });
 
 	// Animation values
 	const headerOpacity = useSharedValue(0);
@@ -91,7 +93,7 @@ const Beneficiaries = () => {
 			setBeneficiaries(data);
 		} catch (error) {
 			console.error("Error loading beneficiaries:", error);
-			Alert.alert("Error", "Failed to load beneficiaries");
+			setAlertModal({ visible: true, title: "Error", message: "Failed to load beneficiaries", variant: "error" });
 		} finally {
 			setIsLoading(false);
 		}
@@ -121,32 +123,26 @@ const Beneficiaries = () => {
 	};
 
 	const handleDelete = (beneficiary: Beneficiary) => {
-		Alert.alert(
-			"Delete Beneficiary",
-			`Are you sure you want to delete ${
-				beneficiary.nickName || beneficiary.accountName
-			}?`,
-			[
-				{ text: "Cancel", style: "cancel" },
-				{
-					text: "Delete",
-					style: "destructive",
-					onPress: async () => {
-						try {
-							await beneficiaryService.deleteBeneficiary(beneficiary.id);
-							await loadBeneficiaries();
-							Alert.alert("Success", "Beneficiary deleted successfully");
-						} catch (error) {
-							console.error("Error deleting beneficiary:", error);
-							Alert.alert(
-								"Error",
-								"Failed to delete beneficiary",
-							);
-						}
-					},
-				},
-			],
-		);
+		setDeleteModal({ visible: true, beneficiary });
+	};
+
+	const handleDeleteConfirm = async () => {
+		const beneficiary = deleteModal.beneficiary;
+		if (!beneficiary) return;
+
+		setDeleteModal({ visible: false, beneficiary: null });
+		try {
+			await beneficiaryService.deleteBeneficiary(beneficiary.id);
+			await loadBeneficiaries();
+			setAlertModal({ visible: true, title: "Success", message: "Beneficiary deleted successfully", variant: "success" });
+		} catch (error) {
+			console.error("Error deleting beneficiary:", error);
+			setAlertModal({ visible: true, title: "Error", message: "Failed to delete beneficiary", variant: "error" });
+		}
+	};
+
+	const handleDeleteCancel = () => {
+		setDeleteModal({ visible: false, beneficiary: null });
 	};
 
 	const renderEmpty = () => (
@@ -256,6 +252,25 @@ const Beneficiaries = () => {
 					</Animated.View>
 				)}
 			</Animated.View>
+
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
+
+			<ConfirmationModal
+				visible={deleteModal.visible}
+				title="Delete Beneficiary"
+				message={`Are you sure you want to delete ${deleteModal.beneficiary?.nickName || deleteModal.beneficiary?.accountName}?`}
+				confirmText="Delete"
+				cancelText="Cancel"
+				onConfirm={handleDeleteConfirm}
+				onCancel={handleDeleteCancel}
+				confirmButtonVariant="danger"
+			/>
 		</SafeAreaView>
 	);
 };

@@ -5,7 +5,6 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	StatusBar,
-	Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,7 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { CaretLeft, LockKey } from "phosphor-react-native";
 import colors from "@/constants/colors";
-import { PrimaryButton, PINInput } from "@/components";
+import { PrimaryButton, PINInput, AlertModal, ConfirmationModal } from "@/components";
 import { transferService, accountService } from "@/services";
 
 const PINVerification = () => {
@@ -33,6 +32,18 @@ const PINVerification = () => {
 	const [isVerifying, setIsVerifying] = useState(false);
 	const [attempts, setAttempts] = useState(0);
 	const MAX_ATTEMPTS = 3;
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
+	const [confirmModal, setConfirmModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		onConfirm: () => {},
+	});
 
 	const headerOpacity = useSharedValue(0);
 	const contentOpacity = useSharedValue(0);
@@ -65,20 +76,32 @@ const PINVerification = () => {
 
 	const handleVerifyPIN = async () => {
 		if (pin.length !== 6) {
-			Alert.alert("Invalid PIN", "Please enter a 6-digit PIN");
+			setAlertModal({
+				visible: true,
+				title: "Invalid PIN",
+				message: "Please enter a 6-digit PIN",
+				variant: "error",
+			});
 			return;
 		}
 
 		if (!txId || !fromAccountId) {
-			Alert.alert("Error", "Transaction information not found");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Transaction information not found",
+				variant: "error",
+			});
 			return;
 		}
 
 		if (attempts >= MAX_ATTEMPTS) {
-			Alert.alert(
-				"Too Many Attempts",
-				"You have exceeded the maximum number of PIN attempts. Please try again later.",
-			);
+			setAlertModal({
+				visible: true,
+				title: "Too Many Attempts",
+				message: "You have exceeded the maximum number of PIN attempts. Please try again later.",
+				variant: "error",
+			});
 			router.back();
 			return;
 		}
@@ -101,12 +124,14 @@ const PINVerification = () => {
 			} else {
 				setAttempts(attempts + 1);
 				const remainingAttempts = MAX_ATTEMPTS - (attempts + 1);
-				Alert.alert(
-					"Incorrect PIN",
-					remainingAttempts > 0
+				setAlertModal({
+					visible: true,
+					title: "Incorrect PIN",
+					message: remainingAttempts > 0
 						? `Incorrect PIN. You have ${remainingAttempts} attempt(s) remaining.`
 						: "Maximum attempts reached. Transaction cancelled.",
-				);
+					variant: "error",
+				});
 				setPin("");
 
 				if (remainingAttempts === 0) {
@@ -124,13 +149,14 @@ const PINVerification = () => {
 			setAttempts(attempts + 1);
 			const remainingAttempts = MAX_ATTEMPTS - (attempts + 1);
 
-			Alert.alert(
-				"Verification Failed",
-				remainingAttempts > 0
-					? error.message ||
-							`Incorrect PIN. ${remainingAttempts} attempt(s) remaining.`
+			setAlertModal({
+				visible: true,
+				title: "Verification Failed",
+				message: remainingAttempts > 0
+					? error.message || `Incorrect PIN. ${remainingAttempts} attempt(s) remaining.`
 					: "Maximum attempts reached. Transaction cancelled.",
-			);
+				variant: "error",
+			});
 			setPin("");
 
 			if (remainingAttempts === 0) {
@@ -148,19 +174,15 @@ const PINVerification = () => {
 	};
 
 	const handleForgotPIN = () => {
-		Alert.alert(
-			"Forgot PIN",
-			"Please go to Settings > Security > PIN to change your account PIN.",
-			[
-				{ text: "Cancel", style: "cancel" },
-				{
-					text: "Go to Settings",
-					onPress: () => {
-						router.push("/(home)/setting");
-					},
-				},
-			],
-		);
+		setConfirmModal({
+			visible: true,
+			title: "Forgot PIN",
+			message: "Please go to Settings > Security > PIN to change your account PIN.",
+			onConfirm: () => {
+				setConfirmModal({ ...confirmModal, visible: false });
+				router.push("/(home)/setting");
+			},
+		});
 	};
 
 	return (
@@ -277,6 +299,24 @@ const PINVerification = () => {
 						anyone.
 					</Text>
 				</Animated.View>
+
+				<AlertModal
+					visible={alertModal.visible}
+					title={alertModal.title}
+					message={alertModal.message}
+					variant={alertModal.variant}
+					onClose={() => setAlertModal({ ...alertModal, visible: false })}
+				/>
+
+				<ConfirmationModal
+					visible={confirmModal.visible}
+					title={confirmModal.title}
+					message={confirmModal.message}
+					confirmText="Go to Settings"
+					cancelText="Cancel"
+					onConfirm={confirmModal.onConfirm}
+					onCancel={() => setConfirmModal({ ...confirmModal, visible: false })}
+				/>
 			</Animated.View>
 		</SafeAreaView>
 	);

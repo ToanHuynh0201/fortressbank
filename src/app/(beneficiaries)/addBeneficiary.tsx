@@ -8,7 +8,6 @@ import {
 	StatusBar,
 	KeyboardAvoidingView,
 	Platform,
-	Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -29,6 +28,7 @@ import {
 } from "phosphor-react-native";
 import colors from "@/constants/colors";
 import { PrimaryButton, CustomInput, AccountNumberInput } from "@/components";
+import AlertModal from "@/components/common/AlertModal";
 import { useForm } from "@/hooks";
 import { BeneficiaryFormData } from "@/types/beneficiary";
 import beneficiaryService from "@/services/beneficiaryService";
@@ -46,6 +46,12 @@ const AddBeneficiary = () => {
 	const [beneficiaryName, setBeneficiaryName] = useState<string>("");
 	const [beneficiaryAccountData, setBeneficiaryAccountData] = useState<AccountLookupData | null>(null);
 	const [isEditing, setIsEditing] = useState(false);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: '',
+		message: '',
+		variant: 'info' as 'info' | 'success' | 'error' | 'warning',
+	});
 
 	const headerOpacity = useSharedValue(0);
 	const contentOpacity = useSharedValue(0);
@@ -99,7 +105,12 @@ const AddBeneficiary = () => {
 			}
 		} catch (error) {
 			console.error("Error loading beneficiary:", error);
-			Alert.alert("Error", "Failed to load beneficiary data");
+			setAlertModal({
+				visible: true,
+				title: 'Error',
+				message: 'Failed to load beneficiary data',
+				variant: 'error',
+			});
 			router.back();
 		} finally {
 			setIsLoading(false);
@@ -138,7 +149,12 @@ const AddBeneficiary = () => {
 				await beneficiaryService.updateBeneficiary(parseInt(beneficiaryId), {
 					nickName: values.nickName,
 				});
-				Alert.alert("Success", "Beneficiary updated successfully");
+				setAlertModal({
+					visible: true,
+					title: 'Success',
+					message: 'Beneficiary updated successfully',
+					variant: 'success',
+				});
 			} else {
 				// Add new beneficiary
 				await beneficiaryService.addBeneficiary({
@@ -146,17 +162,24 @@ const AddBeneficiary = () => {
 					bankName: values.bankName,
 					nickName: values.nickName,
 				});
-				Alert.alert("Success", "Beneficiary added successfully");
+				setAlertModal({
+					visible: true,
+					title: 'Success',
+					message: 'Beneficiary added successfully',
+					variant: 'success',
+				});
 			}
 			router.back();
 		} catch (error) {
 			console.error("Error saving beneficiary:", error);
-			Alert.alert(
-				"Error",
-				isEditing
+			setAlertModal({
+				visible: true,
+				title: 'Error',
+				message: isEditing
 					? "Failed to update beneficiary"
 					: "Failed to add beneficiary",
-			);
+				variant: 'error',
+			});
 		} finally {
 			setIsSaving(false);
 		}
@@ -326,6 +349,15 @@ const AddBeneficiary = () => {
 					</Animated.View>
 				</AnimatedScrollView>
 			</KeyboardAvoidingView>
+
+			{/* Alert Modal */}
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
 		</SafeAreaView>
 	);
 };

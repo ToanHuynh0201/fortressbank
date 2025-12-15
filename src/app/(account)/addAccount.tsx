@@ -8,7 +8,6 @@ import {
 	StatusBar,
 	KeyboardAvoidingView,
 	Platform,
-	Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -28,6 +27,7 @@ import {
 	PasswordInput,
 	SuccessModal,
 } from "@/components";
+import AlertModal from "@/components/common/AlertModal";
 import { useForm, useAuth } from "@/hooks";
 import { accountService, Account } from "@/services/accountService";
 
@@ -45,6 +45,12 @@ const AddAccount = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [newAccount, setNewAccount] = useState<Account | null>(null);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: '',
+		message: '',
+		variant: 'info' as 'info' | 'success' | 'error' | 'warning',
+	});
 
 	const headerOpacity = useSharedValue(0);
 	const contentOpacity = useSharedValue(0);
@@ -112,7 +118,12 @@ const AddAccount = () => {
 
 		// Validate account number type
 		if (!values.accountNumberType) {
-			Alert.alert("Error", "Please select an account number type");
+			setAlertModal({
+				visible: true,
+				title: 'Error',
+				message: 'Please select an account number type',
+				variant: 'error',
+			});
 			isValid = false;
 		}
 
@@ -140,13 +151,20 @@ const AddAccount = () => {
 				setNewAccount(response.data);
 				setShowSuccessModal(true);
 			} else {
-				Alert.alert(
-					"Error",
-					response.error || "Failed to create account. Please try again."
-				);
+				setAlertModal({
+					visible: true,
+					title: 'Error',
+					message: response.error || "Failed to create account. Please try again.",
+					variant: 'error',
+				});
 			}
 		} catch (error) {
-			Alert.alert("Error", "Failed to create account. Please try again.");
+			setAlertModal({
+				visible: true,
+				title: 'Error',
+				message: 'Failed to create account. Please try again.',
+				variant: 'error',
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -378,6 +396,15 @@ const AddAccount = () => {
 				]}
 				buttonText="Back to Accounts"
 				onClose={handleSuccessClose}
+			/>
+
+			{/* Alert Modal */}
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
 			/>
 		</SafeAreaView>
 	);

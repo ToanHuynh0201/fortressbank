@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Alert } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { primary, neutral, commonStyles } from "@/constants";
 import {
@@ -9,6 +9,7 @@ import {
 	CardContainer,
 	ScreenContainer,
 	DecorativeIllustration,
+	AlertModal,
 } from "@/components";
 import { StatusBar } from "expo-status-bar";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
@@ -22,6 +23,12 @@ const ChangePassword = () => {
 		"enter-passwords",
 	);
 	const [isLoading, setIsLoading] = useState(false);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
 
 	const { values, handleChange } = useForm({
 		oldPassword: "",
@@ -34,20 +41,32 @@ const ChangePassword = () => {
 
 	const handleChangePassword = async () => {
 		if (!isFormValid) {
-			Alert.alert("Error", "Please fill in all password fields");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Please fill in all password fields",
+				variant: "error",
+			});
 			return;
 		}
 
 		if (values.newPassword !== values.confirmPassword) {
-			Alert.alert("Error", "New passwords do not match");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "New passwords do not match",
+				variant: "error",
+			});
 			return;
 		}
 
 		if (values.oldPassword === values.newPassword) {
-			Alert.alert(
-				"Error",
-				"New password must be different from old password",
-			);
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "New password must be different from old password",
+				variant: "error",
+			});
 			return;
 		}
 
@@ -61,13 +80,20 @@ const ChangePassword = () => {
 			if (response.success) {
 				setStep("success");
 			} else {
-				Alert.alert(
-					"Error",
-					response.error || "Failed to change password",
-				);
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: response.error || "Failed to change password",
+					variant: "error",
+				});
 			}
 		} catch (error: any) {
-			Alert.alert("Error", error.message || "Failed to change password");
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: error.message || "Failed to change password",
+				variant: "error",
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -187,6 +213,14 @@ const ChangePassword = () => {
 					</CardContainer>
 				</ScrollView>
 			</KeyboardAvoidingView>
+
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
 		</ScreenContainer>
 	);
 };
