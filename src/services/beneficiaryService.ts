@@ -10,21 +10,13 @@ import {
  * Handles all beneficiary-related operations with FortressBank API
  */
 
-interface ApiResponse<T> {
-	code: number;
-	message: string;
-	data: T;
-}
-
 class BeneficiaryService {
 	/**
 	 * Get all beneficiaries
 	 * GET /beneficiaries
 	 */
 	async getBeneficiaries(): Promise<Beneficiary[]> {
-		const response = await apiService.get<ApiResponse<Beneficiary[]>>(
-			"/beneficiaries",
-		);
+		const response = await apiService.get("/beneficiaries");
 
 		if (response.data.code === 1000) {
 			return response.data.data;
@@ -37,9 +29,7 @@ class BeneficiaryService {
 	 * Get beneficiary by ID
 	 */
 	async getBeneficiaryById(id: number): Promise<Beneficiary | null> {
-		const response = await apiService.get<ApiResponse<Beneficiary>>(
-			`/beneficiaries/${id}`,
-		);
+		const response = await apiService.get(`/beneficiaries/${id}`);
 
 		if (response.data.code === 1000) {
 			return response.data.data;
@@ -57,10 +47,7 @@ class BeneficiaryService {
 	async addBeneficiary(
 		data: BeneficiaryFormData,
 	): Promise<Beneficiary | null> {
-		const response = await apiService.post<ApiResponse<Beneficiary>>(
-			"/beneficiaries",
-			data,
-		);
+		const response = await apiService.post("/beneficiaries", data);
 
 		if (response.data.code === 1000) {
 			return response.data.data;
@@ -79,10 +66,7 @@ class BeneficiaryService {
 		id: number,
 		data: UpdateBeneficiaryRequest,
 	): Promise<Beneficiary | null> {
-		const response = await apiService.put<ApiResponse<Beneficiary>>(
-			`/beneficiaries/${id}`,
-			data,
-		);
+		const response = await apiService.put(`/beneficiaries/${id}`, data);
 
 		if (response.data.code === 1000) {
 			return response.data.data;
