@@ -19,13 +19,21 @@ import Animated, {
 } from "react-native-reanimated";
 import { CaretLeft, LockKey } from "phosphor-react-native";
 import colors from "@/constants/colors";
-import { PrimaryButton, PINInput, AlertModal, ConfirmationModal } from "@/components";
+import {
+	PrimaryButton,
+	PINInput,
+	AlertModal,
+	ConfirmationModal,
+} from "@/components";
 import { transferService, accountService } from "@/services";
 
 const PINVerification = () => {
 	const router = useRouter();
-	const params = useLocalSearchParams<{ txId: string; fromAccountId: string }>();
-	const txId = params.txId;
+	const params = useLocalSearchParams<{
+		transactionId: string;
+		fromAccountId: string;
+	}>();
+	const transactionId = params.transactionId;
 	const fromAccountId = params.fromAccountId;
 
 	const [pin, setPin] = useState("");
@@ -85,7 +93,7 @@ const PINVerification = () => {
 			return;
 		}
 
-		if (!txId || !fromAccountId) {
+		if (!transactionId || !fromAccountId) {
 			setAlertModal({
 				visible: true,
 				title: "Error",
@@ -99,7 +107,8 @@ const PINVerification = () => {
 			setAlertModal({
 				visible: true,
 				title: "Too Many Attempts",
-				message: "You have exceeded the maximum number of PIN attempts. Please try again later.",
+				message:
+					"You have exceeded the maximum number of PIN attempts. Please try again later.",
 				variant: "error",
 			});
 			router.back();
@@ -108,18 +117,24 @@ const PINVerification = () => {
 
 		setIsVerifying(true);
 		try {
+			console.log("Verifying PIN with data:", {
+				fromAccountId: fromAccountId,
+				transactionId: transactionId,
+				pin: "******",
+			});
 			// First verify the account PIN
 			const pinResponse = await accountService.verifyAccountPIN(
 				fromAccountId,
 				pin,
 			);
+			console.log("PIN verification response:", pinResponse);
 
-			if (pinResponse.status === "success") {
+			if (pinResponse.code === 1000 && pinResponse.data.valid === true) {
 				// If PIN is correct, proceed with OTP verification
 				// Navigate to OTP verification screen
 				router.push({
 					pathname: "(transfer)/otpVerification",
-					params: { txId },
+					params: { transactionId: transactionId },
 				});
 			} else {
 				setAttempts(attempts + 1);
@@ -127,9 +142,10 @@ const PINVerification = () => {
 				setAlertModal({
 					visible: true,
 					title: "Incorrect PIN",
-					message: remainingAttempts > 0
-						? `Incorrect PIN. You have ${remainingAttempts} attempt(s) remaining.`
-						: "Maximum attempts reached. Transaction cancelled.",
+					message:
+						remainingAttempts > 0
+							? `Incorrect PIN. You have ${remainingAttempts} attempt(s) remaining.`
+							: "Maximum attempts reached. Transaction cancelled.",
 					variant: "error",
 				});
 				setPin("");
@@ -137,7 +153,7 @@ const PINVerification = () => {
 				if (remainingAttempts === 0) {
 					// Cancel the transaction
 					try {
-						await transferService.cancelTransaction(txId);
+						await transferService.cancelTransaction(transactionId);
 					} catch (error) {
 						console.error("Failed to cancel transaction:", error);
 					}
@@ -152,9 +168,11 @@ const PINVerification = () => {
 			setAlertModal({
 				visible: true,
 				title: "Verification Failed",
-				message: remainingAttempts > 0
-					? error.message || `Incorrect PIN. ${remainingAttempts} attempt(s) remaining.`
-					: "Maximum attempts reached. Transaction cancelled.",
+				message:
+					remainingAttempts > 0
+						? error.message ||
+						  `Incorrect PIN. ${remainingAttempts} attempt(s) remaining.`
+						: "Maximum attempts reached. Transaction cancelled.",
 				variant: "error",
 			});
 			setPin("");
@@ -162,7 +180,7 @@ const PINVerification = () => {
 			if (remainingAttempts === 0) {
 				// Cancel the transaction
 				try {
-					await transferService.cancelTransaction(txId);
+					await transferService.cancelTransaction(transactionId);
 				} catch (error) {
 					console.error("Failed to cancel transaction:", error);
 				}
@@ -177,7 +195,8 @@ const PINVerification = () => {
 		setConfirmModal({
 			visible: true,
 			title: "Forgot PIN",
-			message: "Please go to Settings > Security > PIN to change your account PIN.",
+			message:
+				"Please go to Settings > Security > PIN to change your account PIN.",
 			onConfirm: () => {
 				setConfirmModal({ ...confirmModal, visible: false });
 				router.push("/(home)/setting");
@@ -305,7 +324,9 @@ const PINVerification = () => {
 					title={alertModal.title}
 					message={alertModal.message}
 					variant={alertModal.variant}
-					onClose={() => setAlertModal({ ...alertModal, visible: false })}
+					onClose={() =>
+						setAlertModal({ ...alertModal, visible: false })
+					}
 				/>
 
 				<ConfirmationModal
@@ -315,7 +336,9 @@ const PINVerification = () => {
 					confirmText="Go to Settings"
 					cancelText="Cancel"
 					onConfirm={confirmModal.onConfirm}
-					onCancel={() => setConfirmModal({ ...confirmModal, visible: false })}
+					onCancel={() =>
+						setConfirmModal({ ...confirmModal, visible: false })
+					}
 				/>
 			</Animated.View>
 		</SafeAreaView>

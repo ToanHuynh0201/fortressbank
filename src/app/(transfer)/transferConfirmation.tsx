@@ -31,12 +31,14 @@ import { transferService, TransferRequest } from "@/services";
 const TransferConfirmation = () => {
 	const router = useRouter();
 	const params = useLocalSearchParams<{
-		fromAccountId: string;
-		fromAccountLabel: string;
-		fromAccountNumber: string;
-		toAccountNumber: string;
+		senderAccountId: string;
+		senderAccountLabel: string;
+		senderAccountNumber: string;
+		receiverAccountNumber: string;
+		receiverAccountId?: string;
 		recipientName: string;
 		amount: string;
+		transactionType: string;
 		bankName: string;
 		message: string;
 	}>();
@@ -101,40 +103,84 @@ const TransferConfirmation = () => {
 
 	// Prepare transfer data for API
 	const transferData: TransferRequest = {
-		fromAccountId: params.fromAccountId || "",
-		toAccountId: params.toAccountNumber || "", // This should be mapped from beneficiary lookup
+		senderAccountId: params.senderAccountId || "",
+		senderAccountNumber: params.senderAccountNumber || "",
+		receiverAccountNumber: params.receiverAccountNumber || "",
 		amount: numericAmount,
-		type: "EXTERNAL_TRANSFER", // or INTERNAL_TRANSFER based on bank
+		transactionType:
+			(params.transactionType as
+				| "INTERNAL_TRANSFER"
+				| "EXTERNAL_TRANSFER") || "EXTERNAL_TRANSFER",
 		description: params.message || "",
 	};
 
 	const recipientInfo = {
 		name: params.recipientName || "Unknown",
-		accountNumber: params.toAccountNumber || "",
+		accountNumber: params.receiverAccountNumber || "",
 		bankName: params.bankName || "",
 	};
 
 	const senderInfo = {
-		accountType: params.fromAccountLabel || "Account",
-		accountNumber: params.fromAccountNumber || "",
+		accountType: params.senderAccountLabel || "Account",
+		accountNumber: params.senderAccountNumber || "",
 	};
 
 	const createTransfer = async () => {
 		if (isProcessing) return;
 
+		// Validate required fields before sending
+		if (
+			!transferData.senderAccountId ||
+			!transferData.senderAccountNumber
+		) {
+			setAlertModal({
+				visible: true,
+				title: "Validation Error",
+				message:
+					"Sender account information is missing. Please go back and select an account.",
+				variant: "error",
+			});
+			return;
+		}
+
+		if (!transferData.receiverAccountNumber) {
+			setAlertModal({
+				visible: true,
+				title: "Validation Error",
+				message:
+					"Receiver account number is missing. Please go back and enter the recipient account.",
+				variant: "error",
+			});
+			return;
+		}
+
+		if (transferData.amount <= 0) {
+			setAlertModal({
+				visible: true,
+				title: "Validation Error",
+				message: "Transfer amount must be greater than 0.",
+				variant: "error",
+			});
+			return;
+		}
+
 		setIsProcessing(true);
 		try {
+			console.log("Sending transfer request:", transferData);
 			// Call API to create transfer
 			const response = await transferService.createTransfer(transferData);
 
-			if (response.status === "success" && response.data.txId) {
-				// Navigate to PIN verification with txId and fromAccountId
-				console.log("Transaction created:", response.data.txId);
+			if (response.code === 1000 && response.data.transactionId) {
+				// Navigate to PIN verification with transactionId and fromAccountId
+				console.log(
+					"Transaction created:",
+					response.data.transactionId,
+				);
 				router.push({
 					pathname: "(transfer)/pinVerification",
 					params: {
-						txId: response.data.txId,
-						fromAccountId: transferData.fromAccountId,
+						transactionId: response.data.transactionId,
+						fromAccountId: transferData.senderAccountId,
 					},
 				});
 			} else {
@@ -150,7 +196,9 @@ const TransferConfirmation = () => {
 			setAlertModal({
 				visible: true,
 				title: "Transfer Failed",
-				message: error.message || "Unable to process transfer. Please try again.",
+				message:
+					error.message ||
+					"Unable to process transfer. Please try again.",
 				variant: "error",
 			});
 		} finally {

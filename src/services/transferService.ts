@@ -7,19 +7,34 @@ import { withErrorHandling } from '@/utils/error';
  */
 
 export interface TransferRequest {
-  fromAccountId: string;
-  toAccountId: string;
+  senderAccountId: string;
+  senderAccountNumber: string;
+  receiverAccountNumber: string;
   amount: number;
-  type: 'INTERNAL_TRANSFER' | 'EXTERNAL_TRANSFER';
+  transactionType: 'INTERNAL_TRANSFER' | 'EXTERNAL_TRANSFER';
   description?: string;
 }
 
 export interface TransferResponse {
-  status: string;
+  code: number;
+  message: string;
   data: {
-    txId: string;
-    status: string;
-    message: string;
+    transactionId: string;
+    senderAccountId: string;
+    senderAccountNumber: string;
+    senderUserId: string;
+    receiverAccountId: string;
+    receiverAccountNumber: string;
+    receiverUserId: string;
+    amount: number;
+    feeAmount: number;
+    transactionType: 'INTERNAL_TRANSFER' | 'EXTERNAL_TRANSFER';
+    status: 'PENDING_OTP';
+    description: string;
+    createdAt: string | null;
+    updatedAt: string | null;
+    completedAt: string | null;
+    failureReason: string | null;
   };
 }
 
@@ -29,12 +44,16 @@ export interface VerifyOTPRequest {
 }
 
 export interface Transaction {
-  txId: string;
+  transactionId: string;
   senderAccountId: string;
+  senderAccountNumber: string;
+  senderUserId: string;
   receiverAccountId: string;
+  receiverAccountNumber: string;
+  receiverUserId: string;
   amount: number;
   feeAmount: number;
-  txType: string;
+  transactionType: string;
   status: string;
   description: string;
   createdAt: string;
@@ -44,7 +63,8 @@ export interface Transaction {
 }
 
 export interface VerifyOTPResponse {
-  status: string;
+  code: number;
+  message: string;
   data: Transaction;
 }
 
@@ -121,7 +141,7 @@ class TransferService {
   /**
    * Validate transfer before processing
    */
-  async validateTransfer(data: Omit<TransferRequest, 'description'>): Promise<{ success: boolean; error?: string }> {
+  async validateTransfer(data: Omit<TransferRequest, 'description' | 'senderAccountNumber'>): Promise<{ success: boolean; error?: string }> {
     try {
       const response = await apiService.post('/transactions/validate', data);
       return response.data;

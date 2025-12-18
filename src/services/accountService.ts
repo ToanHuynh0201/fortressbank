@@ -91,8 +91,8 @@ class AccountService {
 	async verifyAccountPIN(
 		accountId: string,
 		pin: string,
-	): Promise<{ status: string; message: string }> {
-		const response = await api.post(`/accounts/${accountId}/verify-pin`, {
+	): Promise<{ code: number; message: string; data: { valid: boolean } }> {
+		const response = await api.post(`/accounts/${accountId}/pin/verify`, {
 			pin,
 		});
 		return response.data;

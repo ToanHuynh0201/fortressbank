@@ -24,8 +24,8 @@ import { transferService } from "@/services";
 
 const OTPVerification = () => {
 	const router = useRouter();
-	const params = useLocalSearchParams<{ txId: string }>();
-	const txId = params.txId;
+	const params = useLocalSearchParams<{ transactionId: string }>();
+	const transactionId = params.transactionId;
 
 	const [otp, setOtp] = useState("");
 	const [timer, setTimer] = useState(60);
@@ -56,6 +56,7 @@ const OTPVerification = () => {
 			damping: 20,
 			stiffness: 90,
 		});
+		console.log("OTP confirm:", transactionId);
 	}, []);
 
 	// Timer countdown
@@ -80,10 +81,10 @@ const OTPVerification = () => {
 	}));
 
 	const handleResendOTP = async () => {
-		if (!canResend || !txId) return;
+		if (!canResend || !transactionId) return;
 
 		try {
-			await transferService.resendOTP(txId);
+			await transferService.resendOTP(transactionId);
 			setTimer(60);
 			setCanResend(false);
 			setOtp("");
@@ -98,7 +99,8 @@ const OTPVerification = () => {
 			setAlertModal({
 				visible: true,
 				title: "Error",
-				message: error.message || "Failed to resend OTP. Please try again.",
+				message:
+					error.message || "Failed to resend OTP. Please try again.",
 				variant: "error",
 			});
 		}
@@ -114,8 +116,8 @@ const OTPVerification = () => {
 			});
 			return;
 		}
-		if (!txId) {
-			console.log(txId);
+		if (!transactionId) {
+			console.log(transactionId);
 			setAlertModal({
 				visible: true,
 				title: "Error",
@@ -126,14 +128,19 @@ const OTPVerification = () => {
 		}
 		setIsVerifying(true);
 		try {
-			// Call API to verify OTP
-			const response = await transferService.verifyOTP({
-				transactionId: txId,
+			console.log("Verifying OTP with data:", {
+				transactionId: transactionId,
 				otpCode: otp,
 			});
+			// Call API to verify OTP
+			const response = await transferService.verifyOTP({
+				transactionId: transactionId,
+				otpCode: otp,
+			});
+			console.log("OTP verification response:", response);
 			if (
-				response.status === "success" &&
-				response.data.status === "SUCCESS"
+				response.code === 1000 &&
+				response.data.status === "COMPLETED"
 			) {
 				// Navigate to success screen with transaction details
 				console.log("Transaction completed:", response.data);
@@ -148,10 +155,18 @@ const OTPVerification = () => {
 			}
 		} catch (error: any) {
 			console.error("OTP verification error:", error);
+			console.error("Error response:", error.response?.data);
+
+			// Extract error message from response
+			const errorMessage =
+				error.response?.data?.message ||
+				error.message ||
+				"The OTP you entered is incorrect. Please try again.";
+
 			setAlertModal({
 				visible: true,
 				title: "Verification Failed",
-				message: error.message || "The OTP you entered is incorrect. Please try again.",
+				message: errorMessage,
 				variant: "error",
 			});
 			setOtp("");
@@ -286,7 +301,9 @@ const OTPVerification = () => {
 					title={alertModal.title}
 					message={alertModal.message}
 					variant={alertModal.variant}
-					onClose={() => setAlertModal({ ...alertModal, visible: false })}
+					onClose={() =>
+						setAlertModal({ ...alertModal, visible: false })
+					}
 				/>
 			</Animated.View>
 		</SafeAreaView>

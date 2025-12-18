@@ -20,7 +20,8 @@ export type {
 	VerifyOTPRequest,
 	VerifyOTPResponse,
 	Transaction,
-	BeneficiaryNameResponse,
+	AccountLookupResponse,
+	AccountLookupData,
 	TransactionHistoryParams,
 	TransactionHistoryResponse,
 } from "./transferService";

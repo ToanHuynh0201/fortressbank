@@ -683,15 +683,23 @@ const Transfer = () => {
 						<PrimaryButton
 							title="Continue to Confirmation"
 							onPress={() => {
+								// Determine transaction type based on selected bank
+								const transactionType = selectedBankData?.code === "FORTRESS"
+									? "INTERNAL_TRANSFER"
+									: "EXTERNAL_TRANSFER";
+
 								// Prepare transfer data
 								const transferParams = {
-									fromAccountId: selectedAccount,
-									fromAccountLabel: `Account ${selectedAccountData?.accountNumber}` || "",
-									fromAccountNumber: selectedAccountData?.accountNumber || "",
-									toAccountId: beneficiaryAccountData?.accountId || "",
-									toAccountNumber: values.accountNumber,
+									senderAccountId: selectedAccount,
+									senderAccountNumber: selectedAccountData?.accountNumber || "",
+									senderAccountLabel: selectedAccountData?.accountNumber
+										? `Account ${selectedAccountData.accountNumber}`
+										: "Account",
+									receiverAccountNumber: values.accountNumber,
+									receiverAccountId: beneficiaryAccountData?.accountId || "",
 									recipientName: beneficiaryName || "Unknown",
 									amount: values.amount,
+									transactionType: transactionType,
 									bankName: selectedBankData?.name || "",
 									message: values.content,
 								};
@@ -702,7 +710,7 @@ const Transfer = () => {
 									params: transferParams,
 								});
 							}}
-							// disabled={!isFormValid}
+							disabled={!isFormValid}
 							style={styles.confirmButton}
 						/>
 					</Animated.View>
