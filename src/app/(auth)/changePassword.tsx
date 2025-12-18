@@ -207,7 +207,9 @@ const ChangePassword = () => {
 						<PrimaryButton
 							title="Change password"
 							onPress={handleChangePassword}
-							disabled={!isFormValid || isLoading}
+							loading={isLoading}
+							loadingText="Changing password..."
+							disabled={!isFormValid}
 							style={styles.button}
 						/>
 					</CardContainer>

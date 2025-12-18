@@ -365,11 +365,11 @@ const AddAccount = () => {
 						entering={FadeIn.delay(250).duration(400)}
 						style={styles.buttonContainer}>
 						<PrimaryButton
-							title={
-								isLoading ? "Creating Account..." : "Create Account"
-							}
+							title="Create Account"
 							onPress={handleCreateAccount}
-							disabled={!isFormValid || isLoading}
+							loading={isLoading}
+							loadingText="Creating account..."
+							disabled={!isFormValid}
 						/>
 					</Animated.View>
 				</AnimatedScrollView>

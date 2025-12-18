@@ -583,10 +583,11 @@ const SignUp = () => {
 							/>
 
 							<PrimaryButton
-								title={isLoading ? "Sending..." : "Continue"}
+								title="Continue"
 								onPress={handleInitialInfoSubmit}
+								loading={isLoading}
+								loadingText="Sending..."
 								disabled={
-									isLoading ||
 									!values.citizenId ||
 									!values.phoneNumber ||
 									!values.email
@@ -661,9 +662,11 @@ const SignUp = () => {
 						</View>
 
 						<PrimaryButton
-							title={isLoading ? "Verifying..." : "Verify"}
+							title="Verify"
 							onPress={handleOTPVerification}
-							disabled={isLoading || values.otp.length !== 6}
+							loading={isLoading}
+							loadingText="Verifying..."
+							disabled={values.otp.length !== 6}
 							style={styles.button}
 						/>
 
@@ -817,13 +820,10 @@ const SignUp = () => {
 							/>
 
 							<PrimaryButton
-								title={
-									isLoading
-										? "Processing..."
-										: "Complete Registration"
-								}
+								title="Complete Registration"
 								onPress={handleCompleteRegistration}
-								disabled={isLoading}
+								loading={isLoading}
+								loadingText="Processing..."
 								style={styles.compactButton}
 							/>
 						</View>
@@ -1016,15 +1016,11 @@ const SignUp = () => {
 
 							{/* Submit Button */}
 							<PrimaryButton
-								title={
-									isLoading
-										? "Creating Account..."
-										: "Create Account"
-								}
+								title="Create Account"
 								onPress={handleFinalSubmit}
-								disabled={
-									isLoading || !values.accountNumberOption
-								}
+								loading={isLoading}
+								loadingText="Creating Account..."
+								disabled={!values.accountNumberOption}
 								style={styles.compactButton}
 							/>
 						</View>

@@ -344,7 +344,9 @@ const AddBeneficiary = () => {
 									: "Save Beneficiary"
 							}
 							onPress={handleSave}
-							disabled={!isFormValid || isSaving}
+							loading={isSaving}
+							loadingText={isEditing ? "Updating..." : "Saving..."}
+							disabled={!isFormValid}
 						/>
 					</Animated.View>
 				</AnimatedScrollView>

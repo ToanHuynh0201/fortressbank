@@ -359,7 +359,9 @@ const ChangePIN = () => {
 						<PrimaryButton
 							title="Change PIN"
 							onPress={handleChangePIN}
-							disabled={!isFormValid || isLoading}
+							loading={isLoading}
+							loadingText="Changing PIN..."
+							disabled={!isFormValid}
 							style={styles.button}
 						/>
 					</CardContainer>

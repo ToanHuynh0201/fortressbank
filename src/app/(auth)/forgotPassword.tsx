@@ -26,6 +26,11 @@ type Step = 'enter-phone' | 'confirm-phone' | 'enter-code' | 'change-password';
 const ForgotPassword = () => {
   const router = useRouter();
   const [step, setStep] = useState<Step>('enter-phone');
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
+  const [isResendingCode, setIsResendingCode] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [alertModal, setAlertModal] = useState({
     visible: false,
     title: "",
@@ -65,15 +70,20 @@ const ForgotPassword = () => {
     setStep('enter-code');
   };
 
-  const handleResendCode = () => {
-    // TODO: Call API to resend code
-    console.log('Resending code to:', values.phoneNumber);
-    setAlertModal({
-      visible: true,
-      title: "Success",
-      message: "Code has been resent to your phone",
-      variant: "success",
-    });
+  const handleResendCode = async () => {
+    setIsResendingCode(true);
+    try {
+      // TODO: Call API to resend code
+      console.log('Resending code to:', values.phoneNumber);
+      setAlertModal({
+        visible: true,
+        title: "Success",
+        message: "Code has been resent to your phone",
+        variant: "success",
+      });
+    } finally {
+      setIsResendingCode(false);
+    }
   };
 
   const handleVerifyCode = () => {
@@ -147,6 +157,8 @@ const ForgotPassword = () => {
               <PrimaryButton
                 title="Send"
                 onPress={handleSendCode}
+                loading={isSendingCode}
+                loadingText="Sending..."
                 disabled={!values.phoneNumber.trim()}
               />
             </CardContainer>
@@ -171,6 +183,8 @@ const ForgotPassword = () => {
               <PrimaryButton
                 title="Send"
                 onPress={handleVerifyPhone}
+                loading={isVerifyingPhone}
+                loadingText="Verifying..."
               />
             </CardContainer>
           </>
@@ -191,10 +205,13 @@ const ForgotPassword = () => {
                   containerStyle={styles.codeInput}
                 />
                 <Pressable
-                  style={styles.resendButton}
+                  style={[styles.resendButton, isResendingCode && styles.resendButtonDisabled]}
                   onPress={handleResendCode}
+                  disabled={isResendingCode}
                 >
-                  <Text style={styles.resendButtonText}>Resend</Text>
+                  <Text style={styles.resendButtonText}>
+                    {isResendingCode ? "Sending..." : "Resend"}
+                  </Text>
                 </Pressable>
               </View>
               <Text style={styles.infoText}>
@@ -208,6 +225,8 @@ const ForgotPassword = () => {
               <PrimaryButton
                 title="Change password"
                 onPress={handleVerifyCode}
+                loading={isVerifyingCode}
+                loadingText="Verifying..."
                 disabled={values.code.length < 4}
               />
             </CardContainer>
@@ -235,10 +254,13 @@ const ForgotPassword = () => {
                   containerStyle={styles.codeInput}
                 />
                 <Pressable
-                  style={styles.resendButton}
+                  style={[styles.resendButton, isResendingCode && styles.resendButtonDisabled]}
                   onPress={handleResendCode}
+                  disabled={isResendingCode}
                 >
-                  <Text style={styles.resendButtonText}>Resend</Text>
+                  <Text style={styles.resendButtonText}>
+                    {isResendingCode ? "Sending..." : "Resend"}
+                  </Text>
                 </Pressable>
               </View>
               <Text style={styles.infoText}>
@@ -271,6 +293,8 @@ const ForgotPassword = () => {
               <PrimaryButton
                 title="Change password"
                 onPress={handleChangePassword}
+                loading={isChangingPassword}
+                loadingText="Changing..."
                 disabled={!values.newPassword.trim() || !values.confirmPassword.trim()}
               />
             </CardContainer>
@@ -367,6 +391,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  resendButtonDisabled: {
+    backgroundColor: primary.primary4,
+    opacity: 0.7,
   },
   resendButtonText: {
     fontSize: 14,

@@ -303,9 +303,11 @@ const PINVerification = () => {
 					entering={FadeIn.delay(300).duration(400)}
 					style={styles.buttonContainer}>
 					<PrimaryButton
-						title={isVerifying ? "Verifying..." : "Verify PIN"}
+						title="Verify PIN"
 						onPress={handleVerifyPIN}
-						disabled={pin.length !== 6 || isVerifying}
+						loading={isVerifying}
+						loadingText="Verifying..."
+						disabled={pin.length !== 6}
 					/>
 				</Animated.View>
 

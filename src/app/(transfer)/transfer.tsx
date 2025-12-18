@@ -36,6 +36,7 @@ import {
 	CustomInput,
 	AccountNumberInput,
 	CurrencyInput,
+	LoadingSpinner,
 } from "@/components";
 import { BeneficiarySelector } from "@/components/beneficiaries";
 import { useForm } from "@/hooks";
@@ -124,6 +125,7 @@ const Transfer = () => {
 	const [selectedBank, setSelectedBank] = useState<string>("");
 	const [showBankDropdown, setShowBankDropdown] = useState(false);
 	const [accounts, setAccounts] = useState<Account[]>([]);
+	const [isLoadingAccounts, setIsLoadingAccounts] = useState(false);
 
 	const headerOpacity = useSharedValue(0);
 	const contentOpacity = useSharedValue(0);
@@ -179,6 +181,7 @@ const Transfer = () => {
 	}, [params.accountNumber, params.accountName, params.amount, params.message, params.bankCode]);
 
 	const fetchAccounts = async () => {
+		setIsLoadingAccounts(true);
 		try {
 			const response = await accountService.getAccounts();
 
@@ -189,6 +192,8 @@ const Transfer = () => {
 			}
 		} catch (error) {
 			console.error("Error fetching accounts:", error);
+		} finally {
+			setIsLoadingAccounts(false);
 		}
 	};
 
@@ -293,18 +298,25 @@ const Transfer = () => {
 							<TouchableOpacity
 								style={styles.accountSelector}
 								onPress={() =>
-									setShowAccountDropdown(!showAccountDropdown)
-								}>
+									!isLoadingAccounts && setShowAccountDropdown(!showAccountDropdown)
+								}
+								disabled={isLoadingAccounts}>
 								<View style={styles.accountSelectorContent}>
 									<View style={styles.accountIconContainer}>
 										<Bank
 											size={24}
-											color={colors.primary.primary1}
-											weight="duotone"
+											color={isLoadingAccounts ? colors.neutral.neutral3 : colors.primary.primary1}
+											weight={isLoadingAccounts ? "regular" : "duotone"}
 										/>
 									</View>
 									<View style={styles.accountTextContainer}>
-										{selectedAccount ? (
+										{isLoadingAccounts ? (
+											<LoadingSpinner
+												size="small"
+												text="Loading accounts..."
+												containerStyle={{ alignItems: 'flex-start' }}
+											/>
+										) : selectedAccount ? (
 											<>
 												<Text
 													style={

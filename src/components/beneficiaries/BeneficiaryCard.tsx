@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { User, Trash, PencilSimple } from "phosphor-react-native";
 import { Beneficiary } from "@/types/beneficiary";
 import colors from "@/constants/colors";
@@ -10,6 +10,7 @@ interface BeneficiaryCardProps {
 	onEdit?: () => void;
 	onDelete?: () => void;
 	showActions?: boolean;
+	isDeleting?: boolean;
 }
 
 /**
@@ -22,6 +23,7 @@ const BeneficiaryCard: React.FC<BeneficiaryCardProps> = ({
 	onEdit,
 	onDelete,
 	showActions = false,
+	isDeleting = false,
 }) => {
 	return (
 		<TouchableOpacity
@@ -70,10 +72,11 @@ const BeneficiaryCard: React.FC<BeneficiaryCardProps> = ({
 							onPress={(e) => {
 								e.stopPropagation();
 								onEdit();
-							}}>
+							}}
+							disabled={isDeleting}>
 							<PencilSimple
 								size={20}
-								color={colors.primary.primary1}
+								color={isDeleting ? colors.neutral.neutral4 : colors.primary.primary1}
 								weight="regular"
 							/>
 						</TouchableOpacity>
@@ -85,12 +88,17 @@ const BeneficiaryCard: React.FC<BeneficiaryCardProps> = ({
 							onPress={(e) => {
 								e.stopPropagation();
 								onDelete();
-							}}>
-							<Trash
-								size={20}
-								color={colors.semantic.error}
-								weight="regular"
-							/>
+							}}
+							disabled={isDeleting}>
+							{isDeleting ? (
+								<ActivityIndicator size="small" color={colors.semantic.error} />
+							) : (
+								<Trash
+									size={20}
+									color={colors.semantic.error}
+									weight="regular"
+								/>
+							)}
 						</TouchableOpacity>
 					)}
 				</View>

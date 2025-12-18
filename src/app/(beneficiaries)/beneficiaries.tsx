@@ -24,13 +24,14 @@ import { BeneficiaryCard } from "@/components/beneficiaries";
 import { Beneficiary } from "@/types/beneficiary";
 import beneficiaryService from "@/services/beneficiaryService";
 import colors from "@/constants/colors";
-import { AlertModal, ConfirmationModal } from "@/components/common";
+import { AlertModal, ConfirmationModal, LoadingState } from "@/components/common";
 
 const Beneficiaries = () => {
 	const router = useRouter();
 	const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
+	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const [alertModal, setAlertModal] = useState({ visible: false, title: "", message: "", variant: "info" as "success" | "error" | "info" });
 	const [deleteModal, setDeleteModal] = useState({ visible: false, beneficiary: null as Beneficiary | null });
 
@@ -131,6 +132,7 @@ const Beneficiaries = () => {
 		if (!beneficiary) return;
 
 		setDeleteModal({ visible: false, beneficiary: null });
+		setDeletingId(beneficiary.id);
 		try {
 			await beneficiaryService.deleteBeneficiary(beneficiary.id);
 			await loadBeneficiaries();
@@ -138,6 +140,8 @@ const Beneficiaries = () => {
 		} catch (error) {
 			console.error("Error deleting beneficiary:", error);
 			setAlertModal({ visible: true, title: "Error", message: "Failed to delete beneficiary", variant: "error" });
+		} finally {
+			setDeletingId(null);
 		}
 	};
 
@@ -204,7 +208,9 @@ const Beneficiaries = () => {
 			</Animated.View>
 
 			<Animated.View style={[styles.content, contentAnimatedStyle]}>
-				{!isLoading && beneficiaries.length === 0 ? (
+				{isLoading && !refreshing ? (
+					<LoadingState message="Loading beneficiaries..." />
+				) : !isLoading && beneficiaries.length === 0 ? (
 					renderEmpty()
 				) : (
 					<FlatList
@@ -220,6 +226,7 @@ const Beneficiaries = () => {
 									onEdit={() => handleEdit(item)}
 									onDelete={() => handleDelete(item)}
 									showActions={true}
+									isDeleting={deletingId === item.id}
 								/>
 							</Animated.View>
 						)}

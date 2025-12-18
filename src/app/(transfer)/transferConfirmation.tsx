@@ -361,12 +361,11 @@ const TransferConfirmation = () => {
 					entering={FadeInDown.delay(400).duration(500)}
 					style={styles.buttonsContainer}>
 					<PrimaryButton
-						title={
-							isProcessing ? "Processing..." : "Confirm Transfer"
-						}
+						title="Confirm Transfer"
 						onPress={createTransfer}
+						loading={isProcessing}
+						loadingText="Processing..."
 						style={styles.confirmButton}
-						disabled={isProcessing}
 					/>
 					<TouchableOpacity
 						style={styles.cancelButton}

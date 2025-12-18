@@ -278,11 +278,11 @@ const OTPVerification = () => {
 					entering={FadeIn.delay(300).duration(400)}
 					style={styles.buttonContainer}>
 					<PrimaryButton
-						title={
-							isVerifying ? "Verifying..." : "Verify & Continue"
-						}
+						title="Verify & Continue"
 						onPress={handleVerifyOTP}
-						// disabled={otp.length !== 6 || isVerifying}
+						loading={isVerifying}
+						loadingText="Verifying..."
+						disabled={otp.length !== 6}
 					/>
 				</Animated.View>
 

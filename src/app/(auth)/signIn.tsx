@@ -286,9 +286,11 @@ const SignIn = () => {
 			{/* Sign In Button */}
 			<Animated.View style={formAnimatedStyle}>
 				<PrimaryButton
-					title={isLoading ? "Signing In..." : "Sign In"}
+					title="Sign In"
 					onPress={handleSubmit}
-					disabled={!isValid || isLoading}
+					loading={isLoading}
+					loadingText="Signing In..."
+					disabled={!isValid}
 					style={styles.signInButton}
 				/>
 			</Animated.View>
