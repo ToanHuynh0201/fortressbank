@@ -24,11 +24,22 @@ export default {
 			},
 			edgeToEdgeEnabled: false,
 			predictiveBackGestureEnabled: false,
+			googleServicesFile: "./google-services.json",
 		},
 		web: {
 			favicon: "./assets/favicon.png",
 		},
-		plugins: ["expo-router", "expo-dev-client"],
+		plugins: [
+			"expo-router",
+			"expo-dev-client",
+			"@react-native-firebase/app",
+			[
+				"@react-native-firebase/messaging",
+				{
+					requestPermission: true,
+				},
+			],
+		],
 		extra: {
 			API_BASE_URL:
 				process.env.EXPO_PUBLIC_API_BASE_URL ||
