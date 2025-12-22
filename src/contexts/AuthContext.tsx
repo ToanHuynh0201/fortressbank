@@ -1,4 +1,10 @@
-import { authService, biometricService } from "@/services";
+import {
+	authService,
+	biometricService,
+	// userPreferenceService, // TODO: Uncomment when backend API is ready
+	firebaseMessagingService,
+	userPreferenceService,
+} from "@/services";
 import { createContext, useReducer, useEffect, useState } from "react";
 import { getStorageItem, setStorageItem } from "@/utils";
 import { STORAGE_KEYS } from "@/constants";
@@ -139,6 +145,51 @@ export const AuthProvider = ({ children }: any) => {
 		checkBiometricStatus();
 	}, []);
 
+	// Register device for push notifications
+	const registerPushNotification = async (userId: string) => {
+		try {
+			console.log("========================================");
+			console.log("🔔 Starting push notification registration...");
+			console.log("User ID:", userId);
+
+			// Get device token from Firebase
+			const deviceToken = await firebaseMessagingService.getDeviceToken();
+			console.log("========================================");
+			console.log("Device token:", deviceToken);
+			if (!deviceToken) {
+				console.warn(
+					"⚠️ Failed to get device token, push notifications will not be registered",
+				);
+				console.log("========================================");
+				return;
+			}
+
+			console.log("✅ Device token obtained:", deviceToken);
+
+			// TODO: Backend API not ready yet - uncomment when /user-preferences endpoint is available
+			// Register device token with backend
+			// const response =
+			// 	await userPreferenceService.registerDeviceForPushNotifications(
+			// 		userId,
+			// 		deviceToken,
+			// 	);
+
+			// console.log("✅ Push notification registration successful!");
+			// console.log("📦 Response:", JSON.stringify(response, null, 2));
+			console.log(
+				"⚠️ Backend API /user-preferences not ready - device token obtained but not registered",
+			);
+			console.log("========================================");
+		} catch (error) {
+			// Don't throw error, just log it
+			// We don't want to fail login if push notification registration fails
+			console.error("========================================");
+			console.error("❌ Failed to register push notification:");
+			console.error(error);
+			console.error("========================================");
+		}
+	};
+
 	// Login function
 	const login = async (username: string, password: string) => {
 		dispatch({ type: AUTH_ACTIONS.LOGIN_START });
@@ -158,6 +209,18 @@ export const AuthProvider = ({ children }: any) => {
 					type: AUTH_ACTIONS.LOGIN_SUCCESS,
 					payload: { user: userData },
 				});
+
+				// Register push notification after successful login
+				// Run in background, don't await to avoid blocking login flow
+				registerPushNotification(userData.id || userData.userId).catch(
+					(error) => {
+						console.error(
+							"Background push notification registration failed:",
+							error,
+						);
+					},
+				);
+
 				return response;
 			} else {
 				const errorMsg =
@@ -231,6 +294,18 @@ export const AuthProvider = ({ children }: any) => {
 					type: AUTH_ACTIONS.LOGIN_SUCCESS,
 					payload: { user: userData },
 				});
+
+				// Register push notification after successful biometric login
+				// Run in background, don't await to avoid blocking login flow
+				registerPushNotification(userData.id || userData.userId).catch(
+					(error) => {
+						console.error(
+							"Background push notification registration failed:",
+							error,
+						);
+					},
+				);
+
 				return response;
 			} else {
 				const errorMsg = response.message || "Biometric login failed";

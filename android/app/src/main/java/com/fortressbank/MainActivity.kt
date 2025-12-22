@@ -1,8 +1,7 @@
-package com.fortressbank.app
+package com.fortressbank
 
 import android.os.Build
 import android.os.Bundle
-import android.view.WindowManager
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -18,9 +17,6 @@ class MainActivity : ReactActivity() {
     // This is required for expo-splash-screen.
     setTheme(R.style.AppTheme);
     super.onCreate(null)
-
-    // Fix keyboard overlap issue with adjustPan
-    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
   }
 
   /**

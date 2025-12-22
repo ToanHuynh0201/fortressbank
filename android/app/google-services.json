@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235204699462",
+    "project_id": "fortress-bank-230b4",
+    "storage_bucket": "fortress-bank-230b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235204699462:android:cb294196e3aba691423147",
+        "android_client_info": {
+          "package_name": "com.fortressbank"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJb2lX4vLRJ0txzBDag7vVIotT-bgCO5Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

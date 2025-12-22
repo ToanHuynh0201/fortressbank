@@ -17,7 +17,7 @@ export default {
 			supportsTablet: true,
 		},
 		android: {
-			package: "com.fortressbank.app",
+			package: "com.fortressbank",
 			adaptiveIcon: {
 				foregroundImage: "./assets/adaptive-icon.png",
 				backgroundColor: "#ffffff",

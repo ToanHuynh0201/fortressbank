@@ -1,4 +1,4 @@
-package com.fortressbank.app
+package com.fortressbank
 
 import android.app.Application
 import android.content.res.Configuration

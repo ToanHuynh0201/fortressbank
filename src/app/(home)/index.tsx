@@ -114,7 +114,7 @@ const Home = () => {
 	useFocusEffect(
 		useCallback(() => {
 			fetchAccounts();
-		}, [])
+		}, []),
 	);
 
 	const fetchAccounts = async () => {
@@ -233,6 +233,9 @@ const Home = () => {
 		},
 	];
 
+	useEffect(() => {
+		console.log("USER HOME: ", user);
+	});
 	const getIcon = (iconName: string, large?: boolean) => {
 		const size = large ? 48 : 28;
 
