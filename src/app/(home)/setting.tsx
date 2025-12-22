@@ -26,6 +26,7 @@ import {
 	SignOut,
 	PencilSimple,
 	LockKey,
+	User,
 } from "phosphor-react-native";
 import { AppHeader, ConfirmationModal, AlertModal, LoadingOverlay } from "@/components/common";
 import { SettingRow, BiometricSettings } from "@/components/settings";
@@ -90,6 +91,10 @@ const Setting = () => {
 
 	const handlePINPress = () => {
 		router.push("/(auth)/changePIN");
+	};
+
+	const handleFaceIDPress = () => {
+		router.push("/(auth)/updateFaceID");
 	};
 
 	const handleTouchIDPress = () => {
@@ -187,6 +192,18 @@ const Setting = () => {
 							/>
 						}
 						onPress={handlePINPress}
+					/>
+					<SettingRow
+						title="Face ID"
+						subtitle="Update your face recognition"
+						icon={
+							<User
+								size={20}
+								color={primary.primary1}
+								weight="bold"
+							/>
+						}
+						onPress={handleFaceIDPress}
 					/>
 				</View>
 

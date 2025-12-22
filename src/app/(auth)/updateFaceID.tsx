@@ -1,0 +1,744 @@
+import React, { useState, useRef, useEffect } from "react";
+import {
+	StyleSheet,
+	Text,
+	View,
+	Pressable,
+	ScrollView,
+	Image,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { primary, neutral } from "@/constants";
+import { AppHeader, PrimaryButton, AlertModal } from "@/components/common";
+import { DecorativeIllustration } from "@/components/decorative";
+import { CardContainer, ScreenContainer } from "@/components/layouts";
+import { StatusBar } from "expo-status-bar";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { Camera, CameraRotate } from "phosphor-react-native";
+
+type PoseType = "left" | "right" | "closed_eyes" | "normal";
+
+interface CapturedPhotos {
+	left: string | null;
+	right: string | null;
+	closed_eyes: string | null;
+	normal: string | null;
+}
+
+const POSE_INSTRUCTIONS = {
+	left: {
+		title: "Turn Left",
+		description: "Turn your face to the left side",
+		icon: "←",
+	},
+	right: {
+		title: "Turn Right",
+		description: "Turn your face to the right side",
+		icon: "→",
+	},
+	closed_eyes: {
+		title: "Close Eyes",
+		description: "Close your eyes gently",
+		icon: "◡",
+	},
+	normal: {
+		title: "Look Straight",
+		description: "Look straight at the camera",
+		icon: "◉",
+	},
+};
+
+const POSE_ORDER: PoseType[] = ["left", "right", "closed_eyes", "normal"];
+
+const UpdateFaceID = () => {
+	const router = useRouter();
+	const [step, setStep] = useState<"camera" | "preview" | "success">(
+		"camera",
+	);
+	const [isLoading, setIsLoading] = useState(false);
+	const [facing, setFacing] = useState<CameraType>("front");
+	const [permission, requestPermission] = useCameraPermissions();
+	const [currentPoseIndex, setCurrentPoseIndex] = useState(0);
+	const [capturedPhotos, setCapturedPhotos] = useState<CapturedPhotos>({
+		left: null,
+		right: null,
+		closed_eyes: null,
+		normal: null,
+	});
+	const cameraRef = useRef<CameraView>(null);
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "error" as "success" | "error" | "info" | "warning",
+	});
+
+	const currentPose = POSE_ORDER[currentPoseIndex];
+	const currentInstruction = POSE_INSTRUCTIONS[currentPose];
+
+	// Request camera permission on mount
+	useEffect(() => {
+		if (!permission?.granted && permission?.canAskAgain) {
+			requestPermission();
+		}
+	}, []);
+
+	const toggleCameraFacing = () => {
+		setFacing((current) => (current === "back" ? "front" : "back"));
+	};
+
+	const handleCapture = async () => {
+		if (!cameraRef.current) return;
+
+		try {
+			const photo = await cameraRef.current.takePictureAsync({
+				quality: 0.8,
+				base64: true,
+			});
+
+			if (photo) {
+				// Save photo for current pose
+				setCapturedPhotos((prev) => ({
+					...prev,
+					[currentPose]: photo.uri,
+				}));
+
+				// Move to next pose or preview
+				if (currentPoseIndex < POSE_ORDER.length - 1) {
+					setCurrentPoseIndex(currentPoseIndex + 1);
+				} else {
+					setStep("preview");
+				}
+			}
+		} catch (error: any) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: error.message || "Failed to capture photo",
+				variant: "error",
+			});
+		}
+	};
+
+	const handleRetake = () => {
+		setCapturedPhotos({
+			left: null,
+			right: null,
+			closed_eyes: null,
+			normal: null,
+		});
+		setCurrentPoseIndex(0);
+		setStep("camera");
+	};
+
+	const handleConfirm = async () => {
+		setIsLoading(true);
+		try {
+			// TODO: Implement API call to upload face image
+			// const response = await uploadFaceID(capturedImage);
+
+			// Simulate API call
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			setStep("success");
+		} catch (error: any) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: error.message || "Failed to update Face ID",
+				variant: "error",
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleOk = () => {
+		router.back();
+	};
+
+	// Success Screen
+	if (step === "success") {
+		return (
+			<ScreenContainer backgroundColor={neutral.neutral6}>
+				<StatusBar style="dark" />
+
+				<AppHeader
+					title="Update Face ID"
+					showBackButton={false}
+					backgroundColor={neutral.neutral6}
+					textColor={neutral.neutral1}
+				/>
+
+				<ScrollView
+					style={styles.content}
+					contentContainerStyle={styles.successContainer}
+					showsVerticalScrollIndicator={false}>
+					<DecorativeIllustration
+						size={150}
+						circleColor={primary.primary4}>
+						<Text style={styles.successIcon}>✓</Text>
+					</DecorativeIllustration>
+
+					<Text style={styles.successTitle}>
+						Face ID updated successfully!
+					</Text>
+					<Text style={styles.successMessage}>
+						Your face recognition has been updated.{"\n"}
+						You can now use it for authentication.
+					</Text>
+
+					<PrimaryButton
+						title="Ok"
+						onPress={handleOk}
+						style={styles.okButton}
+					/>
+				</ScrollView>
+			</ScreenContainer>
+		);
+	}
+
+	// Preview Screen
+	if (step === "preview") {
+		return (
+			<ScreenContainer backgroundColor={neutral.neutral6}>
+				<StatusBar style="dark" />
+
+				<AppHeader
+					title="Review Photos"
+					backgroundColor={neutral.neutral6}
+					textColor={neutral.neutral1}
+					onBack={handleRetake}
+				/>
+
+				<ScrollView
+					style={styles.content}
+					contentContainerStyle={styles.contentContainer}
+					showsVerticalScrollIndicator={false}>
+					<CardContainer>
+						<Text style={styles.instructionTitle}>
+							Review Your Photos
+						</Text>
+						<Text style={styles.instructionText}>
+							Please review all photos. Make sure your face is clearly
+							visible in each pose.
+						</Text>
+
+						{/* Photo Grid */}
+						<View style={styles.photoGrid}>
+							{POSE_ORDER.map((pose) => (
+								<View key={pose} style={styles.photoItem}>
+									<Text style={styles.photoLabel}>
+										{POSE_INSTRUCTIONS[pose].title}
+									</Text>
+									<View style={styles.photoWrapper}>
+										{capturedPhotos[pose] ? (
+											<Image
+												source={{ uri: capturedPhotos[pose]! }}
+												style={styles.photoThumbnail}
+												resizeMode="cover"
+											/>
+										) : (
+											<View style={styles.photoPlaceholder}>
+												<Text style={styles.photoPlaceholderText}>
+													No photo
+												</Text>
+											</View>
+										)}
+									</View>
+									<Text style={styles.photoIcon}>
+										{POSE_INSTRUCTIONS[pose].icon}
+									</Text>
+								</View>
+							))}
+						</View>
+
+						<View style={styles.buttonRow}>
+							<Pressable
+								style={({ pressed }) => [
+									styles.secondaryButton,
+									pressed && styles.buttonPressed,
+								]}
+								onPress={handleRetake}>
+								<Text style={styles.secondaryButtonText}>
+									Retake All
+								</Text>
+							</Pressable>
+
+							<PrimaryButton
+								title="Confirm"
+								onPress={handleConfirm}
+								loading={isLoading}
+								loadingText="Uploading..."
+								style={styles.confirmButton}
+							/>
+						</View>
+					</CardContainer>
+				</ScrollView>
+
+				<AlertModal
+					visible={alertModal.visible}
+					title={alertModal.title}
+					message={alertModal.message}
+					variant={alertModal.variant}
+					onClose={() =>
+						setAlertModal({ ...alertModal, visible: false })
+					}
+				/>
+			</ScreenContainer>
+		);
+	}
+
+	// Camera Screen
+	if (!permission) {
+		return (
+			<ScreenContainer backgroundColor={neutral.neutral6}>
+				<StatusBar style="dark" />
+				<AppHeader
+					title="Update Face ID"
+					backgroundColor={neutral.neutral6}
+					textColor={neutral.neutral1}
+				/>
+				<View style={styles.permissionContainer}>
+					<Text style={styles.permissionText}>
+						Requesting camera permission...
+					</Text>
+				</View>
+			</ScreenContainer>
+		);
+	}
+
+	if (!permission.granted) {
+		return (
+			<ScreenContainer backgroundColor={neutral.neutral6}>
+				<StatusBar style="dark" />
+				<AppHeader
+					title="Update Face ID"
+					backgroundColor={neutral.neutral6}
+					textColor={neutral.neutral1}
+				/>
+				<View style={styles.permissionContainer}>
+					<Camera
+						size={80}
+						color={neutral.neutral3}
+						weight="duotone"
+					/>
+					<Text style={styles.permissionTitle}>
+						Camera Permission Required
+					</Text>
+					<Text style={styles.permissionMessage}>
+						We need your permission to use the camera to capture
+						your face for authentication.
+					</Text>
+					<PrimaryButton
+						title="Grant Permission"
+						onPress={requestPermission}
+						style={styles.permissionButton}
+					/>
+				</View>
+			</ScreenContainer>
+		);
+	}
+
+	return (
+		<ScreenContainer backgroundColor={neutral.neutral1}>
+			<StatusBar style="light" />
+
+			<AppHeader
+				title="Update Face ID"
+				backgroundColor={neutral.neutral1}
+				textColor={neutral.neutral6}
+			/>
+
+			<View style={styles.cameraContainer}>
+				<CameraView
+					style={styles.camera}
+					facing={facing}
+					ref={cameraRef}
+				/>
+
+				{/* Overlay on top of camera */}
+				<View
+					style={styles.cameraOverlay}
+					pointerEvents="box-none">
+					{/* Progress Indicator */}
+					<View style={styles.progressContainer}>
+						<View style={styles.progressBar}>
+							{POSE_ORDER.map((pose, index) => (
+								<View
+									key={pose}
+									style={[
+										styles.progressDot,
+										index <= currentPoseIndex && styles.progressDotActive,
+									]}
+								/>
+							))}
+						</View>
+						<Text style={styles.progressText}>
+							{currentPoseIndex + 1} / {POSE_ORDER.length}
+						</Text>
+					</View>
+
+					{/* Instructions */}
+					<View style={styles.instructionContainer}>
+						<Text style={styles.poseIcon}>{currentInstruction.icon}</Text>
+						<Text style={styles.cameraInstruction}>
+							{currentInstruction.title}
+						</Text>
+						<Text style={styles.cameraSubInstruction}>
+							{currentInstruction.description}
+						</Text>
+					</View>
+
+					{/* Face Frame */}
+					<View style={styles.faceFrameContainer}>
+						<View style={styles.faceFrame} />
+					</View>
+
+					{/* Bottom Controls */}
+					<View style={styles.cameraControls}>
+						<Pressable
+							style={({ pressed }) => [
+								styles.flipButton,
+								pressed && styles.buttonPressed,
+							]}
+							onPress={toggleCameraFacing}>
+							<CameraRotate
+								size={28}
+								color={neutral.neutral6}
+								weight="bold"
+							/>
+						</Pressable>
+
+						<Pressable
+							style={({ pressed }) => [
+								styles.captureButton,
+								pressed && styles.captureButtonPressed,
+							]}
+							onPress={handleCapture}>
+							<View style={styles.captureButtonInner} />
+						</Pressable>
+
+						<View style={styles.flipButtonPlaceholder} />
+					</View>
+				</View>
+			</View>
+
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
+		</ScreenContainer>
+	);
+};
+
+export default UpdateFaceID;
+
+const styles = StyleSheet.create({
+	content: {
+		flex: 1,
+		backgroundColor: neutral.neutral6,
+	},
+	contentContainer: {
+		paddingHorizontal: 24,
+		paddingTop: 24,
+		paddingBottom: 40,
+	},
+	instructionTitle: {
+		fontSize: 18,
+		fontWeight: "700",
+		color: neutral.neutral1,
+		marginBottom: 12,
+		textAlign: "center",
+	},
+	instructionText: {
+		fontSize: 14,
+		fontWeight: "500",
+		lineHeight: 21,
+		color: neutral.neutral3,
+		textAlign: "center",
+		marginBottom: 24,
+	},
+	// Photo Grid Styles
+	photoGrid: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		gap: 12,
+		marginBottom: 24,
+	},
+	photoItem: {
+		width: "48%",
+		alignItems: "center",
+	},
+	photoLabel: {
+		fontSize: 12,
+		fontWeight: "600",
+		color: neutral.neutral1,
+		marginBottom: 8,
+		textAlign: "center",
+	},
+	photoWrapper: {
+		width: "100%",
+		aspectRatio: 3 / 4,
+		borderRadius: 12,
+		overflow: "hidden",
+		backgroundColor: neutral.neutral5,
+		marginBottom: 8,
+	},
+	photoThumbnail: {
+		width: "100%",
+		height: "100%",
+	},
+	photoPlaceholder: {
+		width: "100%",
+		height: "100%",
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: neutral.neutral5,
+	},
+	photoPlaceholderText: {
+		fontSize: 12,
+		fontWeight: "500",
+		color: neutral.neutral3,
+	},
+	photoIcon: {
+		fontSize: 24,
+		textAlign: "center",
+		color: primary.primary1,
+	},
+	previewContainer: {
+		marginBottom: 24,
+	},
+	previewImageWrapper: {
+		width: "100%",
+		aspectRatio: 3 / 4,
+		borderRadius: 20,
+		overflow: "hidden",
+		backgroundColor: neutral.neutral5,
+	},
+	previewImage: {
+		width: "100%",
+		height: "100%",
+	},
+	buttonRow: {
+		flexDirection: "row",
+		gap: 12,
+	},
+	secondaryButton: {
+		flex: 1,
+		height: 56,
+		borderRadius: 20,
+		backgroundColor: neutral.neutral5,
+		justifyContent: "center",
+		alignItems: "center",
+		borderWidth: 1,
+		borderColor: neutral.neutral4,
+	},
+	buttonPressed: {
+		opacity: 0.7,
+	},
+	secondaryButtonText: {
+		fontSize: 16,
+		fontWeight: "700",
+		color: neutral.neutral1,
+	},
+	confirmButton: {
+		flex: 1,
+	},
+	// Success Screen Styles
+	successContainer: {
+		paddingHorizontal: 24,
+		paddingTop: 24,
+		paddingBottom: 40,
+		alignItems: "center",
+	},
+	successIcon: {
+		fontSize: 80,
+		fontWeight: "bold",
+		color: primary.primary1,
+	},
+	successTitle: {
+		fontSize: 16,
+		fontWeight: "600",
+		color: primary.primary1,
+		marginBottom: 24,
+		marginTop: 32,
+		textAlign: "center",
+	},
+	successMessage: {
+		fontSize: 14,
+		fontWeight: "500",
+		lineHeight: 21,
+		color: neutral.neutral1,
+		textAlign: "center",
+		marginBottom: 32,
+	},
+	okButton: {
+		width: 327,
+	},
+	// Camera Screen Styles
+	cameraContainer: {
+		flex: 1,
+		position: "relative",
+	},
+	camera: {
+		flex: 1,
+	},
+	cameraOverlay: {
+		...StyleSheet.absoluteFillObject,
+		backgroundColor: "rgba(0, 0, 0, 0.3)",
+	},
+	// Progress Indicator Styles
+	progressContainer: {
+		paddingTop: 20,
+		paddingHorizontal: 24,
+		alignItems: "center",
+		marginBottom: 20,
+	},
+	progressBar: {
+		flexDirection: "row",
+		gap: 8,
+		marginBottom: 8,
+	},
+	progressDot: {
+		width: 12,
+		height: 12,
+		borderRadius: 6,
+		backgroundColor: "rgba(255, 255, 255, 0.3)",
+	},
+	progressDotActive: {
+		backgroundColor: neutral.neutral6,
+	},
+	progressText: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: neutral.neutral6,
+		textShadowColor: "rgba(0, 0, 0, 0.5)",
+		textShadowOffset: { width: 0, height: 1 },
+		textShadowRadius: 3,
+	},
+	instructionContainer: {
+		paddingHorizontal: 24,
+		alignItems: "center",
+		marginBottom: 20,
+	},
+	poseIcon: {
+		fontSize: 60,
+		color: neutral.neutral6,
+		marginBottom: 12,
+		textShadowColor: "rgba(0, 0, 0, 0.5)",
+		textShadowOffset: { width: 0, height: 2 },
+		textShadowRadius: 4,
+	},
+	cameraInstruction: {
+		fontSize: 18,
+		fontWeight: "700",
+		color: neutral.neutral6,
+		textAlign: "center",
+		marginBottom: 8,
+		textShadowColor: "rgba(0, 0, 0, 0.5)",
+		textShadowOffset: { width: 0, height: 1 },
+		textShadowRadius: 3,
+	},
+	cameraSubInstruction: {
+		fontSize: 14,
+		fontWeight: "500",
+		color: neutral.neutral5,
+		textAlign: "center",
+		textShadowColor: "rgba(0, 0, 0, 0.5)",
+		textShadowOffset: { width: 0, height: 1 },
+		textShadowRadius: 3,
+	},
+	faceFrameContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	faceOverlay: {
+		...StyleSheet.absoluteFillObject,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	faceFrame: {
+		width: 280,
+		height: 360,
+		borderRadius: 140,
+		borderWidth: 4,
+		borderColor: neutral.neutral6,
+		borderStyle: "dashed",
+	},
+	cameraControls: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		paddingHorizontal: 40,
+		paddingBottom: 50,
+	},
+	flipButton: {
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		backgroundColor: "rgba(255, 255, 255, 0.3)",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	flipButtonPlaceholder: {
+		width: 56,
+		height: 56,
+	},
+	captureButton: {
+		width: 80,
+		height: 80,
+		borderRadius: 40,
+		backgroundColor: neutral.neutral6,
+		justifyContent: "center",
+		alignItems: "center",
+		borderWidth: 4,
+		borderColor: primary.primary1,
+	},
+	captureButtonPressed: {
+		transform: [{ scale: 0.9 }],
+	},
+	captureButtonInner: {
+		width: 64,
+		height: 64,
+		borderRadius: 32,
+		backgroundColor: primary.primary1,
+	},
+	// Permission Styles
+	permissionContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		paddingHorizontal: 40,
+	},
+	permissionText: {
+		fontSize: 16,
+		fontWeight: "600",
+		color: neutral.neutral2,
+		textAlign: "center",
+	},
+	permissionTitle: {
+		fontSize: 20,
+		fontWeight: "700",
+		color: neutral.neutral1,
+		textAlign: "center",
+		marginTop: 24,
+		marginBottom: 12,
+	},
+	permissionMessage: {
+		fontSize: 14,
+		fontWeight: "500",
+		lineHeight: 21,
+		color: neutral.neutral3,
+		textAlign: "center",
+		marginBottom: 32,
+	},
+	permissionButton: {
+		width: "100%",
+		maxWidth: 327,
+	},
+});
