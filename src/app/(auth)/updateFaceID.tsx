@@ -15,6 +15,9 @@ import { CardContainer, ScreenContainer } from "@/components/layouts";
 import { StatusBar } from "expo-status-bar";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { Camera, CameraRotate } from "phosphor-react-native";
+import { useAuth } from "@/hooks";
+import { API_CONFIG, STORAGE_KEYS } from "@/constants";
+import { getStorageItem } from "@/utils";
 
 type PoseType = "left" | "right" | "closed_eyes" | "normal";
 
@@ -52,6 +55,7 @@ const POSE_ORDER: PoseType[] = ["left", "right", "closed_eyes", "normal"];
 
 const UpdateFaceID = () => {
 	const router = useRouter();
+	const { user } = useAuth();
 	const [step, setStep] = useState<"camera" | "preview" | "success">(
 		"camera",
 	);
@@ -134,18 +138,75 @@ const UpdateFaceID = () => {
 	const handleConfirm = async () => {
 		setIsLoading(true);
 		try {
-			// TODO: Implement API call to upload face image
-			// const response = await uploadFaceID(capturedImage);
+			// Get access token
+			const accessToken = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
+			if (!accessToken) {
+				throw new Error("Access token not found");
+			}
 
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 2000));
+			// Create FormData for multipart/form-data upload
+			const formData = new FormData();
 
+			// Append each photo file (4 images only, no user_id)
+			if (capturedPhotos.left) {
+				formData.append("files", {
+					uri: capturedPhotos.left,
+					type: "image/jpeg",
+					name: "left.jpg",
+				} as any);
+			}
+
+			if (capturedPhotos.right) {
+				formData.append("files", {
+					uri: capturedPhotos.right,
+					type: "image/jpeg",
+					name: "right.jpg",
+				} as any);
+			}
+
+			if (capturedPhotos.closed_eyes) {
+				formData.append("files", {
+					uri: capturedPhotos.closed_eyes,
+					type: "image/jpeg",
+					name: "closed_eyes.jpg",
+				} as any);
+			}
+
+			if (capturedPhotos.normal) {
+				formData.append("files", {
+					uri: capturedPhotos.normal,
+					type: "image/jpeg",
+					name: "normal.jpg",
+				} as any);
+			}
+
+			// Call API with bearer token
+			const response = await fetch(
+				`${API_CONFIG.BASE_URL}/users/me/register-face`,
+				{
+					method: "POST",
+					body: formData,
+					headers: {
+						"Content-Type": "multipart/form-data",
+						Authorization: `Bearer ${accessToken}`,
+					},
+				},
+			);
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.message || "Failed to register face ID");
+			}
+
+			console.log("Face ID registered successfully:", data);
 			setStep("success");
 		} catch (error: any) {
+			console.error("Error processing photos:", error);
 			setAlertModal({
 				visible: true,
 				title: "Error",
-				message: error.message || "Failed to update Face ID",
+				message: error.message || "Failed to process Face ID photos",
 				variant: "error",
 			});
 		} finally {
@@ -220,27 +281,35 @@ const UpdateFaceID = () => {
 							Review Your Photos
 						</Text>
 						<Text style={styles.instructionText}>
-							Please review all photos. Make sure your face is clearly
-							visible in each pose.
+							Please review all photos. Make sure your face is
+							clearly visible in each pose.
 						</Text>
 
 						{/* Photo Grid */}
 						<View style={styles.photoGrid}>
 							{POSE_ORDER.map((pose) => (
-								<View key={pose} style={styles.photoItem}>
+								<View
+									key={pose}
+									style={styles.photoItem}>
 									<Text style={styles.photoLabel}>
 										{POSE_INSTRUCTIONS[pose].title}
 									</Text>
 									<View style={styles.photoWrapper}>
 										{capturedPhotos[pose] ? (
 											<Image
-												source={{ uri: capturedPhotos[pose]! }}
+												source={{
+													uri: capturedPhotos[pose]!,
+												}}
 												style={styles.photoThumbnail}
 												resizeMode="cover"
 											/>
 										) : (
-											<View style={styles.photoPlaceholder}>
-												<Text style={styles.photoPlaceholderText}>
+											<View
+												style={styles.photoPlaceholder}>
+												<Text
+													style={
+														styles.photoPlaceholderText
+													}>
 													No photo
 												</Text>
 											</View>
@@ -369,7 +438,8 @@ const UpdateFaceID = () => {
 									key={pose}
 									style={[
 										styles.progressDot,
-										index <= currentPoseIndex && styles.progressDotActive,
+										index <= currentPoseIndex &&
+											styles.progressDotActive,
 									]}
 								/>
 							))}
@@ -381,7 +451,9 @@ const UpdateFaceID = () => {
 
 					{/* Instructions */}
 					<View style={styles.instructionContainer}>
-						<Text style={styles.poseIcon}>{currentInstruction.icon}</Text>
+						<Text style={styles.poseIcon}>
+							{currentInstruction.icon}
+						</Text>
 						<Text style={styles.cameraInstruction}>
 							{currentInstruction.title}
 						</Text>
@@ -693,11 +765,11 @@ const styles = StyleSheet.create({
 		width: 80,
 		height: 80,
 		borderRadius: 40,
-		backgroundColor: neutral.neutral6,
+		backgroundColor: "transparent",
 		justifyContent: "center",
 		alignItems: "center",
-		borderWidth: 4,
-		borderColor: primary.primary1,
+		borderWidth: 5,
+		borderColor: neutral.neutral6,
 	},
 	captureButtonPressed: {
 		transform: [{ scale: 0.9 }],
@@ -706,7 +778,7 @@ const styles = StyleSheet.create({
 		width: 64,
 		height: 64,
 		borderRadius: 32,
-		backgroundColor: primary.primary1,
+		backgroundColor: neutral.neutral6,
 	},
 	// Permission Styles
 	permissionContainer: {
