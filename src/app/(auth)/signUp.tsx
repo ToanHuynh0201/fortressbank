@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
 	StyleSheet,
 	Text,
@@ -7,6 +7,8 @@ import {
 	ScrollView,
 	KeyboardAvoidingView,
 	Platform,
+	Image,
+	Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Animated, {
@@ -24,7 +26,10 @@ import {
 	CreditCard,
 	CheckCircle,
 	CaretLeft,
+	Camera,
+	CameraRotate,
 } from "phosphor-react-native";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { primary, neutral, semantic } from "@/constants";
 import {
 	CustomInput,
@@ -48,7 +53,42 @@ type Step =
 	| "otp-verification"
 	| "complete-registration"
 	| "account-selection"
+	| "face-id-registration"
 	| "success";
+
+type PoseType = "left" | "right" | "closed_eyes" | "normal";
+
+interface CapturedPhotos {
+	left: string | null;
+	right: string | null;
+	closed_eyes: string | null;
+	normal: string | null;
+}
+
+const POSE_INSTRUCTIONS = {
+	left: {
+		title: "Turn Left",
+		description: "Turn your face to the left side",
+		icon: "←",
+	},
+	right: {
+		title: "Turn Right",
+		description: "Turn your face to the right side",
+		icon: "→",
+	},
+	closed_eyes: {
+		title: "Close Eyes",
+		description: "Close your eyes gently",
+		icon: "◡",
+	},
+	normal: {
+		title: "Look Straight",
+		description: "Look straight at the camera",
+		icon: "◉",
+	},
+};
+
+const POSE_ORDER: PoseType[] = ["left", "right", "closed_eyes", "normal"];
 
 const SignUp = () => {
 	const router = useRouter();
@@ -63,6 +103,22 @@ const SignUp = () => {
 		message: "",
 		variant: "error" as "success" | "error" | "info" | "warning",
 	});
+
+	// Face ID registration state
+	const [userId, setUserId] = useState<string | null>(null);
+	const [capturedPhotos, setCapturedPhotos] = useState<CapturedPhotos>({
+		left: null,
+		right: null,
+		closed_eyes: null,
+		normal: null,
+	});
+	const [faceIDSubStep, setFaceIDSubStep] = useState<"camera" | "preview">(
+		"camera",
+	);
+	const [currentPoseIndex, setCurrentPoseIndex] = useState(0);
+	const [facing, setFacing] = useState<CameraType>("front");
+	const [permission, requestPermission] = useCameraPermissions();
+	const cameraRef = useRef<CameraView>(null);
 
 	// Animation values
 	const contentOpacity = useSharedValue(0);
@@ -392,23 +448,32 @@ const SignUp = () => {
 		return isValid;
 	};
 
-	const handleFinalSubmit = async () => {
+	const handleFinalSubmit = () => {
 		if (!validateFinalStep()) {
 			return;
 		}
 
+		// Move to Face ID registration step instead of calling API
+		setStep("face-id-registration");
+		setFaceIDSubStep("camera");
+		requestPermission(); // Request camera permission proactively
+	};
+
+	const handleFaceIDConfirm = async () => {
 		setIsLoading(true);
+
 		try {
+			// Prepare registration data
 			const accountNumberType =
 				values.accountNumberOption === "auto"
 					? "AUTO_GENERATE"
 					: "PHONE_NUMBER";
 
-			// Convert date from DD/MM/YYYY to YYYY-MM-DD
 			const [day, month, year] = values.dateOfBirth.split("/");
 			const formattedDob = `${year}-${month}-${day}`;
 
-			const result = await authService.register({
+			// STEP 1: Register user account
+			const registerResult = await authService.register({
 				username: values.username,
 				email: values.email,
 				password: values.password,
@@ -420,32 +485,103 @@ const SignUp = () => {
 				pin: values.pin,
 			});
 
-			if (result.code === 1000 && result.data) {
-				setStep("success");
-				setAlertModal({
-					visible: true,
-					title: "Success",
-					message: "Your account has been created successfully!",
-					variant: "success",
-				});
-			} else {
-				setAlertModal({
-					visible: true,
-					title: "Error",
-					message: result.message || "Registration failed. Please try again.",
-					variant: "error",
-				});
+			if (registerResult.code !== 1000 || !registerResult.data) {
+				throw new Error(
+					registerResult.message || "Registration failed",
+				);
 			}
+
+			const newUserId = registerResult.data.id;
+			setUserId(newUserId);
+
+			// STEP 2: Register Face ID with the userId
+			const faceResult = await authService.registerFaceID(
+				newUserId,
+				capturedPhotos,
+			);
+
+			if (faceResult.code !== 1000) {
+				// Account created but Face ID failed
+				setAlertModal({
+					visible: true,
+					title: "Face ID Registration Failed",
+					message:
+						"Your account was created, but Face ID setup failed. Please try capturing your photos again.",
+					variant: "warning",
+				});
+				// Stay on preview screen, allow retry
+				return;
+			}
+
+			// Both succeeded!
+			setStep("success");
+			setAlertModal({
+				visible: true,
+				title: "Success",
+				message:
+					"Your account has been created successfully with Face ID enabled!",
+				variant: "success",
+			});
 		} catch (error) {
 			setAlertModal({
 				visible: true,
 				title: "Error",
-				message: "Cannot create account. Please try again.",
+				message:
+					error instanceof Error
+						? error.message
+						: "Registration failed. Please try again.",
 				variant: "error",
 			});
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	const handleFaceIDCapture = async () => {
+		if (!cameraRef.current) return;
+
+		try {
+			const photo = await cameraRef.current.takePictureAsync({
+				quality: 0.8,
+				base64: true,
+			});
+
+			if (photo) {
+				const currentPose = POSE_ORDER[currentPoseIndex];
+				setCapturedPhotos((prev) => ({
+					...prev,
+					[currentPose]: photo.uri,
+				}));
+
+				if (currentPoseIndex < POSE_ORDER.length - 1) {
+					setCurrentPoseIndex(currentPoseIndex + 1);
+				} else {
+					setFaceIDSubStep("preview");
+				}
+			}
+		} catch (error) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "Failed to capture photo. Please try again.",
+				variant: "error",
+			});
+		}
+	};
+
+	const handleFaceIDRetake = () => {
+		setCapturedPhotos({
+			left: null,
+			right: null,
+			closed_eyes: null,
+			normal: null,
+		});
+		setCurrentPoseIndex(0);
+		setFaceIDSubStep("camera");
+	};
+
+	const toggleCameraFacing = () => {
+		setFacing((current) => (current === "back" ? "front" : "back"));
 	};
 
 	const handleGoToSignIn = () => {
@@ -471,12 +607,213 @@ const SignUp = () => {
 		return `${mins}:${secs.toString().padStart(2, "0")}`;
 	};
 
+	const renderFaceIDCamera = () => {
+		const currentPose = POSE_ORDER[currentPoseIndex];
+		const currentInstruction = POSE_INSTRUCTIONS[currentPose];
+
+		if (!permission) {
+			return (
+				<View style={styles.permissionContainer}>
+					<Text style={styles.permissionText}>
+						Requesting camera permission...
+					</Text>
+				</View>
+			);
+		}
+
+		if (!permission.granted) {
+			return (
+				<View style={styles.permissionContainer}>
+					<Camera
+						size={80}
+						color={neutral.neutral3}
+						weight="duotone"
+					/>
+					<Text style={styles.permissionTitle}>
+						Camera Permission Required
+					</Text>
+					<Text style={styles.permissionMessage}>
+						We need camera access to capture your face for secure
+						authentication.
+					</Text>
+					<PrimaryButton
+						title="Grant Permission"
+						onPress={requestPermission}
+						style={styles.permissionButton}
+					/>
+				</View>
+			);
+		}
+
+		return (
+			<View style={styles.cameraContainer}>
+				<CameraView
+					style={styles.camera}
+					facing={facing}
+					ref={cameraRef}
+				/>
+
+				<View style={styles.cameraOverlay} pointerEvents="box-none">
+					{/* Progress Indicator */}
+					<View style={styles.progressContainer}>
+						<View style={styles.progressBar}>
+							{POSE_ORDER.map((pose, index) => (
+								<View
+									key={pose}
+									style={[
+										styles.progressDot,
+										index <= currentPoseIndex &&
+											styles.progressDotActive,
+									]}
+								/>
+							))}
+						</View>
+						<Text style={styles.progressText}>
+							{currentPoseIndex + 1} / {POSE_ORDER.length}
+						</Text>
+					</View>
+
+					{/* Instructions */}
+					<View style={styles.instructionContainer}>
+						<Text style={styles.poseIcon}>
+							{currentInstruction.icon}
+						</Text>
+						<Text style={styles.cameraInstruction}>
+							{currentInstruction.title}
+						</Text>
+						<Text style={styles.cameraSubInstruction}>
+							{currentInstruction.description}
+						</Text>
+					</View>
+
+					{/* Face Frame */}
+					<View style={styles.faceFrameContainer}>
+						<View style={styles.faceFrame} />
+					</View>
+
+					{/* Camera Controls */}
+					<View style={styles.cameraControls}>
+						<Pressable
+							style={styles.flipButton}
+							onPress={toggleCameraFacing}>
+							<CameraRotate
+								size={28}
+								color={neutral.neutral6}
+								weight="bold"
+							/>
+						</Pressable>
+
+						<Pressable
+							style={styles.captureButton}
+							onPress={handleFaceIDCapture}>
+							<View style={styles.captureButtonInner} />
+						</Pressable>
+
+						<View style={styles.flipButtonPlaceholder} />
+					</View>
+				</View>
+			</View>
+		);
+	};
+
+	const renderFaceIDPreview = () => {
+		return (
+			<ScrollView
+				style={styles.scrollView}
+				contentContainerStyle={styles.scrollViewContent}
+				showsVerticalScrollIndicator={false}>
+				<Animated.View
+					style={[styles.contentSection, contentAnimatedStyle]}>
+					<View style={styles.compactIconContainer}>
+						<LinearGradient
+							colors={[primary.primary1, primary.primary2]}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 1 }}
+							style={styles.compactIconGradient}>
+							<ShieldCheck
+								size={36}
+								color={neutral.neutral6}
+								weight="fill"
+							/>
+						</LinearGradient>
+					</View>
+
+					<Text style={styles.compactTitle}>
+						Review Face ID Photos
+					</Text>
+					<Text style={styles.compactSubtitle}>
+						Make sure your face is clearly visible in each pose for
+						secure authentication
+					</Text>
+
+					<View style={styles.formContainer}>
+						{/* Photo Grid */}
+						<View style={styles.photoGrid}>
+							{POSE_ORDER.map((pose) => (
+								<View key={pose} style={styles.photoItem}>
+									<Text style={styles.photoLabel}>
+										{POSE_INSTRUCTIONS[pose].title}
+									</Text>
+									<View style={styles.photoWrapper}>
+										{capturedPhotos[pose] ? (
+											<Image
+												source={{
+													uri: capturedPhotos[pose]!,
+												}}
+												style={styles.photoThumbnail}
+												resizeMode="cover"
+											/>
+										) : (
+											<View
+												style={
+													styles.photoPlaceholder
+												}>
+												<Text
+													style={
+														styles.photoPlaceholderText
+													}>
+													No photo
+												</Text>
+											</View>
+										)}
+									</View>
+									<Text style={styles.photoIcon}>
+										{POSE_INSTRUCTIONS[pose].icon}
+									</Text>
+								</View>
+							))}
+						</View>
+
+						<View style={styles.buttonRow}>
+							<Pressable
+								style={styles.secondaryButton}
+								onPress={handleFaceIDRetake}>
+								<Text style={styles.secondaryButtonText}>
+									Retake All
+								</Text>
+							</Pressable>
+
+							<PrimaryButton
+								title="Complete Registration"
+								onPress={handleFaceIDConfirm}
+								loading={isLoading}
+								loadingText="Creating Account..."
+								style={styles.confirmButton}
+							/>
+						</View>
+					</View>
+				</Animated.View>
+			</ScrollView>
+		);
+	};
+
 	const renderStepIndicator = () => {
 		const steps = [
 			"initial-info",
 			"otp-verification",
 			"complete-registration",
 			"account-selection",
+			"face-id-registration",
 		];
 		const currentIndex = steps.indexOf(step);
 
@@ -1027,6 +1364,13 @@ const SignUp = () => {
 					</Animated.View>
 				);
 
+			case "face-id-registration":
+				if (faceIDSubStep === "camera") {
+					return renderFaceIDCamera();
+				} else {
+					return renderFaceIDPreview();
+				}
+
 			case "success":
 				return (
 					<Animated.View
@@ -1048,10 +1392,11 @@ const SignUp = () => {
 						</Animated.View>
 
 						<Text style={styles.successTitle}>
-							Registration Successful!
+							Account Created Successfully!
 						</Text>
 						<Text style={styles.successSubtitle}>
-							Your account has been successfully created
+							Your account has been created with Face ID enabled
+							for secure access
 						</Text>
 
 						<View style={styles.successInfoCard}>
@@ -1103,6 +1448,37 @@ const SignUp = () => {
 				return null;
 		}
 	};
+
+	// Render camera full screen (no scrollview)
+	if (step === "face-id-registration" && faceIDSubStep === "camera") {
+		return (
+			<ScreenContainer backgroundColor={neutral.neutral1}>
+				{/* Back button for camera */}
+				<View style={styles.headerContainer}>
+					<TouchableOpacity
+						style={styles.backButton}
+						onPress={() => setStep("account-selection")}>
+						<CaretLeft
+							size={24}
+							color={neutral.neutral6}
+							weight="bold"
+						/>
+					</TouchableOpacity>
+				</View>
+
+				{renderFaceIDCamera()}
+
+				{/* Alert Modal */}
+				<AlertModal
+					visible={alertModal.visible}
+					title={alertModal.title}
+					message={alertModal.message}
+					variant={alertModal.variant}
+					onClose={() => setAlertModal({ ...alertModal, visible: false })}
+				/>
+			</ScreenContainer>
+		);
+	}
 
 	return (
 		<ScreenContainer backgroundColor={neutral.neutral6}>
@@ -1525,5 +1901,215 @@ const styles = StyleSheet.create({
 		fontWeight: "400",
 		color: neutral.neutral3,
 		fontFamily: "Poppins",
+	},
+	// Camera styles
+	cameraContainer: {
+		flex: 1,
+		position: "relative",
+	},
+	camera: {
+		flex: 1,
+	},
+	cameraOverlay: {
+		...StyleSheet.absoluteFillObject,
+		backgroundColor: "rgba(0, 0, 0, 0.3)",
+	},
+	progressContainer: {
+		paddingTop: 20,
+		paddingHorizontal: 24,
+		alignItems: "center",
+		marginBottom: 20,
+	},
+	progressBar: {
+		flexDirection: "row",
+		gap: 8,
+		marginBottom: 8,
+	},
+	progressDot: {
+		width: 12,
+		height: 12,
+		borderRadius: 6,
+		backgroundColor: "rgba(255, 255, 255, 0.3)",
+	},
+	progressDotActive: {
+		backgroundColor: neutral.neutral6,
+	},
+	progressText: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: neutral.neutral6,
+	},
+	instructionContainer: {
+		paddingHorizontal: 24,
+		alignItems: "center",
+		marginBottom: 20,
+	},
+	poseIcon: {
+		fontSize: 60,
+		color: neutral.neutral6,
+		marginBottom: 12,
+	},
+	cameraInstruction: {
+		fontSize: 18,
+		fontWeight: "700",
+		color: neutral.neutral6,
+		textAlign: "center",
+		marginBottom: 8,
+	},
+	cameraSubInstruction: {
+		fontSize: 14,
+		fontWeight: "500",
+		color: neutral.neutral5,
+		textAlign: "center",
+	},
+	faceFrameContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	faceFrame: {
+		width: 280,
+		height: 360,
+		borderRadius: 140,
+		borderWidth: 4,
+		borderColor: neutral.neutral6,
+		borderStyle: "dashed",
+	},
+	cameraControls: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		paddingHorizontal: 40,
+		paddingBottom: 50,
+	},
+	flipButton: {
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		backgroundColor: "rgba(255, 255, 255, 0.3)",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	flipButtonPlaceholder: {
+		width: 56,
+		height: 56,
+	},
+	captureButton: {
+		width: 80,
+		height: 80,
+		borderRadius: 40,
+		backgroundColor: "transparent",
+		justifyContent: "center",
+		alignItems: "center",
+		borderWidth: 5,
+		borderColor: neutral.neutral6,
+	},
+	captureButtonInner: {
+		width: 64,
+		height: 64,
+		borderRadius: 32,
+		backgroundColor: neutral.neutral6,
+	},
+	// Photo grid styles
+	photoGrid: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		gap: 12,
+		marginBottom: 24,
+	},
+	photoItem: {
+		width: "48%",
+		alignItems: "center",
+	},
+	photoLabel: {
+		fontSize: 12,
+		fontWeight: "600",
+		color: neutral.neutral1,
+		marginBottom: 8,
+		textAlign: "center",
+	},
+	photoWrapper: {
+		width: "100%",
+		aspectRatio: 3 / 4,
+		borderRadius: 12,
+		overflow: "hidden",
+		backgroundColor: neutral.neutral5,
+		marginBottom: 8,
+	},
+	photoThumbnail: {
+		width: "100%",
+		height: "100%",
+	},
+	photoPlaceholder: {
+		width: "100%",
+		height: "100%",
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: neutral.neutral5,
+	},
+	photoPlaceholderText: {
+		fontSize: 12,
+		fontWeight: "500",
+		color: neutral.neutral3,
+	},
+	photoIcon: {
+		fontSize: 24,
+		textAlign: "center",
+		color: primary.primary1,
+	},
+	buttonRow: {
+		flexDirection: "row",
+		gap: 12,
+	},
+	secondaryButton: {
+		flex: 1,
+		height: 56,
+		borderRadius: 20,
+		backgroundColor: neutral.neutral5,
+		justifyContent: "center",
+		alignItems: "center",
+		borderWidth: 1,
+		borderColor: neutral.neutral4,
+	},
+	secondaryButtonText: {
+		fontSize: 16,
+		fontWeight: "700",
+		color: neutral.neutral1,
+	},
+	confirmButton: {
+		flex: 1,
+	},
+	// Permission styles
+	permissionContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		paddingHorizontal: 40,
+	},
+	permissionText: {
+		fontSize: 16,
+		fontWeight: "600",
+		color: neutral.neutral2,
+		textAlign: "center",
+	},
+	permissionTitle: {
+		fontSize: 20,
+		fontWeight: "700",
+		color: neutral.neutral1,
+		textAlign: "center",
+		marginTop: 24,
+		marginBottom: 12,
+	},
+	permissionMessage: {
+		fontSize: 14,
+		fontWeight: "500",
+		lineHeight: 21,
+		color: neutral.neutral3,
+		textAlign: "center",
+		marginBottom: 32,
+	},
+	permissionButton: {
+		width: "100%",
+		maxWidth: 327,
 	},
 });

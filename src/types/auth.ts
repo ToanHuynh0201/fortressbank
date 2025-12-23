@@ -22,7 +22,7 @@ export interface RegisterRequest {
 	phoneNumber: string;
 	dob: string;
 	citizenId: string;
-	accountNumberType: 'AUTO_GENERATE' | 'PHONE_NUMBER';
+	accountNumberType: "AUTO_GENERATE" | "PHONE_NUMBER";
 	pin: string;
 }
 

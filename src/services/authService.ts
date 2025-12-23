@@ -496,6 +496,86 @@ class AuthService {
 			};
 		}
 	}
+
+	/**
+	 * Register Face ID for new user during sign-up
+	 * @param {string} userId - User ID from registration response
+	 * @param {object} photos - Object with 4 face photos (left, right, closed_eyes, normal)
+	 * @returns {Promise<any>} API response
+	 */
+	async registerFaceID(
+		userId: string,
+		photos: {
+			left: string | null;
+			right: string | null;
+			closed_eyes: string | null;
+			normal: string | null;
+		},
+	): Promise<any> {
+		try {
+			const formData = new FormData();
+
+			// Append user_id parameter
+			formData.append("user_id", userId);
+
+			// Append 4 photos
+			if (photos.left) {
+				formData.append("files", {
+					uri: photos.left,
+					type: "image/jpeg",
+					name: "left.jpg",
+				} as any);
+			}
+
+			if (photos.right) {
+				formData.append("files", {
+					uri: photos.right,
+					type: "image/jpeg",
+					name: "right.jpg",
+				} as any);
+			}
+
+			if (photos.closed_eyes) {
+				formData.append("files", {
+					uri: photos.closed_eyes,
+					type: "image/jpeg",
+					name: "closed_eyes.jpg",
+				} as any);
+			}
+
+			if (photos.normal) {
+				formData.append("files", {
+					uri: photos.normal,
+					type: "image/jpeg",
+					name: "normal.jpg",
+				} as any);
+			}
+
+			const response = await fetch(
+				"http://10.0.2.2:8000/auth/register-face",
+				{
+					method: "POST",
+					body: formData,
+					headers: {
+						"Content-Type": "multipart/form-data",
+						// NO Authorization header - user not logged in yet
+					},
+				},
+			);
+
+			const data = await response.json();
+			return data;
+		} catch (error) {
+			console.error("Register Face ID error:", error);
+			return {
+				code: -1,
+				message:
+					error instanceof Error
+						? error.message
+						: "Face ID registration failed",
+			};
+		}
+	}
 }
 
 export const authService = new AuthService();
