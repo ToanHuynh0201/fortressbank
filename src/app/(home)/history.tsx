@@ -21,7 +21,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { ClockClockwise, Calendar } from "phosphor-react-native";
 import colors, { primary, neutral, semantic } from "@/constants/colors";
-import { TransactionHistoryItem } from "@/components";
+import { TransactionHistoryItem, TransactionDetailModal } from "@/components";
 import { transferService, type Transaction } from "@/services/transferService";
 import { accountService } from "@/services/accountService";
 import { getUserData } from "@/utils/storage";
@@ -64,6 +64,8 @@ const History = () => {
 	const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
 	const [offset, setOffset] = useState(0);
 	const [hasMore, setHasMore] = useState(true);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
 	const LIMIT = 20;
 
 	const headerScale = useSharedValue(0.96);
@@ -198,14 +200,22 @@ const History = () => {
 		}
 	};
 
+	const handleTransactionPress = (transactionId: string) => {
+		setSelectedTransactionId(transactionId);
+		setModalVisible(true);
+	};
+
+	const handleCloseModal = () => {
+		setModalVisible(false);
+		setSelectedTransactionId(null);
+	};
+
 	const renderTransaction = ({ item, index }: { item: any; index: number }) => (
 		<TransactionHistoryItem
 			key={item.id}
 			{...item}
 			index={index}
-			onPress={() => {
-				console.log("Transaction pressed:", item.id);
-			}}
+			onPress={() => handleTransactionPress(item.transactionId)}
 			style={{
 				opacity: filterLoading ? 0.5 : 1,
 			}}
@@ -406,6 +416,14 @@ const History = () => {
 					</View>
 				)}
 			</View>
+
+			{/* Transaction Detail Modal */}
+			<TransactionDetailModal
+				visible={modalVisible}
+				transactionId={selectedTransactionId}
+				onClose={handleCloseModal}
+				accountId={accountId}
+			/>
 		</SafeAreaView>
 	);
 };

@@ -179,7 +179,7 @@ class TransferService {
   /**
    * Get transaction by ID
    */
-  async getTransactionById(txId: string): Promise<{ status: string; data: Transaction }> {
+  async getTransactionById(txId: string): Promise<{ code: number; message: string; data: Transaction }> {
     const response = await apiService.get(`/transactions/${txId}`);
     return response.data;
   }

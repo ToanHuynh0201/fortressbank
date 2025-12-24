@@ -21,6 +21,7 @@ export interface TransactionHistoryItemProps {
   status?: 'success' | 'pending' | 'failed';
   onPress?: () => void;
   index?: number;
+  style?: any;
 }
 
 const TransactionHistoryItem: React.FC<TransactionHistoryItemProps> = ({
@@ -32,6 +33,7 @@ const TransactionHistoryItem: React.FC<TransactionHistoryItemProps> = ({
   status = 'success',
   onPress,
   index = 0,
+  style,
 }) => {
   const scale = useSharedValue(0.95);
   const opacity = useSharedValue(0);
@@ -95,7 +97,7 @@ const TransactionHistoryItem: React.FC<TransactionHistoryItemProps> = ({
   const formattedTime = formatTime(dateObj);
 
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View style={[animatedStyle, style]}>
       <TouchableOpacity
         style={styles.container}
         onPress={onPress}

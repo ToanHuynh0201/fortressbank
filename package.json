@@ -18,6 +18,7 @@
     "@react-native-firebase/messaging": "^23.7.0",
     "axios": "^1.12.2",
     "expo": "54.0.23",
+    "expo-blur": "~15.0.8",
     "expo-camera": "~17.0.9",
     "expo-constants": "~18.0.10",
     "expo-dev-client": "^6.0.18",
@@ -28,6 +29,7 @@
     "expo-router": "~6.0.14",
     "expo-secure-store": "^15.0.7",
     "expo-status-bar": "~3.0.8",
+    "expo-system-ui": "^6.0.9",
     "phosphor-react-native": "^3.0.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -44,6 +46,7 @@
     "@types/react": "~19.1.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-preset-expo": "^54.0.5",
+    "baseline-browser-mapping": "^2.9.11",
     "typescript": "~5.9.2"
   },
   "private": true

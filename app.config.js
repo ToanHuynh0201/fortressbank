@@ -22,7 +22,6 @@ export default {
 				foregroundImage: "./assets/adaptive-icon.png",
 				backgroundColor: "#ffffff",
 			},
-			edgeToEdgeEnabled: false,
 			predictiveBackGestureEnabled: false,
 			googleServicesFile: "./google-services.json",
 		},
