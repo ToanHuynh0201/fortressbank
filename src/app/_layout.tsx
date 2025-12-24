@@ -1,11 +1,17 @@
 import { Stack } from "expo-router";
 import { AuthProvider, NotificationProvider } from "@/contexts";
+import { useAuth } from "@/hooks/useAuth";
+import { useNotificationListeners } from "@/hooks/useNotificationListeners";
+import NotificationToast from "@/components/common/NotificationToast";
 
-const RootLayout = () => {
+const AppContent = () => {
+	const { user } = useAuth();
+
+	// Initialize notification listeners
+	useNotificationListeners(user?.id || user?.userId);
+
 	return (
-		<AuthProvider>
-			<NotificationProvider>
-				<Stack
+		<Stack
 					screenOptions={{
 						headerShown: false,
 						animation: "fade",
@@ -55,6 +61,15 @@ const RootLayout = () => {
 						}}
 					/>
 				</Stack>
+	);
+};
+
+const RootLayout = () => {
+	return (
+		<AuthProvider>
+			<NotificationProvider>
+				<AppContent />
+				<NotificationToast />
 			</NotificationProvider>
 		</AuthProvider>
 	);

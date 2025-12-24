@@ -164,8 +164,8 @@ export const AuthProvider = ({ children }: any) => {
 			}
 
 			const user = await authService.getCurrentUser();
-			const email = user.email;
-			// const phoneNumber = user.phoneNumber;
+			const { email, phoneNumber } = user;
+			const additionalData = { email, phoneNumber };
 
 			// TODO: Backend API not ready yet - uncomment when /user-preferences endpoint is available
 			// Register device token with backend
@@ -173,8 +173,7 @@ export const AuthProvider = ({ children }: any) => {
 				await userPreferenceService.registerDeviceForPushNotifications(
 					userId,
 					deviceToken,
-					// email,
-					// phoneNumber,
+					additionalData,
 				);
 			console.log(response);
 

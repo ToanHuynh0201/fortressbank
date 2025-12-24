@@ -6,7 +6,6 @@ import {
 	hasPermission,
 	onTokenRefresh,
 	onMessage,
-	setBackgroundMessageHandler,
 	getInitialNotification,
 	onNotificationOpenedApp,
 	AuthorizationStatus,
@@ -102,11 +101,13 @@ class FirebaseMessagingService {
 	}
 
 	/**
-	 * Handle background messages (must be set up at top level)
+	 * @deprecated Background message handler must be registered at the top level in index.js
+	 * This method is kept for reference only and should not be used.
+	 * See index.js for proper background message handler setup.
 	 */
-	setBackgroundMessageHandler(handler: (message: any) => Promise<void>) {
-		setBackgroundMessageHandler(this.messaging, handler);
-	}
+	// setBackgroundMessageHandler(handler: (message: any) => Promise<void>) {
+	// 	setBackgroundMessageHandler(this.messaging, handler);
+	// }
 
 	/**
 	 * Get initial notification (app opened from notification)
