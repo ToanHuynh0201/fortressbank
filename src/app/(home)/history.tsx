@@ -3,10 +3,10 @@ import {
 	StyleSheet,
 	Text,
 	View,
+	FlatList,
 	ScrollView,
 	StatusBar,
 	TouchableOpacity,
-	RefreshControl,
 	ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -55,10 +55,13 @@ const mapTransactionStatus = (
 const History = () => {
 	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(true);
+	const [filterLoading, setFilterLoading] = useState(false);
 	const [transactions, setTransactions] = useState<any[]>([]);
 	const [filter, setFilter] = useState<"all" | "sent" | "received">("all");
 	const [accountId, setAccountId] = useState<string | null>(null);
 	const [accountNumber, setAccountNumber] = useState<string | null>(null);
+	const [accounts, setAccounts] = useState<any[]>([]);
+	const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
 	const [offset, setOffset] = useState(0);
 	const [hasMore, setHasMore] = useState(true);
 	const LIMIT = 20;
@@ -77,22 +80,23 @@ const History = () => {
 		});
 	}, []);
 
-	// Fetch account ID and accountNumber on mount
+	// Fetch all accounts on mount
 	useEffect(() => {
-		const fetchAccountId = async () => {
+		const fetchAccounts = async () => {
 			try {
 				const result = await accountService.getAccounts();
 				if (result.success && result.data && result.data.length > 0) {
+					setAccounts(result.data);
 					const primaryAccount = result.data[0];
 					setAccountId(primaryAccount.accountId);
 					setAccountNumber(primaryAccount.accountNumber);
 				}
 			} catch (error) {
-				console.error("Error fetching account:", error);
+				console.error("Error fetching accounts:", error);
 			}
 		};
 
-		fetchAccountId();
+		fetchAccounts();
 	}, []);
 
 	// Fetch transactions when accountNumber or filter changes
@@ -102,12 +106,18 @@ const History = () => {
 		}
 	}, [accountNumber, accountId, filter]);
 
-	const fetchTransactions = async (reset: boolean = false) => {
+	const fetchTransactions = async (reset: boolean = false, isFilterChange: boolean = false) => {
 		if (!accountNumber || !accountId) return;
 
 		try {
 			if (reset) {
-				setLoading(true);
+				// Show full loading only on initial load
+				if (transactions.length === 0) {
+					setLoading(true);
+				} else {
+					// Show filter loading for filter changes
+					setFilterLoading(true);
+				}
 				setOffset(0);
 			}
 
@@ -167,6 +177,7 @@ const History = () => {
 			console.error("Error fetching transactions:", error);
 		} finally {
 			setLoading(false);
+			setFilterLoading(false);
 		}
 	};
 
@@ -175,22 +186,69 @@ const History = () => {
 		opacity: headerOpacity.value,
 	}));
 
-	const onRefresh = React.useCallback(async () => {
+	const onRefresh = async () => {
 		setRefreshing(true);
 		await fetchTransactions(true);
 		setRefreshing(false);
-	}, [accountNumber, accountId, filter]);
+	};
+
+	const handleLoadMore = () => {
+		if (hasMore && !loading && !filterLoading) {
+			fetchTransactions(false);
+		}
+	};
+
+	const renderTransaction = ({ item, index }: { item: any; index: number }) => (
+		<TransactionHistoryItem
+			key={item.id}
+			{...item}
+			index={index}
+			onPress={() => {
+				console.log("Transaction pressed:", item.id);
+			}}
+			style={{
+				opacity: filterLoading ? 0.5 : 1,
+			}}
+		/>
+	);
+
+	const renderFooter = () => {
+		if (!loading || filterLoading) return null;
+		return (
+			<View style={styles.loadingMore}>
+				<ActivityIndicator size="small" color={primary.primary1} />
+			</View>
+		);
+	};
+
+	const renderEmpty = () => {
+		if (loading || filterLoading) return null;
+		return (
+			<Animated.View
+				entering={FadeIn.delay(200).duration(400)}
+				style={styles.emptyState}>
+				<Calendar size={64} color={neutral.neutral4} weight="thin" />
+				<Text style={styles.emptyTitle}>No Transactions</Text>
+				<Text style={styles.emptyMessage}>
+					{filter === "all"
+						? "You have no transaction history yet"
+						: `You have no ${filter} transactions`}
+				</Text>
+			</Animated.View>
+		);
+	};
+
+	// Handle account selection
+	const handleAccountSelect = (index: number) => {
+		const selectedAccount = accounts[index];
+		setSelectedAccountIndex(index);
+		setAccountId(selectedAccount.accountId);
+		setAccountNumber(selectedAccount.accountNumber);
+		// fetchTransactions will be called automatically via useEffect
+	};
 
 	// No need for client-side filtering since API handles it
 	const filteredTransactions = transactions;
-
-	const totalSent = transactions
-		.filter((t) => t.type === "sent")
-		.reduce((sum, t) => sum + t.amount, 0);
-
-	const totalReceived = transactions
-		.filter((t) => t.type === "received")
-		.reduce((sum, t) => sum + t.amount, 0);
 
 	return (
 		<SafeAreaView
@@ -219,27 +277,36 @@ const History = () => {
 						</Text>
 					</View>
 
-					{/* Stats Cards */}
-					<View style={styles.statsContainer}>
-						<View style={styles.statCard}>
-							<Text style={styles.statLabel}>Total Sent</Text>
-							<Text style={styles.statValue}>
-								$
-								{totalSent.toLocaleString("en-US", {
-									minimumFractionDigits: 2,
-								})}
-							</Text>
-						</View>
-						<View style={styles.statCard}>
-							<Text style={styles.statLabel}>Total Received</Text>
-							<Text style={styles.statValue}>
-								$
-								{totalReceived.toLocaleString("en-US", {
-									minimumFractionDigits: 2,
-								})}
-							</Text>
-						</View>
-					</View>
+					{/* Account Selection Cards */}
+					<ScrollView
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						style={styles.accountsContainer}>
+						{accounts.map((account, index) => (
+							<TouchableOpacity
+								key={account.accountId}
+								style={[
+									styles.accountCard,
+									selectedAccountIndex === index &&
+										styles.accountCardActive,
+								]}
+								onPress={() => handleAccountSelect(index)}
+								activeOpacity={0.7}>
+								<Text style={styles.accountLabel}>
+									{account.accountNumber}
+								</Text>
+								<Text style={styles.accountBalance}>
+									$
+									{account.balance.toLocaleString("en-US", {
+										minimumFractionDigits: 2,
+									})}
+								</Text>
+								<Text style={styles.accountStatus}>
+									{account.accountStatus}
+								</Text>
+							</TouchableOpacity>
+						))}
+					</ScrollView>
 				</Animated.View>
 			</LinearGradient>
 
@@ -309,81 +376,34 @@ const History = () => {
 						</Text>
 					</View>
 				) : (
-					<ScrollView
-						style={styles.scrollView}
-						contentContainerStyle={styles.scrollContent}
-						showsVerticalScrollIndicator={false}
-						refreshControl={
-							<RefreshControl
-								refreshing={refreshing}
-								onRefresh={onRefresh}
-								colors={[primary.primary1]}
-								tintColor={primary.primary1}
-							/>
-						}
-						onScroll={({ nativeEvent }) => {
-							const {
-								layoutMeasurement,
-								contentOffset,
-								contentSize,
-							} = nativeEvent;
-							const paddingToBottom = 20;
-							const isCloseToBottom =
-								layoutMeasurement.height + contentOffset.y >=
-								contentSize.height - paddingToBottom;
-
-							if (isCloseToBottom && hasMore && !loading) {
-								fetchTransactions(false);
-							}
-						}}
-						scrollEventThrottle={400}>
-						{filteredTransactions.length > 0 ? (
-							<>
-								{filteredTransactions.map(
-									(transaction, index) => (
-										<TransactionHistoryItem
-											key={transaction.id}
-											{...transaction}
-											index={index}
-											onPress={() => {
-												// Handle transaction detail view
-												console.log(
-													"Transaction pressed:",
-													transaction.id,
-												);
-											}}
-										/>
-									),
-								)}
-								{loading && (
-									<View style={styles.loadingMore}>
-										<ActivityIndicator
-											size="small"
-											color={primary.primary1}
-										/>
-									</View>
-								)}
-							</>
-						) : (
-							<Animated.View
-								entering={FadeIn.delay(200).duration(400)}
-								style={styles.emptyState}>
-								<Calendar
-									size={64}
-									color={neutral.neutral4}
-									weight="thin"
+					<View style={{ flex: 1 }}>
+						{filterLoading && (
+							<View style={styles.filterLoadingOverlay}>
+								<ActivityIndicator
+									size="small"
+									color={primary.primary1}
 								/>
-								<Text style={styles.emptyTitle}>
-									No Transactions
-								</Text>
-								<Text style={styles.emptyMessage}>
-									{filter === "all"
-										? "You have no transaction history yet"
-										: `You have no ${filter} transactions`}
-								</Text>
-							</Animated.View>
+							</View>
 						)}
-					</ScrollView>
+						<FlatList
+							data={filteredTransactions}
+							renderItem={renderTransaction}
+							keyExtractor={(item) => item.id}
+							contentContainerStyle={styles.scrollContent}
+							showsVerticalScrollIndicator={false}
+							onRefresh={onRefresh}
+							refreshing={refreshing}
+							onEndReached={handleLoadMore}
+							onEndReachedThreshold={0.5}
+							ListFooterComponent={renderFooter}
+							ListEmptyComponent={renderEmpty}
+							initialNumToRender={10}
+							maxToRenderPerBatch={10}
+							windowSize={10}
+							removeClippedSubviews={true}
+							updateCellsBatchingPeriod={50}
+						/>
+					</View>
 				)}
 			</View>
 		</SafeAreaView>
@@ -417,17 +437,23 @@ const styles = StyleSheet.create({
 		color: neutral.neutral6,
 		lineHeight: 32,
 	},
-	statsContainer: {
-		flexDirection: "row",
-		gap: 12,
+	accountsContainer: {
+		flexGrow: 0,
 	},
-	statCard: {
-		flex: 1,
+	accountCard: {
 		backgroundColor: "rgba(255, 255, 255, 0.15)",
 		borderRadius: 16,
 		padding: 16,
+		marginRight: 12,
+		minWidth: 160,
+		borderWidth: 2,
+		borderColor: "transparent",
 	},
-	statLabel: {
+	accountCardActive: {
+		backgroundColor: "rgba(255, 255, 255, 0.25)",
+		borderColor: neutral.neutral6,
+	},
+	accountLabel: {
 		fontSize: 12,
 		fontFamily: "Poppins",
 		fontWeight: "500",
@@ -435,12 +461,21 @@ const styles = StyleSheet.create({
 		lineHeight: 16,
 		marginBottom: 4,
 	},
-	statValue: {
+	accountBalance: {
 		fontSize: 20,
 		fontFamily: "Poppins",
 		fontWeight: "700",
 		color: neutral.neutral6,
 		lineHeight: 28,
+		marginBottom: 2,
+	},
+	accountStatus: {
+		fontSize: 10,
+		fontFamily: "Poppins",
+		fontWeight: "500",
+		color: "rgba(255, 255, 255, 0.7)",
+		lineHeight: 14,
+		textTransform: "uppercase",
 	},
 	content: {
 		flex: 1,
@@ -477,12 +512,10 @@ const styles = StyleSheet.create({
 	filterTextActive: {
 		color: neutral.neutral6,
 	},
-	scrollView: {
-		flex: 1,
-	},
 	scrollContent: {
 		paddingHorizontal: 24,
 		paddingBottom: 120,
+		flexGrow: 1,
 	},
 	emptyState: {
 		alignItems: "center",
@@ -523,5 +556,24 @@ const styles = StyleSheet.create({
 	loadingMore: {
 		paddingVertical: 20,
 		alignItems: "center",
+	},
+	filterLoadingOverlay: {
+		position: "absolute",
+		top: 0,
+		left: 0,
+		right: 0,
+		padding: 16,
+		alignItems: "center",
+		zIndex: 10,
+		backgroundColor: "rgba(255, 255, 255, 0.9)",
+		borderRadius: 8,
+		marginHorizontal: 24,
+		marginTop: 8,
+	},
+	centerLoading: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		paddingVertical: 60,
 	},
 });
