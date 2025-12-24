@@ -16,8 +16,9 @@ interface ConfirmationModalProps {
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
   confirmButtonVariant?: 'primary' | 'danger';
+  showCancelButton?: boolean;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -29,24 +30,27 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onConfirm,
   onCancel,
   confirmButtonVariant = 'primary',
+  showCancelButton = true,
 }) => {
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={onCancel}>
-      <Pressable style={styles.modalOverlay} onPress={onCancel}>
+      onRequestClose={showCancelButton ? onCancel : undefined}>
+      <Pressable style={styles.modalOverlay} onPress={showCancelButton ? onCancel : undefined}>
         <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
           <Text style={styles.modalTitle}>{title}</Text>
           <Text style={styles.modalMessage}>{message}</Text>
 
           <View style={styles.modalActions}>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.cancelButton]}
-              onPress={onCancel}>
-              <Text style={styles.cancelButtonText}>{cancelText}</Text>
-            </TouchableOpacity>
+            {showCancelButton && (
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={onCancel}>
+                <Text style={styles.cancelButtonText}>{cancelText}</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={[
                 styles.modalButton,

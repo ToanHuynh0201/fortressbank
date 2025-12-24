@@ -1,7 +1,27 @@
-import messaging from "@react-native-firebase/messaging";
+import { getApp } from "@react-native-firebase/app";
+import {
+	getMessaging,
+	requestPermission,
+	getToken,
+	hasPermission,
+	onTokenRefresh,
+	onMessage,
+	setBackgroundMessageHandler,
+	getInitialNotification,
+	onNotificationOpenedApp,
+	AuthorizationStatus,
+	FirebaseMessagingTypes
+} from "@react-native-firebase/messaging";
 import { Platform } from "react-native";
 
 class FirebaseMessagingService {
+	private messaging: FirebaseMessagingTypes.Module;
+
+	constructor() {
+		const app = getApp();
+		this.messaging = getMessaging(app);
+	}
+
 	/**
 	 * Request notification permission (iOS)
 	 * Android automatically grants permission
@@ -9,10 +29,10 @@ class FirebaseMessagingService {
 	async requestPermission(): Promise<boolean> {
 		try {
 			if (Platform.OS === "ios") {
-				const authStatus = await messaging().requestPermission();
+				const authStatus = await requestPermission(this.messaging);
 				const enabled =
-					authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-					authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+					authStatus === AuthorizationStatus.AUTHORIZED ||
+					authStatus === AuthorizationStatus.PROVISIONAL;
 
 				return enabled;
 			}
@@ -31,8 +51,8 @@ class FirebaseMessagingService {
 	async getDeviceToken(): Promise<string | null> {
 		try {
 			// Check if permission is granted
-			const hasPermission = await this.checkPermission();
-			if (!hasPermission) {
+			const hasPermissionGranted = await this.checkPermission();
+			if (!hasPermissionGranted) {
 				const granted = await this.requestPermission();
 				if (!granted) {
 					console.warn("Notification permission not granted");
@@ -41,7 +61,7 @@ class FirebaseMessagingService {
 			}
 
 			// Get the token
-			const token = await messaging().getToken();
+			const token = await getToken(this.messaging);
 			return token;
 		} catch (error) {
 			console.error("Error getting device token:", error);
@@ -54,10 +74,10 @@ class FirebaseMessagingService {
 	 */
 	async checkPermission(): Promise<boolean> {
 		try {
-			const authStatus = await messaging().hasPermission();
+			const authStatus = await hasPermission(this.messaging);
 			return (
-				authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-				authStatus === messaging.AuthorizationStatus.PROVISIONAL
+				authStatus === AuthorizationStatus.AUTHORIZED ||
+				authStatus === AuthorizationStatus.PROVISIONAL
 			);
 		} catch (error) {
 			console.error("Error checking notification permission:", error);
@@ -70,7 +90,7 @@ class FirebaseMessagingService {
 	 * @param callback - Function to call when token is refreshed
 	 */
 	onTokenRefresh(callback: (token: string) => void) {
-		return messaging().onTokenRefresh(callback);
+		return onTokenRefresh(this.messaging, callback);
 	}
 
 	/**
@@ -78,28 +98,28 @@ class FirebaseMessagingService {
 	 * @param callback - Function to call when message is received
 	 */
 	onMessage(callback: (message: any) => void) {
-		return messaging().onMessage(callback);
+		return onMessage(this.messaging, callback);
 	}
 
 	/**
 	 * Handle background messages (must be set up at top level)
 	 */
 	setBackgroundMessageHandler(handler: (message: any) => Promise<void>) {
-		messaging().setBackgroundMessageHandler(handler);
+		setBackgroundMessageHandler(this.messaging, handler);
 	}
 
 	/**
 	 * Get initial notification (app opened from notification)
 	 */
 	async getInitialNotification() {
-		return await messaging().getInitialNotification();
+		return await getInitialNotification(this.messaging);
 	}
 
 	/**
 	 * Listen for notification opened app
 	 */
 	onNotificationOpenedApp(callback: (message: any) => void) {
-		return messaging().onNotificationOpenedApp(callback);
+		return onNotificationOpenedApp(this.messaging, callback);
 	}
 }
 

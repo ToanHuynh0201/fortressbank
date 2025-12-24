@@ -89,24 +89,19 @@ export interface AccountLookupResponse {
 }
 
 export interface TransactionHistoryParams {
-  page?: number;
+  offset?: number;
   limit?: number;
-  startDate?: string;
-  endDate?: string;
-  type?: string;
-  status?: string;
+  type?: 'SENT' | 'RECEIVED' | 'ALL';
 }
 
 export interface TransactionHistoryResponse {
-  status: string;
+  code: number;
+  message: string;
   data: {
     transactions: Transaction[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-      itemsPerPage: number;
-    };
+    totalCount: number;
+    offset: number;
+    limit: number;
   };
 }
 
@@ -154,19 +149,16 @@ class TransferService {
   }
 
   /**
-   * Get transaction history
+   * Get transaction history for a specific account
    */
-  async getTransactionHistory(params?: TransactionHistoryParams): Promise<TransactionHistoryResponse> {
+  async getTransactionHistory(accountId: string, params?: TransactionHistoryParams): Promise<TransactionHistoryResponse> {
     const queryParams = new URLSearchParams();
 
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.startDate) queryParams.append('startDate', params.startDate);
-    if (params?.endDate) queryParams.append('endDate', params.endDate);
-    if (params?.type) queryParams.append('type', params.type);
-    if (params?.status) queryParams.append('status', params.status);
+    if (params?.offset !== undefined) queryParams.append('offset', params.offset.toString());
+    if (params?.limit !== undefined) queryParams.append('limit', params.limit.toString());
+    if (params?.type && params.type !== 'ALL') queryParams.append('type', params.type);
 
-    const url = `/transactions/history${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const url = `/transactions/${accountId}/history${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     const response = await apiService.get(url);
     return response.data;
   }
