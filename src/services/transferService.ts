@@ -98,10 +98,22 @@ export interface TransactionHistoryResponse {
   code: number;
   message: string;
   data: {
-    transactions: Transaction[];
-    totalCount: number;
-    offset: number;
-    limit: number;
+    content: Transaction[];
+    pageable: {
+      pageNumber: number;
+      pageSize: number;
+      offset: number;
+      paged: boolean;
+      unpaged: boolean;
+    };
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    size: number;
+    number: number;
+    numberOfElements: number;
+    first: boolean;
+    empty: boolean;
   };
 }
 
@@ -151,14 +163,15 @@ class TransferService {
   /**
    * Get transaction history for a specific account
    */
-  async getTransactionHistory(accountId: string, params?: TransactionHistoryParams): Promise<TransactionHistoryResponse> {
+  async getTransactionHistory(accountNumber: string, params?: TransactionHistoryParams): Promise<TransactionHistoryResponse> {
     const queryParams = new URLSearchParams();
 
-    if (params?.offset !== undefined) queryParams.append('offset', params.offset.toString());
-    if (params?.limit !== undefined) queryParams.append('limit', params.limit.toString());
-    if (params?.type && params.type !== 'ALL') queryParams.append('type', params.type);
+    // Always include offset, limit, and type params (even for ALL)
+    queryParams.append('offset', (params?.offset ?? 0).toString());
+    queryParams.append('limit', (params?.limit ?? 20).toString());
+    queryParams.append('type', params?.type ?? 'ALL');
 
-    const url = `/transactions/${accountId}/history${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const url = `/transactions/${accountNumber}/history?${queryParams.toString()}`;
     const response = await apiService.get(url);
     return response.data;
   }

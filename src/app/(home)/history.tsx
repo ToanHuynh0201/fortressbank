@@ -58,6 +58,7 @@ const History = () => {
 	const [transactions, setTransactions] = useState<any[]>([]);
 	const [filter, setFilter] = useState<"all" | "sent" | "received">("all");
 	const [accountId, setAccountId] = useState<string | null>(null);
+	const [accountNumber, setAccountNumber] = useState<string | null>(null);
 	const [offset, setOffset] = useState(0);
 	const [hasMore, setHasMore] = useState(true);
 	const LIMIT = 20;
@@ -76,7 +77,7 @@ const History = () => {
 		});
 	}, []);
 
-	// Fetch account ID on mount
+	// Fetch account ID and accountNumber on mount
 	useEffect(() => {
 		const fetchAccountId = async () => {
 			try {
@@ -84,6 +85,7 @@ const History = () => {
 				if (result.success && result.data && result.data.length > 0) {
 					const primaryAccount = result.data[0];
 					setAccountId(primaryAccount.accountId);
+					setAccountNumber(primaryAccount.accountNumber);
 				}
 			} catch (error) {
 				console.error("Error fetching account:", error);
@@ -93,15 +95,15 @@ const History = () => {
 		fetchAccountId();
 	}, []);
 
-	// Fetch transactions when accountId or filter changes
+	// Fetch transactions when accountNumber or filter changes
 	useEffect(() => {
-		if (accountId) {
+		if (accountNumber && accountId) {
 			fetchTransactions(true);
 		}
-	}, [accountId, filter]);
+	}, [accountNumber, accountId, filter]);
 
 	const fetchTransactions = async (reset: boolean = false) => {
-		if (!accountId) return;
+		if (!accountNumber || !accountId) return;
 
 		try {
 			if (reset) {
@@ -118,7 +120,7 @@ const History = () => {
 			const currentOffset = reset ? 0 : offset;
 
 			const response = await transferService.getTransactionHistory(
-				accountId,
+				accountNumber,
 				{
 					offset: currentOffset,
 					limit: LIMIT,
@@ -126,8 +128,8 @@ const History = () => {
 				},
 			);
 
-			if (response.code === 1000 && response.data) {
-				const formattedTransactions = response.data.transactions.map(
+			if (response.code === 1000 && response.data && response.data.content) {
+				const formattedTransactions = response.data.content.map(
 					(tx: Transaction) => ({
 						id: tx.transactionId,
 						type: mapTransactionType(tx, accountId),
@@ -151,8 +153,15 @@ const History = () => {
 					]);
 				}
 
-				setHasMore(formattedTransactions.length === LIMIT);
-				setOffset(currentOffset + formattedTransactions.length);
+				// Use Spring Data pagination info
+				setHasMore(!response.data.last);
+				setOffset(currentOffset + response.data.numberOfElements);
+			} else {
+				// Handle case where data or content is undefined
+				if (reset) {
+					setTransactions([]);
+				}
+				setHasMore(false);
 			}
 		} catch (error) {
 			console.error("Error fetching transactions:", error);
@@ -170,7 +179,7 @@ const History = () => {
 		setRefreshing(true);
 		await fetchTransactions(true);
 		setRefreshing(false);
-	}, [accountId, filter]);
+	}, [accountNumber, accountId, filter]);
 
 	// No need for client-side filtering since API handles it
 	const filteredTransactions = transactions;
