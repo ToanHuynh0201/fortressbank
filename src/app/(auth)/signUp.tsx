@@ -294,7 +294,9 @@ const SignUp = () => {
 				setAlertModal({
 					visible: true,
 					title: "Error",
-					message: result.message || "Cannot send OTP code. Please try again.",
+					message:
+						result.message ||
+						"Cannot send OTP code. Please try again.",
 					variant: "error",
 				});
 			}
@@ -334,7 +336,9 @@ const SignUp = () => {
 				setAlertModal({
 					visible: true,
 					title: "Error",
-					message: result.message || "Cannot resend OTP code. Please try again.",
+					message:
+						result.message ||
+						"Cannot resend OTP code. Please try again.",
 					variant: "error",
 				});
 			}
@@ -378,7 +382,9 @@ const SignUp = () => {
 				setAlertModal({
 					visible: true,
 					title: "Error",
-					message: result.message || "OTP code is incorrect. Please try again.",
+					message:
+						result.message ||
+						"OTP code is incorrect. Please try again.",
 					variant: "error",
 				});
 				setFieldValue("otp", "");
@@ -542,8 +548,8 @@ const SignUp = () => {
 
 		try {
 			const photo = await cameraRef.current.takePictureAsync({
-				quality: 0.8,
-				base64: true,
+				quality: 0.3,
+				base64: false,
 			});
 
 			if (photo) {
@@ -653,7 +659,9 @@ const SignUp = () => {
 					ref={cameraRef}
 				/>
 
-				<View style={styles.cameraOverlay} pointerEvents="box-none">
+				<View
+					style={styles.cameraOverlay}
+					pointerEvents="box-none">
 					{/* Progress Indicator */}
 					<View style={styles.progressContainer}>
 						<View style={styles.progressBar}>
@@ -750,7 +758,9 @@ const SignUp = () => {
 						{/* Photo Grid */}
 						<View style={styles.photoGrid}>
 							{POSE_ORDER.map((pose) => (
-								<View key={pose} style={styles.photoItem}>
+								<View
+									key={pose}
+									style={styles.photoItem}>
 									<Text style={styles.photoLabel}>
 										{POSE_INSTRUCTIONS[pose].title}
 									</Text>
@@ -765,9 +775,7 @@ const SignUp = () => {
 											/>
 										) : (
 											<View
-												style={
-													styles.photoPlaceholder
-												}>
+												style={styles.photoPlaceholder}>
 												<Text
 													style={
 														styles.photoPlaceholderText
@@ -1474,7 +1482,9 @@ const SignUp = () => {
 					title={alertModal.title}
 					message={alertModal.message}
 					variant={alertModal.variant}
-					onClose={() => setAlertModal({ ...alertModal, visible: false })}
+					onClose={() =>
+						setAlertModal({ ...alertModal, visible: false })
+					}
 				/>
 			</ScreenContainer>
 		);

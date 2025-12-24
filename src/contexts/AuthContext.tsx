@@ -155,7 +155,6 @@ export const AuthProvider = ({ children }: any) => {
 			// Get device token from Firebase
 			const deviceToken = await firebaseMessagingService.getDeviceToken();
 			console.log("========================================");
-			console.log("Device token:", deviceToken);
 			if (!deviceToken) {
 				console.warn(
 					"⚠️ Failed to get device token, push notifications will not be registered",
@@ -168,18 +167,15 @@ export const AuthProvider = ({ children }: any) => {
 
 			// TODO: Backend API not ready yet - uncomment when /user-preferences endpoint is available
 			// Register device token with backend
-			// const response =
-			// 	await userPreferenceService.registerDeviceForPushNotifications(
-			// 		userId,
-			// 		deviceToken,
-			// 	);
+			const response =
+				await userPreferenceService.registerDeviceForPushNotifications(
+					userId,
+					deviceToken,
+				);
+			console.log(response);
 
 			// console.log("✅ Push notification registration successful!");
 			// console.log("📦 Response:", JSON.stringify(response, null, 2));
-			console.log(
-				"⚠️ Backend API /user-preferences not ready - device token obtained but not registered",
-			);
-			console.log("========================================");
 		} catch (error) {
 			// Don't throw error, just log it
 			// We don't want to fail login if push notification registration fails

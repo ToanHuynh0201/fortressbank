@@ -96,8 +96,8 @@ const UpdateFaceID = () => {
 
 		try {
 			const photo = await cameraRef.current.takePictureAsync({
-				quality: 0.8,
-				base64: true,
+				quality: 0.3,
+				base64: false,
 			});
 
 			if (photo) {

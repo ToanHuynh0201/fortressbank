@@ -12,7 +12,6 @@ const extra = expoConfig?.extra || {};
 // API Configuration
 export const API_CONFIG = {
 	BASE_URL: extra.API_BASE_URL || "http://10.0.2.2:8000",
-	LOCATION_URL: extra.API_LOCATION_URL || "http://localhost:3030/api",
 	TIMEOUT: 10000, // 10 seconds
 	RETRY_ATTEMPTS: 3,
 	RETRY_DELAY: 1000,
