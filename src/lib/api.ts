@@ -24,7 +24,7 @@ class ApiService {
 
 	constructor(customBaseUrl: string | null = null) {
 		// this.baseUrl = customBaseUrl || API_CONFIG.BASE_URL;
-		this.baseUrl = "http://10.0.2.2:8000";
+		this.baseUrl = API_CONFIG.BASE_URL;
 		this.api = this._createAxiosInstance();
 		this._setupInterceptors();
 	}

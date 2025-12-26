@@ -24,6 +24,7 @@ export default {
 			},
 			predictiveBackGestureEnabled: false,
 			googleServicesFile: "./google-services.json",
+			softwareKeyboardLayoutMode: "pan",
 		},
 		web: {
 			favicon: "./assets/favicon.png",

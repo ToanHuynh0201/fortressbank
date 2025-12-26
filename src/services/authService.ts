@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { STORAGE_KEYS } from "@/constants";
+import { API_CONFIG, STORAGE_KEYS } from "@/constants";
 import {
 	getStorageItem,
 	setStorageItem,
@@ -25,7 +25,7 @@ class AuthService {
 		try {
 			const token = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
 
-			const response = await fetch("http://10.0.2.2:8000/users/me", {
+			const response = await fetch(`${API_CONFIG.BASE_URL}/users/me`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -57,7 +57,7 @@ class AuthService {
 	 */
 	async login(request: LoginRequest) {
 		try {
-			const response = await fetch("http://10.0.2.2:8000/auth/login", {
+			const response = await fetch(`${API_CONFIG.BASE_URL}/auth/login`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -114,7 +114,7 @@ class AuthService {
 		try {
 			const refreshToken = await this.getRefreshToken();
 			if (refreshToken) {
-				await fetch("http://10.0.2.2:8000/auth/logout", {
+				await fetch(`${API_CONFIG.BASE_URL}/auth/logout`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -403,7 +403,7 @@ class AuthService {
 	): Promise<ValidateAndSendOtpResponse> {
 		try {
 			const response = await fetch(
-				"http://10.0.2.2:8000/auth/validate-and-send-otp",
+				`${API_CONFIG.BASE_URL}/auth/validate-and-send-otp`,
 				{
 					method: "POST",
 					headers: {
@@ -438,7 +438,7 @@ class AuthService {
 	async verifyOtp(request: VerifyOtpRequest): Promise<VerifyOtpResponse> {
 		try {
 			const response = await fetch(
-				"http://10.0.2.2:8000/auth/verify-otp",
+				`${API_CONFIG.BASE_URL}/auth/verify-otp`,
 				{
 					method: "POST",
 					headers: {
@@ -472,13 +472,16 @@ class AuthService {
 	 */
 	async register(request: RegisterRequest): Promise<RegisterResponse> {
 		try {
-			const response = await fetch("http://10.0.2.2:8000/auth/register", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
+			const response = await fetch(
+				`${API_CONFIG.BASE_URL}/auth/register`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(request),
 				},
-				body: JSON.stringify(request),
-			});
+			);
 
 			const data: RegisterResponse = await response.json();
 
@@ -552,7 +555,7 @@ class AuthService {
 			}
 
 			const response = await fetch(
-				"http://10.0.2.2:8000/auth/register-face",
+				`${API_CONFIG.BASE_URL}/auth/register-face`,
 				{
 					method: "POST",
 					body: formData,

@@ -13,14 +13,8 @@ export {
 	default as BeneficiaryService,
 } from "./beneficiaryService";
 export { cardService, default as CardService } from "./cardService";
-export {
-	userPreferenceService,
-	default as UserPreferenceService,
-} from "./userPreferenceService";
-export {
-	firebaseMessagingService,
-	default as FirebaseMessagingService,
-} from "./firebaseMessagingService";
+export { userPreferenceService } from "./userPreferenceService";
+export { firebaseMessagingService } from "./firebaseMessagingService";
 
 export type {
 	TransferRequest,
@@ -43,8 +37,9 @@ export type {
 
 export type {
 	Beneficiary,
-	CreateBeneficiaryRequest,
-} from "./beneficiaryService";
+	BeneficiaryFormData,
+	UpdateBeneficiaryRequest,
+} from "@/types/beneficiary";
 
 export type {
 	UserPreference,
