@@ -579,6 +579,161 @@ class AuthService {
 			};
 		}
 	}
+
+	/**
+	 * Update Face ID for existing logged-in user
+	 * @param {object} photos - Object with 4 face photos (left, right, closed_eyes, normal)
+	 * @returns {Promise<any>} API response
+	 */
+	async updateFaceID(photos: {
+		left: string | null;
+		right: string | null;
+		closed_eyes: string | null;
+		normal: string | null;
+	}): Promise<any> {
+		return this._updateFaceIDWithRetry(photos, false);
+	}
+
+	/**
+	 * Internal method to update Face ID with retry on 401
+	 * @private
+	 */
+	private async _updateFaceIDWithRetry(
+		photos: {
+			left: string | null;
+			right: string | null;
+			closed_eyes: string | null;
+			normal: string | null;
+		},
+		isRetry: boolean,
+	): Promise<any> {
+		try {
+			// Get access token for fetch request
+			const accessToken = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
+			if (!accessToken) {
+				throw new Error("Access token not found");
+			}
+
+			const formData = new FormData();
+
+			// Append 4 photos (no user_id needed - uses auth token)
+			if (photos.left) {
+				formData.append("files", {
+					uri: photos.left,
+					type: "image/jpeg",
+					name: "left.jpg",
+				} as any);
+			}
+
+			if (photos.right) {
+				formData.append("files", {
+					uri: photos.right,
+					type: "image/jpeg",
+					name: "right.jpg",
+				} as any);
+			}
+
+			if (photos.closed_eyes) {
+				formData.append("files", {
+					uri: photos.closed_eyes,
+					type: "image/jpeg",
+					name: "closed_eyes.jpg",
+				} as any);
+			}
+
+			if (photos.normal) {
+				formData.append("files", {
+					uri: photos.normal,
+					type: "image/jpeg",
+					name: "normal.jpg",
+				} as any);
+			}
+
+			// Use fetch for multipart/form-data (axios has issues with React Native FormData)
+			const response = await fetch(
+				`${API_CONFIG.BASE_URL}/users/me/update-face`,
+				{
+					method: "POST",
+					body: formData,
+					headers: {
+						"Content-Type": "multipart/form-data",
+						Authorization: `Bearer ${accessToken}`,
+					},
+				},
+			);
+
+			const data = await response.json();
+
+			// Handle 401 Unauthorized - token expired
+			if (response.status === 401 && !isRetry) {
+				console.log(
+					"Access token expired, attempting to refresh token...",
+				);
+
+				// Try to refresh the token
+				const refreshToken = await getStorageItem(
+					STORAGE_KEYS.SESSION_DATA,
+				);
+				if (!refreshToken) {
+					throw new Error("Refresh token not found");
+				}
+
+				// Perform token refresh
+				const refreshResponse = await fetch(
+					`${API_CONFIG.BASE_URL}/auth/refresh`,
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({ refreshToken }),
+					},
+				);
+
+				const refreshData = await refreshResponse.json();
+
+				// Check if refresh was successful
+				if (
+					refreshResponse.ok &&
+					refreshData.code === 1000 &&
+					refreshData.data
+				) {
+					const {
+						access_token: newAccessToken,
+						refresh_token: newRefreshToken,
+					} = refreshData.data;
+
+					// Save new tokens
+					await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, newAccessToken);
+					if (newRefreshToken) {
+						await setStorageItem(
+							STORAGE_KEYS.SESSION_DATA,
+							newRefreshToken,
+						);
+					}
+
+					console.log("Token refreshed successfully, retrying request");
+
+					// Retry the original request with new token
+					return this._updateFaceIDWithRetry(photos, true);
+				} else {
+					// Refresh failed, logout user
+					await this.logout();
+					throw new Error("Session expired. Please login again.");
+				}
+			}
+
+			// Handle other errors
+			if (!response.ok) {
+				throw new Error(data.message || "Failed to update face ID");
+			}
+
+			return data;
+		} catch (error) {
+			console.error("Update Face ID error:", error);
+			throw error;
+		}
+	}
 }
 
 export const authService = new AuthService();

@@ -16,8 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { Camera, CameraRotate } from "phosphor-react-native";
 import { useAuth } from "@/hooks";
-import { API_CONFIG, STORAGE_KEYS } from "@/constants";
-import { getStorageItem } from "@/utils";
+import { authService } from "@/services";
 
 type PoseType = "left" | "right" | "closed_eyes" | "normal";
 
@@ -138,77 +137,33 @@ const UpdateFaceID = () => {
 	const handleConfirm = async () => {
 		setIsLoading(true);
 		try {
-			// Get access token
-			const accessToken = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
-			if (!accessToken) {
-				throw new Error("Access token not found");
-			}
+			// Use authService to update face ID (includes auto token refresh)
+			const response = await authService.updateFaceID(capturedPhotos);
 
-			// Create FormData for multipart/form-data upload
-			const formData = new FormData();
-
-			// Append each photo file (4 images only, no user_id)
-			if (capturedPhotos.left) {
-				formData.append("files", {
-					uri: capturedPhotos.left,
-					type: "image/jpeg",
-					name: "left.jpg",
-				} as any);
-			}
-
-			if (capturedPhotos.right) {
-				formData.append("files", {
-					uri: capturedPhotos.right,
-					type: "image/jpeg",
-					name: "right.jpg",
-				} as any);
-			}
-
-			if (capturedPhotos.closed_eyes) {
-				formData.append("files", {
-					uri: capturedPhotos.closed_eyes,
-					type: "image/jpeg",
-					name: "closed_eyes.jpg",
-				} as any);
-			}
-
-			if (capturedPhotos.normal) {
-				formData.append("files", {
-					uri: capturedPhotos.normal,
-					type: "image/jpeg",
-					name: "normal.jpg",
-				} as any);
-			}
-
-			// Call API with bearer token
-			const response = await fetch(
-				`${API_CONFIG.BASE_URL}/users/me/register-face`,
-				{
-					method: "POST",
-					body: formData,
-					headers: {
-						"Content-Type": "multipart/form-data",
-						Authorization: `Bearer ${accessToken}`,
-					},
-				},
-			);
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				throw new Error(data.message || "Failed to register face ID");
-			}
-
-			console.log("Face ID registered successfully:", data);
+			console.log("Face ID updated successfully:", response);
 			setStep("success");
 		} catch (error: any) {
 			console.error("Error processing photos:", error);
-			setAlertModal({
-				visible: true,
-				title: "Error",
-				message: error.message || "Failed to process Face ID photos",
-				variant: "error",
-			});
+
+			// Handle session expired error
+			if (error.message?.includes("Session expired")) {
+				setAlertModal({
+					visible: true,
+					title: "Session Expired",
+					message:
+						"Your session has expired. Please login again to continue.",
+					variant: "warning",
+				});
+				// Optional: Navigate to login after showing error
+				// setTimeout(() => router.replace("/login"), 2000);
+			} else {
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: error.message || "Failed to process Face ID photos",
+					variant: "error",
+				});
+			}
 		} finally {
 			setIsLoading(false);
 		}
