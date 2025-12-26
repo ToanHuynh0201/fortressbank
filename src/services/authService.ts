@@ -650,19 +650,34 @@ class AuthService {
 			}
 
 			// Use fetch for multipart/form-data (axios has issues with React Native FormData)
+			// NOTE: Do NOT set Content-Type manually - let fetch set it with boundary
 			const response = await fetch(
 				`${API_CONFIG.BASE_URL}/users/me/update-face`,
 				{
 					method: "POST",
 					body: formData,
 					headers: {
-						"Content-Type": "multipart/form-data",
 						Authorization: `Bearer ${accessToken}`,
+						// Content-Type will be auto-set by fetch with correct boundary
 					},
 				},
 			);
 
-			const data = await response.json();
+			console.log("✅ Update Face ID response status:", response.status);
+			console.log("✅ Response headers:", response.headers);
+
+			// Check if response has content before parsing
+			const responseText = await response.text();
+			console.log("✅ Response text:", responseText);
+
+			let data;
+			try {
+				data = responseText ? JSON.parse(responseText) : {};
+			} catch (parseError) {
+				console.error("❌ Failed to parse response as JSON:", parseError);
+				console.error("Raw response:", responseText);
+				throw new Error(`Invalid JSON response: ${responseText}`);
+			}
 
 			// Handle 401 Unauthorized - token expired
 			if (response.status === 401 && !isRetry) {
@@ -725,7 +740,17 @@ class AuthService {
 
 			// Handle other errors
 			if (!response.ok) {
-				throw new Error(data.message || "Failed to update face ID");
+				const errorMessage =
+					data.message ||
+					data.error ||
+					responseText ||
+					`Failed to update face ID (status: ${response.status})`;
+				console.error("❌ Backend error:", {
+					status: response.status,
+					data,
+					responseText,
+				});
+				throw new Error(errorMessage);
 			}
 
 			return data;

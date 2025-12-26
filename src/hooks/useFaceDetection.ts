@@ -81,7 +81,7 @@ export function useFaceDetection(
 				setFaces(detectedFaces);
 				setValidation(validationResult);
 			} catch (error) {
-				console.error("Face detection error:", error);
+				console.error("❌ useFaceDetection error:", error);
 				setFaces([]);
 				setValidation(null);
 			} finally {

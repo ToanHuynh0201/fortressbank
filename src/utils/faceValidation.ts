@@ -12,61 +12,79 @@ export interface FaceValidationResult {
 }
 
 /**
- * Check if face is in left pose (turned left 20-60 degrees)
+ * Check if face is in left pose (turned left 10-70 degrees)
+ * INVERTED: Negative yaw = left turn (due to front camera mirroring)
  */
 export function isLeftPose(face: DetectedFace): boolean {
 	const headYaw = face.headEulerAngleY || 0;
+	const headPitch = face.headEulerAngleX || 0;
+	const headRoll = face.headEulerAngleZ || 0;
 
-	return (
-		headYaw > 20 && // Face rotated 20-60° to the left
-		headYaw < 60 &&
-		Math.abs(face.headEulerAngleX || 0) < 15 && // Not tilting up/down
-		Math.abs(face.headEulerAngleZ || 0) < 15 // Not rolling
-	);
+	// INVERTED: Front camera makes negative yaw = turn left
+	const isValid =
+		headYaw < -10 && // Face rotated left (negative yaw)
+		headYaw > -70 &&
+		Math.abs(headPitch) < 25 &&
+		Math.abs(headRoll) < 25;
+
+	return isValid;
 }
 
 /**
- * Check if face is in right pose (turned right 20-60 degrees)
+ * Check if face is in right pose (turned right 10-70 degrees)
+ * INVERTED: Positive yaw = right turn (due to front camera mirroring)
  */
 export function isRightPose(face: DetectedFace): boolean {
 	const headYaw = face.headEulerAngleY || 0;
+	const headPitch = face.headEulerAngleX || 0;
+	const headRoll = face.headEulerAngleZ || 0;
 
-	return (
-		headYaw < -20 && // Face rotated 20-60° to the right
-		headYaw > -60 &&
-		Math.abs(face.headEulerAngleX || 0) < 15 &&
-		Math.abs(face.headEulerAngleZ || 0) < 15
-	);
+	// INVERTED: Front camera makes positive yaw = turn right
+	const isValid =
+		headYaw > 10 && // Face rotated right (positive yaw)
+		headYaw < 70 &&
+		Math.abs(headPitch) < 25 &&
+		Math.abs(headRoll) < 25;
+
+	return isValid;
 }
 
 /**
  * Check if eyes are closed
+ * Relaxed threshold for easier detection
  */
 export function isClosedEyes(face: DetectedFace): boolean {
-	const leftEyeClosed = (face.leftEyeOpenProbability || 0) < 0.2;
-	const rightEyeClosed = (face.rightEyeOpenProbability || 0) < 0.2;
+	const leftEyeClosed = (face.leftEyeOpenProbability || 0) < 0.3; // Relaxed from 0.2
+	const rightEyeClosed = (face.rightEyeOpenProbability || 0) < 0.3; // Relaxed from 0.2
+	const headYaw = face.headEulerAngleY || 0;
 
-	return (
+	const isValid =
 		leftEyeClosed &&
 		rightEyeClosed &&
-		Math.abs(face.headEulerAngleY || 0) < 15 // Facing forward
-	);
+		Math.abs(headYaw) < 20; // Facing forward (relaxed from 15)
+
+	return isValid;
 }
 
 /**
  * Check if face is in normal frontal pose with eyes open
+ * Relaxed thresholds for easier detection
  */
 export function isNormalPose(face: DetectedFace): boolean {
-	const leftEyeOpen = (face.leftEyeOpenProbability || 0) > 0.8;
-	const rightEyeOpen = (face.rightEyeOpenProbability || 0) > 0.8;
+	const leftEyeOpen = (face.leftEyeOpenProbability || 0) > 0.7; // Relaxed from 0.8
+	const rightEyeOpen = (face.rightEyeOpenProbability || 0) > 0.7; // Relaxed from 0.8
+	const headYaw = face.headEulerAngleY || 0;
+	const headPitch = face.headEulerAngleX || 0;
+	const headRoll = face.headEulerAngleZ || 0;
 
-	return (
+	const isValid =
 		leftEyeOpen &&
 		rightEyeOpen &&
-		Math.abs(face.headEulerAngleY || 0) < 15 && // Facing forward
-		Math.abs(face.headEulerAngleX || 0) < 15 &&
-		Math.abs(face.headEulerAngleZ || 0) < 15
-	);
+		Math.abs(headYaw) < 20 && // Facing forward (relaxed from 15)
+		Math.abs(headPitch) < 20 &&
+		Math.abs(headRoll) < 20;
+
+	return isValid;
 }
 
 /**
@@ -91,7 +109,8 @@ export function isPoseCorrect(
 }
 
 /**
- * Check if face size is valid (occupies 20-80% of frame)
+ * Check if face size is valid (occupies 15-95% of frame)
+ * Relaxed for better detection tolerance
  */
 export function isFaceSizeValid(
 	face: DetectedFace,
@@ -101,12 +120,13 @@ export function isFaceSizeValid(
 	const frameArea = frameSize.width * frameSize.height;
 	const faceRatio = faceArea / frameArea;
 
-	// Face should occupy 20-80% of frame
-	return faceRatio > 0.2 && faceRatio < 0.8;
+	// Face should occupy 15-95% of frame (relaxed from 20-80%)
+	return faceRatio > 0.15 && faceRatio < 0.95;
 }
 
 /**
- * Check if face is centered in frame (within 30% of center)
+ * Check if face is centered in frame (within 40% of center)
+ * Relaxed for better detection tolerance
  */
 export function isFacePositionValid(
 	face: DetectedFace,
@@ -117,11 +137,11 @@ export function isFacePositionValid(
 	const frameCenterX = frameSize.width / 2;
 	const frameCenterY = frameSize.height / 2;
 
-	// Face center should be within 30% of frame center
+	// Face center should be within 40% of frame center (relaxed from 30%)
 	const xOffset = Math.abs(faceCenterX - frameCenterX) / frameSize.width;
 	const yOffset = Math.abs(faceCenterY - frameCenterY) / frameSize.height;
 
-	return xOffset < 0.3 && yOffset < 0.3;
+	return xOffset < 0.4 && yOffset < 0.4;
 }
 
 /**
@@ -150,7 +170,7 @@ export function getValidationFeedback(
 		const frameArea = frameSize.width * frameSize.height;
 		const faceRatio = faceArea / frameArea;
 
-		if (faceRatio < 0.2) {
+		if (faceRatio < 0.15) {
 			return "Move closer to the camera";
 		} else {
 			return "Move further from the camera";

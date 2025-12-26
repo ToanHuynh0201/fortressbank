@@ -43,7 +43,7 @@ export const DEFAULT_FACE_DETECTION_OPTIONS: FaceDetectionOptions = {
 	landmarkMode: "all",
 	contourMode: "none",
 	classificationMode: "all",
-	minFaceSize: 0.3, // Face must be at least 30% of image
+	minFaceSize: 0.1, // Face must be at least 10% of image (lowered to detect faces from further away)
 	trackingEnabled: true,
 };
 
@@ -152,7 +152,7 @@ export async function detectFaces(
 		const faces = await FaceDetection.detect(imagePath, options);
 		return faces.map(parseFace);
 	} catch (error) {
-		console.error("Face detection error:", error);
+		console.error("❌ Face detection error:", error);
 		return [];
 	}
 }

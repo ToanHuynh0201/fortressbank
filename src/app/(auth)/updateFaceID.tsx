@@ -82,6 +82,14 @@ const UpdateFaceID = () => {
 	const handleConfirm = async () => {
 		setIsLoading(true);
 		try {
+			// Log photo URIs for debugging
+			console.log("📤 Uploading photos:", {
+				left: capturedPhotos.left?.substring(0, 50) + "...",
+				right: capturedPhotos.right?.substring(0, 50) + "...",
+				closed_eyes: capturedPhotos.closed_eyes?.substring(0, 50) + "...",
+				normal: capturedPhotos.normal?.substring(0, 50) + "...",
+			});
+
 			// Use authService to update face ID (includes auto token refresh)
 			const response = await authService.updateFaceID(capturedPhotos);
 

@@ -8,6 +8,7 @@ import { useFaceDetection } from "@/hooks/useFaceDetection";
 import { useAutoCapture } from "@/hooks/useAutoCapture";
 import { cropFaceFromImage } from "@/utils/faceCropping";
 import { PoseType } from "@/utils/faceValidation";
+import { detectFaces } from "@/utils/faceDetection";
 import { FaceOverlay } from "./FaceOverlay";
 import { PoseGuidance } from "./PoseGuidance";
 import { CaptureProgress } from "./CaptureProgress";
@@ -50,8 +51,8 @@ export const FaceDetectionCamera: React.FC<FaceDetectionCameraProps> = ({
 	);
 	const [isProcessing, setIsProcessing] = useState(false);
 
-	// Frame size (will be updated from camera)
-	const [frameSize, setFrameSize] = useState({ width: 1280, height: 720 });
+	// Frame size (will be updated from actual snapshot dimensions)
+	const [frameSize, setFrameSize] = useState({ width: 1080, height: 1920 });
 	const [displaySize, setDisplaySize] = useState({ width: 375, height: 812 });
 
 	const currentPose = POSE_ORDER[currentPoseIndex];
@@ -69,28 +70,44 @@ export const FaceDetectionCamera: React.FC<FaceDetectionCameraProps> = ({
 		try {
 			// Take photo
 			const photo = await cameraRef.current.takePhoto({
-				qualityPrioritization: "quality",
 				enableShutterSound: false,
 			});
 
-			// Crop face from photo if face bounds available
 			let finalPhotoUri = `file://${photo.path}`;
 
-			if (lastFaceBounds) {
-				try {
+			console.log("📷 Photo captured:", finalPhotoUri);
+			console.log("📐 Face bounds at capture:", lastFaceBounds);
+			console.log("📐 Frame size:", frameSize);
+			console.log("📐 Photo dimensions:", photo.width, "x", photo.height);
+
+			// Detect and crop face directly on full resolution photo
+			try {
+				// Detect face on full photo
+				const detectedFaces = await detectFaces(finalPhotoUri);
+
+				console.log("📐 Detected", detectedFaces.length, "face(s)");
+
+				if (detectedFaces.length === 1) {
+					const face = detectedFaces[0];
+					console.log("📐 Face bounds:", face.bounds);
+
+					// Crop face with padding
 					finalPhotoUri = await cropFaceFromImage(
 						finalPhotoUri,
-						lastFaceBounds,
+						face.bounds,
 						{
-							padding: 0.2,
-							targetSize: 512,
-							quality: 0.8,
+							padding: 0.3, // 30% padding around face
+							targetSize: 400, // 400x400 output size
+							quality: 0.9,
 						},
 					);
-				} catch (cropError) {
-					console.error("Face cropping failed, using full image:", cropError);
-					// Continue with full image if cropping fails
+
+					console.log("✂️ Cropped successfully");
+				} else {
+					console.warn("⚠️ No single face detected, using full image");
 				}
+			} catch (cropError) {
+				console.error("Crop error:", cropError);
 			}
 
 			// Save photo for current pose
@@ -115,9 +132,7 @@ export const FaceDetectionCamera: React.FC<FaceDetectionCameraProps> = ({
 			}
 		} catch (error: any) {
 			console.error("Capture error:", error);
-			onError(
-				new Error(error.message || "Failed to capture photo"),
-			);
+			onError(new Error(error.message || "Failed to capture photo"));
 		} finally {
 			setIsProcessing(false);
 		}
@@ -153,14 +168,22 @@ export const FaceDetectionCamera: React.FC<FaceDetectionCameraProps> = ({
 			if (cameraRef.current && !isProcessing) {
 				try {
 					// Take snapshot for detection
+					// Quality 50-70 is good balance between detection accuracy and performance
 					const snapshot = await cameraRef.current.takeSnapshot({
-						quality: 30,
-						skipMetadata: true,
+						quality: 60,
 					});
+
+					// Update frame size from actual snapshot dimensions
+					if (snapshot.width && snapshot.height) {
+						setFrameSize({
+							width: snapshot.width,
+							height: snapshot.height,
+						});
+					}
 
 					await detectFacesInFrame(`file://${snapshot.path}`);
 				} catch (error) {
-					console.error("Detection error:", error);
+					console.error("❌ Snapshot/Detection error:", error);
 				}
 			}
 		}, 100); // Detect every 100ms
@@ -185,13 +208,18 @@ export const FaceDetectionCamera: React.FC<FaceDetectionCameraProps> = ({
 	if (!device || !hasPermission) {
 		return (
 			<View style={styles.loadingContainer}>
-				<ActivityIndicator size="large" color={neutral.neutral6} />
+				<ActivityIndicator
+					size="large"
+					color={neutral.neutral6}
+				/>
 			</View>
 		);
 	}
 
 	return (
-		<View style={styles.container} onLayout={onLayout}>
+		<View
+			style={styles.container}
+			onLayout={onLayout}>
 			{/* Camera */}
 			<Camera
 				ref={cameraRef}
@@ -204,7 +232,9 @@ export const FaceDetectionCamera: React.FC<FaceDetectionCameraProps> = ({
 			/>
 
 			{/* Overlay */}
-			<View style={styles.overlay} pointerEvents="box-none">
+			<View
+				style={styles.overlay}
+				pointerEvents="box-none">
 				{/* Progress Indicator */}
 				<CaptureProgress
 					currentPoseIndex={currentPoseIndex}
@@ -245,7 +275,10 @@ export const FaceDetectionCamera: React.FC<FaceDetectionCameraProps> = ({
 			{/* Processing Indicator */}
 			{isProcessing && (
 				<View style={styles.processingOverlay}>
-					<ActivityIndicator size="large" color={neutral.neutral6} />
+					<ActivityIndicator
+						size="large"
+						color={neutral.neutral6}
+					/>
 				</View>
 			)}
 		</View>
