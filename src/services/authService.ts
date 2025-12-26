@@ -554,19 +554,48 @@ class AuthService {
 				} as any);
 			}
 
+			// Use fetch for multipart/form-data
+			// NOTE: Do NOT set Content-Type manually - let fetch set it with boundary
 			const response = await fetch(
 				`${API_CONFIG.BASE_URL}/auth/register-face`,
 				{
 					method: "POST",
 					body: formData,
-					headers: {
-						"Content-Type": "multipart/form-data",
-						// NO Authorization header - user not logged in yet
-					},
+					// NO headers - let fetch auto-set Content-Type with boundary
+					// NO Authorization header - user not logged in yet
 				},
 			);
 
-			const data = await response.json();
+			console.log("✅ Register Face ID response status:", response.status);
+
+			// Check if response has content before parsing
+			const responseText = await response.text();
+			console.log("✅ Response text:", responseText);
+
+			let data;
+			try {
+				data = responseText ? JSON.parse(responseText) : {};
+			} catch (parseError) {
+				console.error("❌ Failed to parse response as JSON:", parseError);
+				console.error("Raw response:", responseText);
+				throw new Error(`Invalid JSON response: ${responseText}`);
+			}
+
+			// Handle errors
+			if (!response.ok) {
+				const errorMessage =
+					data.message ||
+					data.error ||
+					responseText ||
+					`Failed to register face ID (status: ${response.status})`;
+				console.error("❌ Backend error:", {
+					status: response.status,
+					data,
+					responseText,
+				});
+				throw new Error(errorMessage);
+			}
+
 			return data;
 		} catch (error) {
 			console.error("Register Face ID error:", error);
