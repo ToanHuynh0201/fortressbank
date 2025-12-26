@@ -49,6 +49,14 @@ const RootLayout = () => {
                     animationDuration: 400,
                 }}
             />
+            <Stack.Screen
+                name="updateFaceID"
+                options={{
+                    title: "Update Face ID",
+                    animation: 'fade',
+                    animationDuration: 400,
+                }}
+            />
         </Stack>
     );
 }

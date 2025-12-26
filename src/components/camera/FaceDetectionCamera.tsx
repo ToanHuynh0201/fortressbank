@@ -1,0 +1,304 @@
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { StyleSheet, View, Pressable, ActivityIndicator } from "react-native";
+import { Camera, useCameraPermission } from "react-native-vision-camera";
+import { CameraRotate } from "phosphor-react-native";
+import { neutral } from "@/constants";
+import { useFrontCameraDevice } from "@/hooks/useCameraDevice";
+import { useFaceDetection } from "@/hooks/useFaceDetection";
+import { useAutoCapture } from "@/hooks/useAutoCapture";
+import { cropFaceFromImage } from "@/utils/faceCropping";
+import { PoseType } from "@/utils/faceValidation";
+import { FaceOverlay } from "./FaceOverlay";
+import { PoseGuidance } from "./PoseGuidance";
+import { CaptureProgress } from "./CaptureProgress";
+
+const POSE_ORDER: PoseType[] = ["left", "right", "closed_eyes", "normal"];
+
+interface CapturedPhotos {
+	left: string | null;
+	right: string | null;
+	closed_eyes: string | null;
+	normal: string | null;
+}
+
+export interface FaceDetectionCameraProps {
+	onPhotosCaptured: (photos: CapturedPhotos) => void;
+	onError: (error: Error) => void;
+}
+
+/**
+ * Face detection camera with auto-capture
+ * Captures 4 poses: left, right, closed_eyes, normal
+ */
+export const FaceDetectionCamera: React.FC<FaceDetectionCameraProps> = ({
+	onPhotosCaptured,
+	onError,
+}) => {
+	const { hasPermission, requestPermission } = useCameraPermission();
+	const { device, format } = useFrontCameraDevice();
+	const cameraRef = useRef<Camera>(null);
+
+	const [currentPoseIndex, setCurrentPoseIndex] = useState(0);
+	const [capturedPhotos, setCapturedPhotos] = useState<CapturedPhotos>({
+		left: null,
+		right: null,
+		closed_eyes: null,
+		normal: null,
+	});
+	const [completedPoses, setCompletedPoses] = useState<Set<number>>(
+		new Set(),
+	);
+	const [isProcessing, setIsProcessing] = useState(false);
+
+	// Frame size (will be updated from camera)
+	const [frameSize, setFrameSize] = useState({ width: 1280, height: 720 });
+	const [displaySize, setDisplaySize] = useState({ width: 375, height: 812 });
+
+	const currentPose = POSE_ORDER[currentPoseIndex];
+
+	// Face detection hook
+	const { faces, validation, lastFaceBounds, detectFacesInFrame } =
+		useFaceDetection(currentPose, frameSize);
+
+	// Capture photo function
+	const handleCapture = useCallback(async () => {
+		if (!cameraRef.current || isProcessing) return;
+
+		setIsProcessing(true);
+
+		try {
+			// Take photo
+			const photo = await cameraRef.current.takePhoto({
+				qualityPrioritization: "quality",
+				enableShutterSound: false,
+			});
+
+			// Crop face from photo if face bounds available
+			let finalPhotoUri = `file://${photo.path}`;
+
+			if (lastFaceBounds) {
+				try {
+					finalPhotoUri = await cropFaceFromImage(
+						finalPhotoUri,
+						lastFaceBounds,
+						{
+							padding: 0.2,
+							targetSize: 512,
+							quality: 0.8,
+						},
+					);
+				} catch (cropError) {
+					console.error("Face cropping failed, using full image:", cropError);
+					// Continue with full image if cropping fails
+				}
+			}
+
+			// Save photo for current pose
+			setCapturedPhotos((prev) => ({
+				...prev,
+				[currentPose]: finalPhotoUri,
+			}));
+
+			// Mark pose as completed
+			setCompletedPoses((prev) => new Set(prev).add(currentPoseIndex));
+
+			// Move to next pose or finish
+			if (currentPoseIndex < POSE_ORDER.length - 1) {
+				setCurrentPoseIndex(currentPoseIndex + 1);
+			} else {
+				// All poses captured
+				const finalPhotos = {
+					...capturedPhotos,
+					[currentPose]: finalPhotoUri,
+				};
+				onPhotosCaptured(finalPhotos);
+			}
+		} catch (error: any) {
+			console.error("Capture error:", error);
+			onError(
+				new Error(error.message || "Failed to capture photo"),
+			);
+		} finally {
+			setIsProcessing(false);
+		}
+	}, [
+		currentPose,
+		currentPoseIndex,
+		capturedPhotos,
+		lastFaceBounds,
+		isProcessing,
+		onPhotosCaptured,
+		onError,
+	]);
+
+	// Auto-capture hook
+	const { countdown, onValidationResult } = useAutoCapture(handleCapture, {
+		stabilityFrames: 15,
+		countdownDuration: 1000,
+		cooldownDuration: 500,
+	});
+
+	// Update validation result to auto-capture
+	useEffect(() => {
+		if (validation && !isProcessing) {
+			onValidationResult(validation.isValid);
+		}
+	}, [validation, isProcessing, onValidationResult]);
+
+	// Detect faces periodically
+	useEffect(() => {
+		if (!device || !hasPermission) return;
+
+		const interval = setInterval(async () => {
+			if (cameraRef.current && !isProcessing) {
+				try {
+					// Take snapshot for detection
+					const snapshot = await cameraRef.current.takeSnapshot({
+						quality: 30,
+						skipMetadata: true,
+					});
+
+					await detectFacesInFrame(`file://${snapshot.path}`);
+				} catch (error) {
+					console.error("Detection error:", error);
+				}
+			}
+		}, 100); // Detect every 100ms
+
+		return () => clearInterval(interval);
+	}, [device, hasPermission, isProcessing, detectFacesInFrame]);
+
+	// Request permission on mount
+	useEffect(() => {
+		if (!hasPermission) {
+			requestPermission();
+		}
+	}, [hasPermission, requestPermission]);
+
+	// Handle layout to get display size
+	const onLayout = useCallback((event: any) => {
+		const { width, height } = event.nativeEvent.layout;
+		setDisplaySize({ width, height });
+	}, []);
+
+	// Loading or no permission
+	if (!device || !hasPermission) {
+		return (
+			<View style={styles.loadingContainer}>
+				<ActivityIndicator size="large" color={neutral.neutral6} />
+			</View>
+		);
+	}
+
+	return (
+		<View style={styles.container} onLayout={onLayout}>
+			{/* Camera */}
+			<Camera
+				ref={cameraRef}
+				style={StyleSheet.absoluteFill}
+				device={device}
+				isActive={true}
+				photo={true}
+				format={format}
+				enableZoomGesture={false}
+			/>
+
+			{/* Overlay */}
+			<View style={styles.overlay} pointerEvents="box-none">
+				{/* Progress Indicator */}
+				<CaptureProgress
+					currentPoseIndex={currentPoseIndex}
+					completedPoses={completedPoses}
+				/>
+
+				{/* Pose Guidance */}
+				<PoseGuidance
+					currentPose={currentPose}
+					feedback={validation?.feedback || "Initializing..."}
+					isValid={validation?.isValid || false}
+					countdown={countdown}
+				/>
+
+				{/* Face Frame Guide */}
+				<View style={styles.faceFrameContainer}>
+					<View style={styles.faceFrame} />
+				</View>
+
+				{/* Face Detection Overlay */}
+				{faces.length > 0 && (
+					<FaceOverlay
+						faces={faces}
+						isValid={validation?.isValid || false}
+						frameSize={frameSize}
+						displaySize={displaySize}
+					/>
+				)}
+
+				{/* Bottom Controls (minimal for auto-capture) */}
+				<View style={styles.controls}>
+					<View style={styles.placeholder} />
+					<View style={styles.centerPlaceholder} />
+					<View style={styles.placeholder} />
+				</View>
+			</View>
+
+			{/* Processing Indicator */}
+			{isProcessing && (
+				<View style={styles.processingOverlay}>
+					<ActivityIndicator size="large" color={neutral.neutral6} />
+				</View>
+			)}
+		</View>
+	);
+};
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: neutral.neutral1,
+	},
+	loadingContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: neutral.neutral1,
+	},
+	overlay: {
+		...StyleSheet.absoluteFillObject,
+		backgroundColor: "rgba(0, 0, 0, 0.3)",
+	},
+	faceFrameContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	faceFrame: {
+		width: 280,
+		height: 360,
+		borderRadius: 140,
+		borderWidth: 4,
+		borderColor: neutral.neutral6,
+		borderStyle: "dashed",
+	},
+	controls: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		paddingHorizontal: 40,
+		paddingBottom: 50,
+	},
+	placeholder: {
+		width: 56,
+		height: 56,
+	},
+	centerPlaceholder: {
+		width: 80,
+		height: 80,
+	},
+	processingOverlay: {
+		...StyleSheet.absoluteFillObject,
+		backgroundColor: "rgba(0, 0, 0, 0.7)",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+});

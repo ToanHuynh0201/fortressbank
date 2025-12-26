@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import {
 	StyleSheet,
 	Text,
@@ -13,9 +13,7 @@ import { AppHeader, PrimaryButton, AlertModal } from "@/components/common";
 import { DecorativeIllustration } from "@/components/decorative";
 import { CardContainer, ScreenContainer } from "@/components/layouts";
 import { StatusBar } from "expo-status-bar";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
-import { Camera, CameraRotate } from "phosphor-react-native";
-import { useAuth } from "@/hooks";
+import { FaceDetectionCamera } from "@/components/camera";
 import { authService } from "@/services";
 
 type PoseType = "left" | "right" | "closed_eyes" | "normal";
@@ -54,74 +52,22 @@ const POSE_ORDER: PoseType[] = ["left", "right", "closed_eyes", "normal"];
 
 const UpdateFaceID = () => {
 	const router = useRouter();
-	const { user } = useAuth();
 	const [step, setStep] = useState<"camera" | "preview" | "success">(
 		"camera",
 	);
 	const [isLoading, setIsLoading] = useState(false);
-	const [facing, setFacing] = useState<CameraType>("front");
-	const [permission, requestPermission] = useCameraPermissions();
-	const [currentPoseIndex, setCurrentPoseIndex] = useState(0);
 	const [capturedPhotos, setCapturedPhotos] = useState<CapturedPhotos>({
 		left: null,
 		right: null,
 		closed_eyes: null,
 		normal: null,
 	});
-	const cameraRef = useRef<CameraView>(null);
 	const [alertModal, setAlertModal] = useState({
 		visible: false,
 		title: "",
 		message: "",
 		variant: "error" as "success" | "error" | "info" | "warning",
 	});
-
-	const currentPose = POSE_ORDER[currentPoseIndex];
-	const currentInstruction = POSE_INSTRUCTIONS[currentPose];
-
-	// Request camera permission on mount
-	useEffect(() => {
-		if (!permission?.granted && permission?.canAskAgain) {
-			requestPermission();
-		}
-	}, []);
-
-	const toggleCameraFacing = () => {
-		setFacing((current) => (current === "back" ? "front" : "back"));
-	};
-
-	const handleCapture = async () => {
-		if (!cameraRef.current) return;
-
-		try {
-			const photo = await cameraRef.current.takePictureAsync({
-				quality: 0.3,
-				base64: false,
-			});
-
-			if (photo) {
-				// Save photo for current pose
-				setCapturedPhotos((prev) => ({
-					...prev,
-					[currentPose]: photo.uri,
-				}));
-
-				// Move to next pose or preview
-				if (currentPoseIndex < POSE_ORDER.length - 1) {
-					setCurrentPoseIndex(currentPoseIndex + 1);
-				} else {
-					setStep("preview");
-				}
-			}
-		} catch (error: any) {
-			setAlertModal({
-				visible: true,
-				title: "Error",
-				message: error.message || "Failed to capture photo",
-				variant: "error",
-			});
-		}
-	};
 
 	const handleRetake = () => {
 		setCapturedPhotos({
@@ -130,7 +76,6 @@ const UpdateFaceID = () => {
 			closed_eyes: null,
 			normal: null,
 		});
-		setCurrentPoseIndex(0);
 		setStep("camera");
 	};
 
@@ -314,56 +259,6 @@ const UpdateFaceID = () => {
 	}
 
 	// Camera Screen
-	if (!permission) {
-		return (
-			<ScreenContainer backgroundColor={neutral.neutral6}>
-				<StatusBar style="dark" />
-				<AppHeader
-					title="Update Face ID"
-					backgroundColor={neutral.neutral6}
-					textColor={neutral.neutral1}
-				/>
-				<View style={styles.permissionContainer}>
-					<Text style={styles.permissionText}>
-						Requesting camera permission...
-					</Text>
-				</View>
-			</ScreenContainer>
-		);
-	}
-
-	if (!permission.granted) {
-		return (
-			<ScreenContainer backgroundColor={neutral.neutral6}>
-				<StatusBar style="dark" />
-				<AppHeader
-					title="Update Face ID"
-					backgroundColor={neutral.neutral6}
-					textColor={neutral.neutral1}
-				/>
-				<View style={styles.permissionContainer}>
-					<Camera
-						size={80}
-						color={neutral.neutral3}
-						weight="duotone"
-					/>
-					<Text style={styles.permissionTitle}>
-						Camera Permission Required
-					</Text>
-					<Text style={styles.permissionMessage}>
-						We need your permission to use the camera to capture
-						your face for authentication.
-					</Text>
-					<PrimaryButton
-						title="Grant Permission"
-						onPress={requestPermission}
-						style={styles.permissionButton}
-					/>
-				</View>
-			</ScreenContainer>
-		);
-	}
-
 	return (
 		<ScreenContainer backgroundColor={neutral.neutral1}>
 			<StatusBar style="light" />
@@ -374,82 +269,20 @@ const UpdateFaceID = () => {
 				textColor={neutral.neutral6}
 			/>
 
-			<View style={styles.cameraContainer}>
-				<CameraView
-					style={styles.camera}
-					facing={facing}
-					ref={cameraRef}
-				/>
-
-				{/* Overlay on top of camera */}
-				<View
-					style={styles.cameraOverlay}
-					pointerEvents="box-none">
-					{/* Progress Indicator */}
-					<View style={styles.progressContainer}>
-						<View style={styles.progressBar}>
-							{POSE_ORDER.map((pose, index) => (
-								<View
-									key={pose}
-									style={[
-										styles.progressDot,
-										index <= currentPoseIndex &&
-											styles.progressDotActive,
-									]}
-								/>
-							))}
-						</View>
-						<Text style={styles.progressText}>
-							{currentPoseIndex + 1} / {POSE_ORDER.length}
-						</Text>
-					</View>
-
-					{/* Instructions */}
-					<View style={styles.instructionContainer}>
-						<Text style={styles.poseIcon}>
-							{currentInstruction.icon}
-						</Text>
-						<Text style={styles.cameraInstruction}>
-							{currentInstruction.title}
-						</Text>
-						<Text style={styles.cameraSubInstruction}>
-							{currentInstruction.description}
-						</Text>
-					</View>
-
-					{/* Face Frame */}
-					<View style={styles.faceFrameContainer}>
-						<View style={styles.faceFrame} />
-					</View>
-
-					{/* Bottom Controls */}
-					<View style={styles.cameraControls}>
-						<Pressable
-							style={({ pressed }) => [
-								styles.flipButton,
-								pressed && styles.buttonPressed,
-							]}
-							onPress={toggleCameraFacing}>
-							<CameraRotate
-								size={28}
-								color={neutral.neutral6}
-								weight="bold"
-							/>
-						</Pressable>
-
-						<Pressable
-							style={({ pressed }) => [
-								styles.captureButton,
-								pressed && styles.captureButtonPressed,
-							]}
-							onPress={handleCapture}>
-							<View style={styles.captureButtonInner} />
-						</Pressable>
-
-						<View style={styles.flipButtonPlaceholder} />
-					</View>
-				</View>
-			</View>
+			<FaceDetectionCamera
+				onPhotosCaptured={(photos) => {
+					setCapturedPhotos(photos);
+					setStep("preview");
+				}}
+				onError={(error) => {
+					setAlertModal({
+						visible: true,
+						title: "Error",
+						message: error.message || "Failed to capture photos",
+						variant: "error",
+					});
+				}}
+			/>
 
 			<AlertModal
 				visible={alertModal.visible}

@@ -22,6 +22,7 @@ export default {
 				foregroundImage: "./assets/adaptive-icon.png",
 				backgroundColor: "#ffffff",
 			},
+			edgeToEdgeEnabled: true,
 			predictiveBackGestureEnabled: false,
 			googleServicesFile: "./google-services.json",
 			softwareKeyboardLayoutMode: "pan",
@@ -37,6 +38,15 @@ export default {
 				"@react-native-firebase/messaging",
 				{
 					requestPermission: true,
+				},
+			],
+			[
+				"react-native-vision-camera",
+				{
+					cameraPermissionText:
+						"We need camera access to capture your face for secure authentication",
+					enableCodeScanner: false,
+					enableFrameProcessors: true,
 				},
 			],
 		],

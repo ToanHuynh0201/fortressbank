@@ -26,10 +26,8 @@ import {
 	CreditCard,
 	CheckCircle,
 	CaretLeft,
-	Camera,
-	CameraRotate,
 } from "phosphor-react-native";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { FaceDetectionCamera } from "@/components/camera";
 import { primary, neutral, semantic } from "@/constants";
 import {
 	CustomInput,
@@ -115,10 +113,6 @@ const SignUp = () => {
 	const [faceIDSubStep, setFaceIDSubStep] = useState<"camera" | "preview">(
 		"camera",
 	);
-	const [currentPoseIndex, setCurrentPoseIndex] = useState(0);
-	const [facing, setFacing] = useState<CameraType>("front");
-	const [permission, requestPermission] = useCameraPermissions();
-	const cameraRef = useRef<CameraView>(null);
 
 	// Animation values
 	const contentOpacity = useSharedValue(0);
@@ -459,10 +453,9 @@ const SignUp = () => {
 			return;
 		}
 
-		// Move to Face ID registration step instead of calling API
+		// Move to Face ID registration step
 		setStep("face-id-registration");
 		setFaceIDSubStep("camera");
-		requestPermission(); // Request camera permission proactively
 	};
 
 	const handleFaceIDConfirm = async () => {
@@ -543,38 +536,6 @@ const SignUp = () => {
 		}
 	};
 
-	const handleFaceIDCapture = async () => {
-		if (!cameraRef.current) return;
-
-		try {
-			const photo = await cameraRef.current.takePictureAsync({
-				quality: 0.3,
-				base64: false,
-			});
-
-			if (photo) {
-				const currentPose = POSE_ORDER[currentPoseIndex];
-				setCapturedPhotos((prev) => ({
-					...prev,
-					[currentPose]: photo.uri,
-				}));
-
-				if (currentPoseIndex < POSE_ORDER.length - 1) {
-					setCurrentPoseIndex(currentPoseIndex + 1);
-				} else {
-					setFaceIDSubStep("preview");
-				}
-			}
-		} catch (error) {
-			setAlertModal({
-				visible: true,
-				title: "Error",
-				message: "Failed to capture photo. Please try again.",
-				variant: "error",
-			});
-		}
-	};
-
 	const handleFaceIDRetake = () => {
 		setCapturedPhotos({
 			left: null,
@@ -582,12 +543,7 @@ const SignUp = () => {
 			closed_eyes: null,
 			normal: null,
 		});
-		setCurrentPoseIndex(0);
 		setFaceIDSubStep("camera");
-	};
-
-	const toggleCameraFacing = () => {
-		setFacing((current) => (current === "back" ? "front" : "back"));
 	};
 
 	const handleGoToSignIn = () => {
@@ -614,113 +570,21 @@ const SignUp = () => {
 	};
 
 	const renderFaceIDCamera = () => {
-		const currentPose = POSE_ORDER[currentPoseIndex];
-		const currentInstruction = POSE_INSTRUCTIONS[currentPose];
-
-		if (!permission) {
-			return (
-				<View style={styles.permissionContainer}>
-					<Text style={styles.permissionText}>
-						Requesting camera permission...
-					</Text>
-				</View>
-			);
-		}
-
-		if (!permission.granted) {
-			return (
-				<View style={styles.permissionContainer}>
-					<Camera
-						size={80}
-						color={neutral.neutral3}
-						weight="duotone"
-					/>
-					<Text style={styles.permissionTitle}>
-						Camera Permission Required
-					</Text>
-					<Text style={styles.permissionMessage}>
-						We need camera access to capture your face for secure
-						authentication.
-					</Text>
-					<PrimaryButton
-						title="Grant Permission"
-						onPress={requestPermission}
-						style={styles.permissionButton}
-					/>
-				</View>
-			);
-		}
-
 		return (
-			<View style={styles.cameraContainer}>
-				<CameraView
-					style={styles.camera}
-					facing={facing}
-					ref={cameraRef}
-				/>
-
-				<View
-					style={styles.cameraOverlay}
-					pointerEvents="box-none">
-					{/* Progress Indicator */}
-					<View style={styles.progressContainer}>
-						<View style={styles.progressBar}>
-							{POSE_ORDER.map((pose, index) => (
-								<View
-									key={pose}
-									style={[
-										styles.progressDot,
-										index <= currentPoseIndex &&
-											styles.progressDotActive,
-									]}
-								/>
-							))}
-						</View>
-						<Text style={styles.progressText}>
-							{currentPoseIndex + 1} / {POSE_ORDER.length}
-						</Text>
-					</View>
-
-					{/* Instructions */}
-					<View style={styles.instructionContainer}>
-						<Text style={styles.poseIcon}>
-							{currentInstruction.icon}
-						</Text>
-						<Text style={styles.cameraInstruction}>
-							{currentInstruction.title}
-						</Text>
-						<Text style={styles.cameraSubInstruction}>
-							{currentInstruction.description}
-						</Text>
-					</View>
-
-					{/* Face Frame */}
-					<View style={styles.faceFrameContainer}>
-						<View style={styles.faceFrame} />
-					</View>
-
-					{/* Camera Controls */}
-					<View style={styles.cameraControls}>
-						<Pressable
-							style={styles.flipButton}
-							onPress={toggleCameraFacing}>
-							<CameraRotate
-								size={28}
-								color={neutral.neutral6}
-								weight="bold"
-							/>
-						</Pressable>
-
-						<Pressable
-							style={styles.captureButton}
-							onPress={handleFaceIDCapture}>
-							<View style={styles.captureButtonInner} />
-						</Pressable>
-
-						<View style={styles.flipButtonPlaceholder} />
-					</View>
-				</View>
-			</View>
+			<FaceDetectionCamera
+				onPhotosCaptured={(photos) => {
+					setCapturedPhotos(photos);
+					setFaceIDSubStep("preview");
+				}}
+				onError={(error) => {
+					setAlertModal({
+						visible: true,
+						title: "Error",
+						message: error.message || "Failed to capture photos",
+						variant: "error",
+					});
+				}}
+			/>
 		);
 	};
 
