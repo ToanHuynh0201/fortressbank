@@ -15,6 +15,7 @@ export {
 export { cardService, default as CardService } from "./cardService";
 export { userPreferenceService } from "./userPreferenceService";
 export { firebaseMessagingService } from "./firebaseMessagingService";
+export { notificationService, default as NotificationService } from "./notificationService";
 
 export type {
 	TransferRequest,
@@ -46,3 +47,8 @@ export type {
 	UpsertUserPreferenceRequest,
 	UserPreferenceResponse,
 } from "./userPreferenceService";
+
+export type {
+	NotificationData,
+	NotificationResponse,
+} from "./notificationService";
