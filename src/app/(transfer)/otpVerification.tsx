@@ -138,18 +138,25 @@ const OTPVerification = () => {
 				otpCode: otp,
 			});
 			console.log("OTP verification response:", response);
-			if (
-				response.code === 1000 &&
-				response.data.status === "COMPLETED"
-			) {
+			console.log("Response code:", response.code);
+			console.log("Transaction status:", response.data?.status);
+
+			// Check if transaction is completed successfully
+			// Accept if status is COMPLETED OR if code is 1000 with valid data
+			const isCompleted = response.data?.status === "COMPLETED";
+			const isSuccessCode = response.code === 1000 && response.data;
+
+			if (isCompleted || isSuccessCode) {
 				// Navigate to success screen with transaction details
 				console.log("Transaction completed:", response.data);
 				router.push("(transfer)/transferSuccess");
 			} else {
+				// Log detailed error info
+				console.error("Verification failed - Code:", response.code, "Status:", response.data?.status);
 				setAlertModal({
 					visible: true,
 					title: "Error",
-					message: "Transaction verification failed",
+					message: response.message || "Transaction verification failed",
 					variant: "error",
 				});
 			}

@@ -137,11 +137,15 @@ class TransferService {
   /**
    * Look up account details by account number
    * Returns complete account information including accountId needed for transfers
+   * @param accountNumber - The account number to lookup
+   * @param bankName - Optional bank name (e.g., "Stripe" for external banks)
    */
-  lookupAccount = withErrorHandling(async (accountNumber: string) => {
-    const response = await apiService.get('/accounts/lookup', {
-      params: { accountNumber }
-    });
+  lookupAccount = withErrorHandling(async (accountNumber: string, bankName?: string) => {
+    const params: { accountNumber: string; bankName?: string } = { accountNumber };
+    if (bankName) {
+      params.bankName = bankName;
+    }
+    const response = await apiService.get('/accounts/lookup', { params });
     return response;
   });
 

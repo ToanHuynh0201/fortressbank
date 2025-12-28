@@ -58,57 +58,15 @@ interface Bank {
 const BANKS: Bank[] = [
 	{
 		id: "0",
-		name: "Fortress Bank",
+		name: "FortressBank",
 		code: "FORTRESS",
 		logo: "🏰",
 	},
 	{
 		id: "1",
-		name: "Vietcombank",
-		code: "VCB",
-		logo: "🏦",
-	},
-	{
-		id: "2",
-		name: "VietinBank",
-		code: "CTG",
-		logo: "🏦",
-	},
-	{
-		id: "3",
-		name: "BIDV",
-		code: "BIDV",
-		logo: "🏦",
-	},
-	{
-		id: "4",
-		name: "Agribank",
-		code: "VBA",
-		logo: "🏦",
-	},
-	{
-		id: "5",
-		name: "Techcombank",
-		code: "TCB",
-		logo: "🏦",
-	},
-	{
-		id: "6",
-		name: "MB Bank",
-		code: "MB",
-		logo: "🏦",
-	},
-	{
-		id: "7",
-		name: "ACB",
-		code: "ACB",
-		logo: "🏦",
-	},
-	{
-		id: "8",
-		name: "VPBank",
-		code: "VPB",
-		logo: "🏦",
+		name: "Stripe",
+		code: "STRIPE",
+		logo: "💳",
 	},
 ];
 
@@ -489,13 +447,17 @@ const Transfer = () => {
 
 							{/* Button to open beneficiary selector */}
 							<TouchableOpacity
-								style={styles.beneficiaryButton}
+								style={[
+									styles.beneficiaryButton,
+									!selectedAccount && styles.disabledButton
+								]}
 								onPress={() =>
 									setShowBeneficiarySelector(true)
-								}>
+								}
+								disabled={!selectedAccount}>
 								<UserList
 									size={22}
-									color={colors.primary.primary1}
+									color={selectedAccount ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
 							</TouchableOpacity>
@@ -506,19 +468,26 @@ const Transfer = () => {
 							<View style={styles.inputLabelRow}>
 								<Bank
 									size={18}
-									color={colors.primary.primary1}
+									color={selectedAccount ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
-								<Text style={styles.inputLabel}>
+								<Text style={[
+									styles.inputLabel,
+									!selectedAccount && styles.disabledLabel
+								]}>
 									Select Bank
 								</Text>
 							</View>
 							<View style={styles.bankSelectorWrapper}>
 								<TouchableOpacity
-									style={styles.bankSelector}
+									style={[
+										styles.bankSelector,
+										!selectedAccount && styles.disabledSelector
+									]}
 									onPress={() =>
 										setShowBankDropdown(!showBankDropdown)
-									}>
+									}
+									disabled={!selectedAccount}>
 									<View style={styles.bankSelectorContent}>
 										{selectedBank ? (
 											<>
@@ -618,14 +587,20 @@ const Transfer = () => {
 						</View>
 
 						{/* Recipient Account Section */}
-						<View style={styles.inputSection}>
+						<View style={[
+							styles.inputSection,
+							!selectedBank && { opacity: 0.5, pointerEvents: 'none' }
+						]}>
 							<View style={styles.inputLabelRow}>
 								<User
 									size={18}
-									color={colors.primary.primary1}
+									color={selectedBank ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
-								<Text style={styles.inputLabel}>
+								<Text style={[
+									styles.inputLabel,
+									!selectedBank && styles.disabledLabel
+								]}>
 									Recipient Account
 								</Text>
 							</View>
@@ -637,18 +612,25 @@ const Transfer = () => {
 								onAccountFound={handleAccountFound}
 								onAccountNotFound={handleAccountNotFound}
 								placeholder="Enter account number"
+								bankName={selectedBankData?.code === "STRIPE" ? "Stripe" : undefined}
 							/>
 						</View>
 
 						{/* Amount Section */}
-						<View style={styles.inputSection}>
+						<View style={[
+							styles.inputSection,
+							(!values.accountNumber || !beneficiaryName) && { opacity: 0.5, pointerEvents: 'none' }
+						]}>
 							<View style={styles.inputLabelRow}>
 								<CurrencyDollar
 									size={18}
-									color={colors.primary.primary1}
+									color={values.accountNumber && beneficiaryName ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
-								<Text style={styles.inputLabel}>
+								<Text style={[
+									styles.inputLabel,
+									(!values.accountNumber || !beneficiaryName) && styles.disabledLabel
+								]}>
 									Transfer Amount
 								</Text>
 							</View>
@@ -666,14 +648,20 @@ const Transfer = () => {
 						</View>
 
 						{/* Transfer Content Section */}
-						<View style={styles.inputSection}>
+						<View style={[
+							styles.inputSection,
+							(!values.amount || numericAmount <= 0) && { opacity: 0.5, pointerEvents: 'none' }
+						]}>
 							<View style={styles.inputLabelRow}>
 								<FileText
 									size={18}
-									color={colors.primary.primary1}
+									color={values.amount && numericAmount > 0 ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
-								<Text style={styles.inputLabel}>
+								<Text style={[
+									styles.inputLabel,
+									(!values.amount || numericAmount <= 0) && styles.disabledLabel
+								]}>
 									Message (Optional)
 								</Text>
 							</View>
@@ -1186,6 +1174,18 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
+	},
+	disabledButton: {
+		opacity: 0.5,
+		backgroundColor: colors.neutral.neutral5,
+	},
+	disabledLabel: {
+		color: colors.neutral.neutral3,
+		opacity: 0.6,
+	},
+	disabledSelector: {
+		opacity: 0.5,
+		backgroundColor: colors.neutral.neutral5,
 	},
 });
 

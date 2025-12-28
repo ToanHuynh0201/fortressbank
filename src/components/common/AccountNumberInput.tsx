@@ -19,6 +19,7 @@ interface AccountNumberInputProps {
 	onAccountNotFound?: () => void;
 	containerStyle?: any;
 	placeholder?: string;
+	bankName?: string; // Optional bank name for external bank lookups
 }
 
 /**
@@ -32,6 +33,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 	onAccountNotFound,
 	containerStyle,
 	placeholder = "Account number",
+	bankName,
 }) => {
 	const [beneficiaryName, setBeneficiaryName] = useState<string>("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -57,9 +59,10 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 
 		// Only fetch if account number has 10-12 digits
 		const cleanedValue = value.replace(/\s/g, "");
-		if (cleanedValue.length < 10 || cleanedValue.length > 12) {
+		if (cleanedValue.length < 10 || cleanedValue.length > 24) {
 			return;
 		}
+		//acct_1SdmKkRy4vdhIyRt
 
 		setIsLoading(true);
 
@@ -68,6 +71,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 			try {
 				const result = await transferService.lookupAccount(
 					cleanedValue,
+					bankName, // Pass bankName if provided
 				);
 				console.log(result.data);
 
@@ -97,7 +101,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 			clearTimeout(timer);
 			setIsLoading(false);
 		};
-	}, [value]); // Only depend on value to avoid infinite loops
+	}, [value, bankName]); // Depend on both value and bankName
 
 	return (
 		<View style={[styles.container, containerStyle]}>
@@ -106,8 +110,8 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 					placeholder={placeholder}
 					value={value}
 					onChangeText={onChangeText}
-					keyboardType="numeric"
-					maxLength={12}
+					keyboardType={bankName ? "default" : "numeric"}
+					maxLength={24}
 				/>
 
 				{/* Loading indicator */}
