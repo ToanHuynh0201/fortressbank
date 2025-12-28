@@ -33,8 +33,7 @@ const SignIn = () => {
 	} = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
 	const [isBiometricLoading, setIsBiometricLoading] = useState(false);
-	const [generalError, setGeneralError] = useState<string | null>(null);
-	const [alertModal, setAlertModal] = useState({ visible: false, title: "", message: "", variant: "info" as "success" | "error" | "info" });
+	const [alertModal, setAlertModal] = useState({ visible: false, title: "", message: "", variant: "info" as "success" | "error" | "info" | "warning" });
 	const [enableBiometricModal, setEnableBiometricModal] = useState({ visible: false });
 	const [biometricSuccessModal, setBiometricSuccessModal] = useState({ visible: false });
 
@@ -69,8 +68,6 @@ const SignIn = () => {
 	};
 
 	const handleSubmit = async () => {
-		setGeneralError(null);
-
 		if (!validateForm()) {
 			setTouched({ username: true, password: true });
 			return;
@@ -93,21 +90,32 @@ const SignIn = () => {
 				const errorMsg =
 					result.error ||
 					"Login failed. Please check your credentials.";
-				setGeneralError(errorMsg);
+				// Show error in modal instead of inline
+				setAlertModal({
+					visible: true,
+					title: "Login Failed",
+					message: errorMsg,
+					variant: "error",
+				});
 				setTouched({ username: true, password: true });
 			}
 		} catch (error: any) {
 			const errorMsg =
 				error.message ||
 				"An unexpected error occurred. Please try again.";
-			setGeneralError(errorMsg);
+			// Show error in modal instead of inline
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: errorMsg,
+				variant: "error",
+			});
 			setTouched({ username: true, password: true });
 		} finally {
 			setIsLoading(false);
 		}
 	};
 	const handleBiometricLogin = async () => {
-		setGeneralError(null);
 		setIsBiometricLoading(true);
 
 		try {
@@ -117,11 +125,23 @@ const SignIn = () => {
 				router.replace("/(home)");
 			} else {
 				const errorMsg = result.message || "Biometric login failed";
-				setGeneralError(errorMsg);
+				// Show error in modal instead of inline
+				setAlertModal({
+					visible: true,
+					title: "Biometric Login Failed",
+					message: errorMsg,
+					variant: "error",
+				});
 			}
 		} catch (error: any) {
 			const errorMsg = error.message || "Biometric authentication failed";
-			setGeneralError(errorMsg);
+			// Show error in modal instead of inline
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: errorMsg,
+				variant: "error",
+			});
 		} finally {
 			setIsBiometricLoading(false);
 		}
@@ -244,18 +264,10 @@ const SignIn = () => {
 			</Animated.View>
 
 			<Animated.View style={[styles.inputContainer, formAnimatedStyle]}>
-				{generalError && (
-					<View style={styles.errorContainer}>
-						<Text style={styles.errorIcon}>⚠️</Text>
-						<Text style={styles.generalError}>{generalError}</Text>
-					</View>
-				)}
-
 				<CustomInput
 					placeholder="Username"
 					value={values.username}
 					onChangeText={(text) => {
-						setGeneralError(null);
 						handleChange("username", text);
 					}}
 					onBlur={() => handleBlur("username")}
@@ -268,7 +280,6 @@ const SignIn = () => {
 					placeholder="Password"
 					value={values.password}
 					onChangeText={(text) => {
-						setGeneralError(null);
 						handleChange("password", text);
 					}}
 					onBlur={() => handleBlur("password")}
@@ -361,6 +372,15 @@ const SignIn = () => {
 				variant="success"
 				onClose={handleBiometricSuccess}
 			/>
+
+			{/* Error Modal */}
+			<AlertModal
+				visible={alertModal.visible}
+				title={alertModal.title}
+				message={alertModal.message}
+				variant={alertModal.variant}
+				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
 		</AuthLayout>
 	);
 };
@@ -392,26 +412,6 @@ const styles = StyleSheet.create({
 	},
 	inputContainer: {
 		marginBottom: 20,
-	},
-	errorContainer: {
-		flexDirection: "row",
-		alignItems: "center",
-		backgroundColor: "#FEE2E2",
-		borderRadius: 12,
-		paddingVertical: 12,
-		paddingHorizontal: 16,
-		marginBottom: 16,
-		gap: 8,
-	},
-	errorIcon: {
-		fontSize: 18,
-	},
-	generalError: {
-		flex: 1,
-		fontFamily: "Poppins",
-		fontSize: 13,
-		color: "#DC2626",
-		lineHeight: 18,
 	},
 	input: {
 		marginBottom: 16,

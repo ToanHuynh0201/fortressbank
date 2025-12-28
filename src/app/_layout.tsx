@@ -3,6 +3,8 @@ import { AuthProvider, NotificationProvider } from "@/contexts";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotificationListeners } from "@/hooks/useNotificationListeners";
 import NotificationToast from "@/components/common/NotificationToast";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { OfflineBar } from "@/components/common/OfflineBar";
 
 const AppContent = () => {
 	const { user } = useAuth();
@@ -66,12 +68,15 @@ const AppContent = () => {
 
 const RootLayout = () => {
 	return (
-		<AuthProvider>
-			<NotificationProvider>
-				<AppContent />
-				<NotificationToast />
-			</NotificationProvider>
-		</AuthProvider>
+		<ErrorBoundary>
+			<AuthProvider>
+				<NotificationProvider>
+					<OfflineBar />
+					<AppContent />
+					<NotificationToast />
+				</NotificationProvider>
+			</AuthProvider>
+		</ErrorBoundary>
 	);
 };
 

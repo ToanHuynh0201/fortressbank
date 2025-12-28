@@ -19,3 +19,9 @@ export { default as InputModal } from "./InputModal";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as LoadingOverlay } from "./LoadingOverlay";
 export { default as LoadingState } from "./LoadingState";
+
+// Error Handling Components
+export { ErrorBoundary } from "./ErrorBoundary";
+export { ErrorState } from "./ErrorState";
+export { ErrorMessage } from "./ErrorMessage";
+export { OfflineBar } from "./OfflineBar";
