@@ -122,6 +122,14 @@ const Home = () => {
 		message: "",
 		variant: "error" as "success" | "error" | "info" | "warning",
 	});
+	const [showFaceIDModal, setShowFaceIDModal] = useState(false);
+
+	// Check if user needs to register Face ID
+	useEffect(() => {
+		if (user && user.isFaceRegistered === false) {
+			setShowFaceIDModal(true);
+		}
+	}, [user]);
 
 	// Fetch accounts from API
 	useEffect(() => {
@@ -174,6 +182,26 @@ const Home = () => {
 
 	const handleLogoutCancel = () => {
 		setShowLogoutModal(false);
+	};
+
+	const handleFaceIDConfirm = () => {
+		setShowFaceIDModal(false);
+		router.replace("/(auth)/updateFaceID");
+	};
+
+	const handleFaceIDCancel = () => {
+		setShowFaceIDModal(false);
+		// User chose to skip for now, but they can't use the app
+		// We'll show the modal again or logout
+		setAlertModal({
+			visible: true,
+			title: "Face ID Required",
+			message:
+				"Face ID registration is required to use this app. Please complete the setup to continue.",
+			variant: "warning",
+		});
+		// Show modal again after alert closes
+		setTimeout(() => setShowFaceIDModal(true), 2000);
 	};
 
 	// Scroll handler for FlatList
@@ -452,6 +480,16 @@ const Home = () => {
 				onConfirm={handleLogoutConfirm}
 				onCancel={handleLogoutCancel}
 				confirmButtonVariant="danger"
+			/>
+
+			<ConfirmationModal
+				visible={showFaceIDModal}
+				title="Face ID Setup Required"
+				message="To ensure the security of your account, you need to register your Face ID. This will be used for secure authentication."
+				confirmText="Register Now"
+				cancelText="Later"
+				onConfirm={handleFaceIDConfirm}
+				onCancel={handleFaceIDCancel}
 			/>
 
 			<AlertModal

@@ -124,7 +124,12 @@ const UpdateFaceID = () => {
 	};
 
 	const handleOk = () => {
-		router.back();
+		// Navigate to home after successful Face ID update
+		if (router.canGoBack()) {
+			router.back();
+		} else {
+			router.replace("/(home)");
+		}
 	};
 
 	// Success Screen

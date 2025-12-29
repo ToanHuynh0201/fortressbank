@@ -8,7 +8,13 @@ import Animated, {
 	Easing,
 } from "react-native-reanimated";
 import { Fingerprint } from "phosphor-react-native";
-import { primary, neutral, typography, spacingScale, borderRadius } from "@/constants";
+import {
+	primary,
+	neutral,
+	typography,
+	spacingScale,
+	borderRadius,
+} from "@/constants";
 import { scale, fontSize, spacing } from "@/utils/responsive";
 import {
 	AuthLayout,
@@ -34,9 +40,18 @@ const SignIn = () => {
 	} = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
 	const [isBiometricLoading, setIsBiometricLoading] = useState(false);
-	const [alertModal, setAlertModal] = useState({ visible: false, title: "", message: "", variant: "info" as "success" | "error" | "info" | "warning" });
-	const [enableBiometricModal, setEnableBiometricModal] = useState({ visible: false });
-	const [biometricSuccessModal, setBiometricSuccessModal] = useState({ visible: false });
+	const [alertModal, setAlertModal] = useState({
+		visible: false,
+		title: "",
+		message: "",
+		variant: "info" as "success" | "error" | "info" | "warning",
+	});
+	const [enableBiometricModal, setEnableBiometricModal] = useState({
+		visible: false,
+	});
+	const [biometricSuccessModal, setBiometricSuccessModal] = useState({
+		visible: false,
+	});
 
 	const {
 		values,
