@@ -1,6 +1,8 @@
 import React, { useRef, useState } from "react";
 import { View, TextInput, StyleSheet, Pressable } from "react-native";
 import colors from "@/constants/colors";
+import { scale, fontSize, spacing } from "@/utils/responsive";
+import { typography, spacingScale, borderRadius } from "@/constants/responsive";
 
 interface OTPInputProps {
 	length?: number;
@@ -118,14 +120,14 @@ const styles = StyleSheet.create({
 	container: {
 		flexDirection: "row",
 		justifyContent: "space-between",
-		gap: 12,
+		gap: spacingScale.md,
 	},
 	box: {
 		flex: 1,
-		height: 56,
+		height: scale(56),
 		borderWidth: 2,
 		borderColor: colors.neutral.neutral4,
-		borderRadius: 12,
+		borderRadius: borderRadius.md,
 		backgroundColor: colors.neutral.neutral6,
 		justifyContent: "center",
 		alignItems: "center",
@@ -139,7 +141,7 @@ const styles = StyleSheet.create({
 	},
 	input: {
 		fontFamily: "Poppins",
-		fontSize: 24,
+		fontSize: typography.h2,
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
 		width: "100%",

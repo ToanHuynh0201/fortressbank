@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { StyleSheet, Text, View, Animated } from "react-native";
 import { neutral, primary } from "@/constants";
 import { PoseType } from "@/utils/faceValidation";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 const POSE_INSTRUCTIONS = {
 	left: {
@@ -121,36 +122,36 @@ export const PoseGuidance: React.FC<PoseGuidanceProps> = ({
 
 const styles = StyleSheet.create({
 	container: {
-		paddingHorizontal: 24,
+		paddingHorizontal: spacing(24),
 		alignItems: "center",
-		marginBottom: 20,
+		marginBottom: spacing(20),
 	},
 	poseIcon: {
-		fontSize: 60,
+		fontSize: fontSize(60),
 		color: neutral.neutral6,
-		marginBottom: 12,
+		marginBottom: spacing(12),
 		textShadowColor: "rgba(0, 0, 0, 0.5)",
-		textShadowOffset: { width: 0, height: 2 },
-		textShadowRadius: 4,
+		textShadowOffset: { width: 0, height: scale(2) },
+		textShadowRadius: scale(4),
 	},
 	countdown: {
-		fontSize: 72,
+		fontSize: fontSize(72),
 		fontWeight: "bold",
 		color: primary.primary3,
-		marginBottom: 12,
+		marginBottom: spacing(12),
 		textShadowColor: "rgba(0, 0, 0, 0.5)",
-		textShadowOffset: { width: 0, height: 2 },
-		textShadowRadius: 4,
+		textShadowOffset: { width: 0, height: scale(2) },
+		textShadowRadius: scale(4),
 	},
 	title: {
-		fontSize: 18,
+		fontSize: fontSize(18),
 		fontWeight: "700",
 		color: neutral.neutral6,
 		textAlign: "center",
-		marginBottom: 8,
+		marginBottom: spacing(8),
 		textShadowColor: "rgba(0, 0, 0, 0.5)",
-		textShadowOffset: { width: 0, height: 1 },
-		textShadowRadius: 3,
+		textShadowOffset: { width: 0, height: scale(1) },
+		textShadowRadius: scale(3),
 	},
 	titleValid: {
 		color: primary.primary3,
@@ -159,13 +160,13 @@ const styles = StyleSheet.create({
 		color: primary.primary3,
 	},
 	feedback: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "500",
 		color: neutral.neutral5,
 		textAlign: "center",
 		textShadowColor: "rgba(0, 0, 0, 0.5)",
-		textShadowOffset: { width: 0, height: 1 },
-		textShadowRadius: 3,
+		textShadowOffset: { width: 0, height: scale(1) },
+		textShadowRadius: scale(3),
 	},
 	feedbackValid: {
 		color: primary.primary3,

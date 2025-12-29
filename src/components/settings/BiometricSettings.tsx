@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Switch } from "react-native";
 import { Fingerprint } from "phosphor-react-native";
 import { primary, neutral } from "@/constants";
 import { useAuth } from "@/hooks";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 import AlertModal from "@/components/common/AlertModal";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import InputModal from "@/components/common/InputModal";
@@ -167,7 +168,7 @@ export const BiometricSettings = () => {
 				<View style={styles.header}>
 					<View style={styles.iconContainer}>
 						<Fingerprint
-							size={20}
+							size={scale(20)}
 							color={primary.primary1}
 							weight="bold"
 						/>
@@ -243,15 +244,15 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "space-between",
 		backgroundColor: neutral.neutral6,
-		borderRadius: 16,
-		paddingVertical: 16,
-		paddingHorizontal: 16,
-		marginHorizontal: 24,
-		marginBottom: 12,
+		borderRadius: scale(16),
+		paddingVertical: spacing(16),
+		paddingHorizontal: spacing(16),
+		marginHorizontal: spacing(24),
+		marginBottom: spacing(12),
 		shadowColor: primary.primary1,
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.06,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 2,
 		borderWidth: 1,
 		borderColor: neutral.neutral5,
@@ -260,12 +261,12 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		flex: 1,
-		gap: 12,
+		gap: spacing(12),
 	},
 	iconContainer: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
@@ -275,14 +276,14 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		color: neutral.neutral1,
-		marginBottom: 2,
+		marginBottom: spacing(2),
 	},
 	subtitle: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: neutral.neutral3,
 		lineHeight: 16,

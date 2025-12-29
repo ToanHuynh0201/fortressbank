@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNetworkStatus } from '@/utils/networkStatus';
+import { typography, spacingScale } from '@/constants/responsive';
 
 /**
  * OfflineBar component that displays a banner when device is offline
@@ -53,8 +54,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: '#F44336',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: spacingScale.md,
+    paddingHorizontal: spacingScale.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -67,8 +68,8 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '600',
-    marginLeft: 8,
+    marginLeft: spacingScale.sm,
   },
 });

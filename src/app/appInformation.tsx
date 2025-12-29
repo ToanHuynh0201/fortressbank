@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { AppHeader } from '@/components/common';
 import { InfoRowWithValue } from '@/components/settings';
 import { primary, neutral } from '@/constants/colors';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const AppInformation = () => {
   const router = useRouter();
@@ -60,20 +61,20 @@ const styles = StyleSheet.create({
     backgroundColor: neutral.neutral6,
   },
   contentContainer: {
-    paddingTop: 40,
-    paddingBottom: 32,
+    paddingTop: spacing(40),
+    paddingBottom: spacing(32),
   },
   appName: {
     fontFamily: 'Poppins',
-    fontSize: 20,
+    fontSize: fontSize(20),
     fontWeight: '600',
-    lineHeight: 28,
+    lineHeight: fontSize(28),
     color: neutral.neutral1,
     textAlign: 'center',
-    marginBottom: 28,
-    paddingHorizontal: 24,
+    marginBottom: spacing(28),
+    paddingHorizontal: spacing(24),
   },
   infoList: {
-    gap: 20,
+    gap: spacing(20),
   },
 });

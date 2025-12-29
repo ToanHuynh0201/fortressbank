@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { neutral, primary } from './colors';
+import { typography, spacingScale, borderRadius } from './responsive';
 
 /**
  * Common reusable styles across the application
@@ -40,19 +41,19 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: neutral.neutral6,
   },
   screenPadding: {
-    paddingHorizontal: 24,
+    paddingHorizontal: spacingScale.xl,
   },
   contentContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 40,
+    paddingHorizontal: spacingScale.xl,
+    paddingTop: spacingScale.xl,
+    paddingBottom: spacingScale.xxxl,
   },
   
   // Card styles
   card: {
     backgroundColor: neutral.neutral6,
-    borderRadius: 15,
-    padding: 16,
+    borderRadius: borderRadius.lg,
+    padding: spacingScale.lg,
     shadowColor: 'rgba(54, 41, 183, 0.07)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 1,
@@ -62,49 +63,49 @@ export const commonStyles = StyleSheet.create({
   
   // Text styles
   title: {
-    fontSize: 24,
+    fontSize: typography.title,
     fontWeight: '600',
     color: primary.primary1,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '500',
     color: neutral.neutral1,
   },
   label: {
-    fontSize: 12,
+    fontSize: typography.label,
     fontWeight: '600',
     color: '#979797',
-    marginBottom: 8,
+    marginBottom: spacingScale.sm,
   },
   bodyText: {
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '500',
     color: neutral.neutral1,
   },
   captionText: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '500',
     color: neutral.neutral4,
   },
   linkText: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '600',
     color: primary.primary1,
   },
   
   // Spacing styles
-  mb8: { marginBottom: 8 },
-  mb12: { marginBottom: 12 },
-  mb16: { marginBottom: 16 },
-  mb20: { marginBottom: 20 },
-  mb24: { marginBottom: 24 },
-  mb32: { marginBottom: 32 },
-  mt8: { marginTop: 8 },
-  mt12: { marginTop: 12 },
-  mt16: { marginTop: 16 },
-  mt24: { marginTop: 24 },
-  mt32: { marginTop: 32 },
+  mb8: { marginBottom: spacingScale.sm },
+  mb12: { marginBottom: spacingScale.md },
+  mb16: { marginBottom: spacingScale.lg },
+  mb20: { marginBottom: spacingScale.xl * 0.83 },
+  mb24: { marginBottom: spacingScale.xl },
+  mb32: { marginBottom: spacingScale.xxl },
+  mt8: { marginTop: spacingScale.sm },
+  mt12: { marginTop: spacingScale.md },
+  mt16: { marginTop: spacingScale.lg },
+  mt24: { marginTop: spacingScale.xl },
+  mt32: { marginTop: spacingScale.xxl },
   
   // Shadow styles
   shadowLight: {
@@ -130,12 +131,12 @@ export const commonStyles = StyleSheet.create({
   },
   
   // Border styles
-  rounded8: { borderRadius: 8 },
-  rounded12: { borderRadius: 12 },
-  rounded15: { borderRadius: 15 },
-  rounded20: { borderRadius: 20 },
-  rounded30: { borderRadius: 30 },
-  roundedFull: { borderRadius: 9999 },
+  rounded8: { borderRadius: borderRadius.sm },
+  rounded12: { borderRadius: borderRadius.md },
+  rounded15: { borderRadius: borderRadius.lg },
+  rounded20: { borderRadius: borderRadius.xl },
+  rounded30: { borderRadius: borderRadius.xxl },
+  roundedFull: { borderRadius: borderRadius.full },
   
   // Background colors
   bgPrimary: {

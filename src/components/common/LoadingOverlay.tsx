@@ -2,6 +2,8 @@ import React from "react";
 import { View, Text, Modal, ActivityIndicator, StyleSheet } from "react-native";
 import Animated, { FadeIn, useAnimatedStyle, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import colors from "@/constants/colors";
+import { typography, spacingScale, borderRadius } from "@/constants/responsive";
+import { scale } from "@/utils/responsive";
 
 interface LoadingOverlayProps {
 	visible: boolean;
@@ -52,30 +54,30 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 20,
-		padding: 32,
+		borderRadius: borderRadius.xl,
+		padding: spacingScale.xxl,
 		alignItems: "center",
 		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 4 },
 		shadowOpacity: 0.25,
 		shadowRadius: 12,
 		elevation: 8,
-		minWidth: 200,
+		minWidth: scale(200),
 	},
 	spinnerContainer: {
-		width: 80,
-		height: 80,
-		borderRadius: 40,
+		width: scale(80),
+		height: scale(80),
+		borderRadius: scale(40),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	message: {
 		fontFamily: "Poppins",
-		fontSize: 15,
+		fontSize: typography.body,
 		fontWeight: "500",
 		color: colors.neutral.neutral1,
-		marginTop: 16,
+		marginTop: spacingScale.lg,
 		textAlign: "center",
 	},
 });

@@ -25,13 +25,14 @@ import { Beneficiary } from "@/types/beneficiary";
 import beneficiaryService from "@/services/beneficiaryService";
 import colors from "@/constants/colors";
 import { AlertModal, ConfirmationModal, LoadingState } from "@/components/common";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const Beneficiaries = () => {
 	const router = useRouter();
 	const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
-	const [deletingId, setDeletingId] = useState<string | null>(null);
+	const [deletingId, setDeletingId] = useState<number | null>(null);
 	const [alertModal, setAlertModal] = useState({ visible: false, title: "", message: "", variant: "info" as "success" | "error" | "info" });
 	const [deleteModal, setDeleteModal] = useState({ visible: false, beneficiary: null as Beneficiary | null });
 
@@ -166,7 +167,7 @@ const Beneficiaries = () => {
 				onPress={handleAdd}
 				activeOpacity={0.8}>
 				<Plus
-					size={22}
+					size={scale(22)}
 					color={colors.neutral.neutral6}
 					weight="bold"
 				/>
@@ -193,7 +194,7 @@ const Beneficiaries = () => {
 					style={styles.backButton}>
 					<View style={styles.backButtonCircle}>
 						<CaretLeft
-							size={20}
+							size={scale(20)}
 							color={colors.neutral.neutral6}
 							weight="bold"
 						/>
@@ -251,7 +252,7 @@ const Beneficiaries = () => {
 							onPress={handleAdd}
 							activeOpacity={0.8}>
 							<Plus
-								size={26}
+								size={scale(26)}
 								color={colors.neutral.neutral6}
 								weight="bold"
 							/>
@@ -290,22 +291,22 @@ const styles = StyleSheet.create({
 	header: {
 		flexDirection: "row",
 		alignItems: "center",
-		paddingHorizontal: 24,
-		paddingTop: 16,
-		paddingBottom: 20,
+		paddingHorizontal: spacing(24),
+		paddingTop: spacing(16),
+		paddingBottom: spacing(20),
 		backgroundColor: colors.primary.primary1,
 	},
 	backButton: {
-		marginRight: 16,
+		marginRight: spacing(16),
 	},
 	backButtonCircle: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
 		justifyContent: "center",
 		alignItems: "center",
-		borderWidth: 1.5,
+		borderWidth: scale(1.5),
 		borderColor: "rgba(255, 255, 255, 0.3)",
 	},
 	headerTitleContainer: {
@@ -313,109 +314,109 @@ const styles = StyleSheet.create({
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 22,
+		fontSize: fontSize(22),
 		fontWeight: "700",
-		lineHeight: 28,
+		lineHeight: fontSize(28),
 		color: colors.neutral.neutral6,
-		marginBottom: 2,
+		marginBottom: spacing(2),
 	},
 	headerSubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "400",
 		color: "rgba(255, 255, 255, 0.8)",
-		lineHeight: 18,
+		lineHeight: fontSize(18),
 	},
 	content: {
 		flex: 1,
 		backgroundColor: colors.neutral.neutral6,
-		borderTopLeftRadius: 24,
-		borderTopRightRadius: 24,
-		marginTop: -10,
+		borderTopLeftRadius: scale(24),
+		borderTopRightRadius: scale(24),
+		marginTop: spacing(-10),
 	},
 	listContent: {
-		padding: 20,
-		paddingTop: 24,
-		paddingBottom: 100,
+		padding: spacing(20),
+		paddingTop: spacing(24),
+		paddingBottom: spacing(100),
 	},
 	emptyContainer: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingHorizontal: 40,
+		paddingHorizontal: spacing(40),
 	},
 	emptyIconContainer: {
-		width: 100,
-		height: 100,
-		borderRadius: 50,
+		width: scale(100),
+		height: scale(100),
+		borderRadius: scale(50),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginBottom: 24,
+		marginBottom: spacing(24),
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.15,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 5,
 	},
 	emptyIcon: {
-		fontSize: 48,
+		fontSize: fontSize(48),
 	},
 	emptyTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 10,
+		marginBottom: spacing(10),
 		textAlign: "center",
 	},
 	emptySubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 		textAlign: "center",
-		marginBottom: 36,
-		lineHeight: 20,
+		marginBottom: spacing(36),
+		lineHeight: fontSize(20),
 	},
 	emptyButton: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 10,
+		gap: spacing(10),
 		backgroundColor: colors.primary.primary1,
-		paddingVertical: 16,
-		paddingHorizontal: 28,
-		borderRadius: 16,
+		paddingVertical: spacing(16),
+		paddingHorizontal: spacing(28),
+		borderRadius: scale(16),
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.3,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 6,
 	},
 	emptyButtonText: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		color: colors.neutral.neutral6,
 	},
 	fabContainer: {
 		position: "absolute",
-		right: 20,
-		bottom: 20,
+		right: spacing(20),
+		bottom: spacing(20),
 	},
 	fab: {
-		width: 60,
-		height: 60,
-		borderRadius: 30,
+		width: scale(60),
+		height: scale(60),
+		borderRadius: scale(30),
 		backgroundColor: colors.primary.primary1,
 		justifyContent: "center",
 		alignItems: "center",
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 6 },
+		shadowOffset: { width: 0, height: scale(6) },
 		shadowOpacity: 0.4,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 10,
-		borderWidth: 2,
+		borderWidth: scale(2),
 		borderColor: "rgba(255, 255, 255, 0.2)",
 	},
 });

@@ -26,6 +26,7 @@ import {
 	ConfirmationModal,
 } from "@/components";
 import { transferService, accountService } from "@/services";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const PINVerification = () => {
 	const router = useRouter();
@@ -224,7 +225,7 @@ const PINVerification = () => {
 						onPress={() => router.back()}
 						style={styles.backButton}>
 						<CaretLeft
-							size={24}
+							size={scale(24)}
 							color={colors.neutral.neutral6}
 							weight="bold"
 						/>
@@ -248,7 +249,7 @@ const PINVerification = () => {
 						end={{ x: 1, y: 1 }}
 						style={styles.iconGradient}>
 						<LockKey
-							size={56}
+							size={scale(56)}
 							color={colors.neutral.neutral6}
 							weight="regular"
 						/>
@@ -353,9 +354,9 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.primary.primary1,
 	},
 	headerGradient: {
-		paddingHorizontal: 24,
-		paddingTop: 16,
-		paddingBottom: 24,
+		paddingHorizontal: spacing(24),
+		paddingTop: spacing(16),
+		paddingBottom: spacing(24),
 	},
 	header: {
 		flexDirection: "row",
@@ -363,105 +364,105 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	backButton: {
-		width: 40,
-		height: 40,
+		width: scale(40),
+		height: scale(40),
 		justifyContent: "center",
 		alignItems: "flex-start",
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "700",
 		color: colors.neutral.neutral6,
 		flex: 1,
 		textAlign: "center",
 	},
 	headerRight: {
-		width: 40,
+		width: scale(40),
 	},
 	content: {
 		flex: 1,
 		backgroundColor: colors.neutral.neutral6,
-		borderTopLeftRadius: 30,
-		borderTopRightRadius: 30,
-		padding: 24,
-		paddingTop: 40,
+		borderTopLeftRadius: scale(30),
+		borderTopRightRadius: scale(30),
+		padding: spacing(24),
+		paddingTop: spacing(40),
 	},
 	iconContainer: {
 		alignItems: "center",
-		marginBottom: 32,
+		marginBottom: spacing(32),
 	},
 	iconGradient: {
-		width: 120,
-		height: 120,
-		borderRadius: 60,
+		width: scale(120),
+		height: scale(120),
+		borderRadius: scale(60),
 		justifyContent: "center",
 		alignItems: "center",
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 8 },
+		shadowOffset: { width: 0, height: scale(8) },
 		shadowOpacity: 0.3,
-		shadowRadius: 16,
+		shadowRadius: scale(16),
 		elevation: 8,
 	},
 	titleSection: {
 		alignItems: "center",
-		marginBottom: 40,
+		marginBottom: spacing(40),
 	},
 	title: {
 		fontFamily: "Poppins",
-		fontSize: 24,
+		fontSize: fontSize(24),
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 12,
+		marginBottom: spacing(12),
 		textAlign: "center",
 	},
 	subtitle: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 		textAlign: "center",
-		lineHeight: 20,
-		paddingHorizontal: 20,
+		lineHeight: fontSize(20),
+		paddingHorizontal: spacing(20),
 	},
 	pinContainer: {
-		marginBottom: 16,
+		marginBottom: spacing(16),
 	},
 	warningContainer: {
 		alignItems: "center",
-		marginBottom: 8,
+		marginBottom: spacing(8),
 	},
 	warningText: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "600",
 		color: colors.semantic.error,
 	},
 	forgotContainer: {
 		alignItems: "center",
-		marginBottom: 32,
+		marginBottom: spacing(32),
 	},
 	forgotText: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: colors.primary.primary1,
 		textDecorationLine: "underline",
 	},
 	buttonContainer: {
-		marginBottom: 24,
+		marginBottom: spacing(24),
 	},
 	noteContainer: {
 		alignItems: "center",
-		paddingHorizontal: 20,
+		paddingHorizontal: spacing(20),
 	},
 	noteText: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 		textAlign: "center",
-		lineHeight: 18,
+		lineHeight: fontSize(18),
 	},
 });
 

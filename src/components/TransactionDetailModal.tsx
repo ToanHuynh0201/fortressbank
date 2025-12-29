@@ -17,6 +17,7 @@ import {
 import Animated, { FadeIn } from "react-native-reanimated";
 import { transferService, type Transaction } from "@/services/transferService";
 import { primary, neutral, semantic } from "@/constants/colors";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 interface TransactionDetailModalProps {
 	visible: boolean;
@@ -71,7 +72,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 			case "COMPLETED":
 				return (
 					<CheckCircle
-						size={24}
+						size={scale(24)}
 						color={semantic.success}
 						weight="fill"
 					/>
@@ -80,7 +81,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 			case "PENDING_OTP":
 				return (
 					<Clock
-						size={24}
+						size={scale(24)}
 						color={semantic.warning}
 						weight="fill"
 					/>
@@ -89,7 +90,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 			case "CANCELLED":
 				return (
 					<XCircle
-						size={24}
+						size={scale(24)}
 						color={semantic.error}
 						weight="fill"
 					/>
@@ -97,7 +98,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 			default:
 				return (
 					<CheckCircle
-						size={24}
+						size={scale(24)}
 						color={semantic.success}
 						weight="fill"
 					/>
@@ -173,7 +174,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 							onPress={onClose}
 							style={styles.closeButton}>
 							<X
-								size={24}
+								size={scale(24)}
 								color={neutral.neutral1}
 								weight="bold"
 							/>
@@ -197,7 +198,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 						) : error ? (
 							<View style={styles.errorContainer}>
 								<XCircle
-									size={48}
+									size={scale(48)}
 									color={semantic.error}
 									weight="thin"
 								/>
@@ -347,124 +348,124 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		alignItems: "center",
 		backgroundColor: "rgba(0, 0, 0, 0.6)",
-		padding: 20,
+		padding: spacing(20),
 	},
 	backdrop: {
 		...StyleSheet.absoluteFillObject,
 	},
 	modalContainer: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 24,
+		borderRadius: scale(24),
 		width: "100%",
 		maxWidth: 500,
 		maxHeight: "85%",
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.3,
-		shadowRadius: 20,
+		shadowRadius: scale(20),
 		elevation: 999,
 	},
 	header: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		padding: 20,
+		padding: spacing(20),
 		borderBottomWidth: 1,
 		borderBottomColor: neutral.neutral5,
 	},
 	headerTitle: {
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontFamily: "Poppins",
 		fontWeight: "700",
 		color: neutral.neutral1,
 	},
 	closeButton: {
-		padding: 4,
+		padding: spacing(4),
 	},
 	content: {
-		padding: 20,
+		padding: spacing(20),
 	},
 	loadingContainer: {
-		paddingVertical: 60,
+		paddingVertical: spacing(60),
 		alignItems: "center",
 	},
 	loadingText: {
-		marginTop: 12,
-		fontSize: 14,
+		marginTop: spacing(12),
+		fontSize: fontSize(14),
 		fontFamily: "Poppins",
 		color: neutral.neutral3,
 	},
 	errorContainer: {
-		paddingVertical: 60,
+		paddingVertical: spacing(60),
 		alignItems: "center",
 	},
 	errorText: {
-		marginTop: 16,
-		fontSize: 14,
+		marginTop: spacing(16),
+		fontSize: fontSize(14),
 		fontFamily: "Poppins",
 		color: semantic.error,
 	},
 	amountSection: {
 		alignItems: "center",
-		paddingVertical: 24,
+		paddingVertical: spacing(24),
 		borderBottomWidth: 1,
 		borderBottomColor: neutral.neutral5,
-		marginHorizontal: -20,
-		marginTop: -20,
-		paddingHorizontal: 20,
-		borderTopLeftRadius: 24,
-		borderTopRightRadius: 24,
+		marginHorizontal: spacing(-20),
+		marginTop: spacing(-20),
+		paddingHorizontal: spacing(20),
+		borderTopLeftRadius: scale(24),
+		borderTopRightRadius: scale(24),
 	},
 	amountLabel: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontFamily: "Poppins",
 		fontWeight: "600",
 		color: neutral.neutral2,
-		marginBottom: 8,
+		marginBottom: spacing(8),
 		textTransform: "uppercase",
 		letterSpacing: 0.5,
 	},
 	amountValue: {
-		fontSize: 42,
+		fontSize: fontSize(42),
 		fontFamily: "Poppins",
 		fontWeight: "800",
 	},
 	feeText: {
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontFamily: "Poppins",
 		color: neutral.neutral3,
-		marginTop: 4,
+		marginTop: spacing(4),
 	},
 	statusSection: {
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingVertical: 16,
-		gap: 8,
+		paddingVertical: spacing(16),
+		gap: spacing(8),
 		borderBottomWidth: 1,
 		borderBottomColor: neutral.neutral5,
 	},
 	statusText: {
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontFamily: "Poppins",
 		fontWeight: "600",
 	},
 	detailsSection: {
-		paddingTop: 16,
-		gap: 16,
+		paddingTop: spacing(16),
+		gap: spacing(16),
 	},
 	detailRow: {
-		gap: 4,
+		gap: spacing(4),
 	},
 	detailLabel: {
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontFamily: "Poppins",
 		fontWeight: "500",
 		color: neutral.neutral3,
 		textTransform: "uppercase",
 	},
 	detailValue: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontFamily: "Poppins",
 		fontWeight: "500",
 		color: neutral.neutral1,

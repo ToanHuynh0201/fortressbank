@@ -20,6 +20,7 @@ import Animated, {
 import { CheckCircle, Download, Share, House, ArrowCounterClockwise } from 'phosphor-react-native';
 import colors from '@/constants/colors';
 import { ScreenContainer, PrimaryButton } from '@/components';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const TransferSuccess = () => {
   const router = useRouter();
@@ -75,7 +76,7 @@ const TransferSuccess = () => {
         <Animated.View style={[styles.iconContainer, iconAnimatedStyle]}>
           <View style={styles.iconBackground}>
             <Animated.View style={checkmarkAnimatedStyle}>
-              <CheckCircle size={80} color={colors.primary.primary1} weight="fill" />
+              <CheckCircle size={scale(80)} color={colors.primary.primary1} weight="fill" />
             </Animated.View>
           </View>
         </Animated.View>
@@ -113,14 +114,14 @@ const TransferSuccess = () => {
           style={styles.actionButtons}>
           <TouchableOpacity style={styles.actionButton}>
             <View style={styles.actionIconContainer}>
-              <Download size={22} color={colors.primary.primary1} weight="bold" />
+              <Download size={scale(22)} color={colors.primary.primary1} weight="bold" />
             </View>
             <Text style={styles.actionButtonText}>Download</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
             <View style={styles.actionIconContainer}>
-              <Share size={22} color={colors.primary.primary1} weight="bold" />
+              <Share size={scale(22)} color={colors.primary.primary1} weight="bold" />
             </View>
             <Text style={styles.actionButtonText}>Share</Text>
           </TouchableOpacity>
@@ -147,10 +148,10 @@ const TransferSuccess = () => {
             }}
           >
             <ArrowCounterClockwise
-              size={20}
+              size={scale(20)}
               color={colors.neutral.neutral2}
               weight="bold"
-              style={{ marginRight: 8 }}
+              style={{ marginRight: spacing(8) }}
             />
             <Text style={styles.anotherTransferText}>Make Another Transfer</Text>
           </TouchableOpacity>
@@ -163,59 +164,59 @@ const TransferSuccess = () => {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 32,
+    paddingHorizontal: spacing(24),
+    paddingTop: spacing(40),
+    paddingBottom: spacing(32),
     justifyContent: 'space-between',
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing(20),
   },
   iconBackground: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: scale(120),
+    height: scale(120),
+    borderRadius: scale(60),
     backgroundColor: colors.primary.primary4,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: colors.primary.primary1,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: scale(8) },
     shadowOpacity: 0.2,
-    shadowRadius: 20,
+    shadowRadius: scale(20),
     elevation: 8,
   },
   messageContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing(24),
   },
   title: {
     fontFamily: 'Poppins',
-    fontSize: 24,
+    fontSize: fontSize(24),
     fontWeight: '700',
-    lineHeight: 32,
+    lineHeight: fontSize(32),
     color: colors.neutral.neutral1,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing(8),
   },
   subtitle: {
     fontFamily: 'Poppins',
-    fontSize: 14,
+    fontSize: fontSize(14),
     fontWeight: '400',
-    lineHeight: 20,
+    lineHeight: fontSize(20),
     color: colors.neutral.neutral3,
     textAlign: 'center',
   },
   detailsCard: {
     backgroundColor: colors.neutral.neutral6,
-    borderRadius: 20,
-    padding: 18,
+    borderRadius: scale(20),
+    padding: spacing(18),
     shadowColor: colors.primary.primary1,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.08,
-    shadowRadius: 16,
+    shadowRadius: scale(16),
     elevation: 5,
-    marginBottom: 20,
+    marginBottom: spacing(20),
     borderWidth: 1,
     borderColor: colors.neutral.neutral5,
   },
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: spacing(10),
     borderBottomWidth: 1,
     borderBottomColor: colors.neutral.neutral5,
   },
@@ -232,68 +233,68 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontFamily: 'Poppins',
-    fontSize: 13,
+    fontSize: fontSize(13),
     fontWeight: '500',
-    lineHeight: 18,
+    lineHeight: fontSize(18),
     color: colors.neutral.neutral3,
   },
   infoValue: {
     fontFamily: 'Poppins',
-    fontSize: 13,
+    fontSize: fontSize(13),
     fontWeight: '600',
-    lineHeight: 18,
+    lineHeight: fontSize(18),
     color: colors.neutral.neutral1,
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 20,
+    gap: spacing(12),
+    marginBottom: spacing(20),
   },
   actionButton: {
     flex: 1,
-    height: 56,
-    borderRadius: 20,
+    height: scale(56),
+    borderRadius: scale(20),
     borderWidth: 2,
     borderColor: colors.primary.primary4,
     backgroundColor: colors.neutral.neutral6,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 8,
+    gap: spacing(8),
     shadowColor: colors.primary.primary1,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: scale(2) },
     shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowRadius: scale(8),
     elevation: 2,
   },
   actionIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
     backgroundColor: colors.primary.primary4,
     justifyContent: 'center',
     alignItems: 'center',
   },
   actionButtonText: {
     fontFamily: 'Poppins',
-    fontSize: 13,
+    fontSize: fontSize(13),
     fontWeight: '600',
     color: colors.primary.primary1,
   },
   buttonsContainer: {
-    gap: 12,
+    gap: spacing(12),
   },
   homeButton: {
-    height: 52,
+    height: scale(52),
     shadowColor: colors.primary.primary1,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: scale(8),
     elevation: 6,
   },
   anotherTransferButton: {
-    height: 52,
-    borderRadius: 20,
+    height: scale(52),
+    borderRadius: scale(20),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -303,7 +304,7 @@ const styles = StyleSheet.create({
   },
   anotherTransferText: {
     fontFamily: 'Poppins',
-    fontSize: 15,
+    fontSize: fontSize(15),
     fontWeight: '600',
     color: colors.neutral.neutral2,
   },

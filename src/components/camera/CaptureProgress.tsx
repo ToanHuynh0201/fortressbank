@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Check } from "phosphor-react-native";
 import { neutral, primary } from "@/constants";
 import { PoseType } from "@/utils/faceValidation";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 const POSE_ORDER: PoseType[] = ["left", "right", "closed_eyes", "normal"];
 
@@ -35,7 +36,7 @@ export const CaptureProgress: React.FC<CaptureProgressProps> = ({
 							]}>
 							{isCompleted && (
 								<Check
-									size={8}
+									size={scale(8)}
 									color={neutral.neutral6}
 									weight="bold"
 								/>
@@ -53,20 +54,20 @@ export const CaptureProgress: React.FC<CaptureProgressProps> = ({
 
 const styles = StyleSheet.create({
 	container: {
-		paddingTop: 20,
-		paddingHorizontal: 24,
+		paddingTop: spacing(20),
+		paddingHorizontal: spacing(24),
 		alignItems: "center",
-		marginBottom: 20,
+		marginBottom: spacing(20),
 	},
 	progressBar: {
 		flexDirection: "row",
-		gap: 8,
-		marginBottom: 8,
+		gap: spacing(8),
+		marginBottom: spacing(8),
 	},
 	progressDot: {
-		width: 12,
-		height: 12,
-		borderRadius: 6,
+		width: scale(12),
+		height: scale(12),
+		borderRadius: scale(6),
 		backgroundColor: "rgba(255, 255, 255, 0.3)",
 		justifyContent: "center",
 		alignItems: "center",
@@ -78,11 +79,11 @@ const styles = StyleSheet.create({
 		backgroundColor: primary.primary3,
 	},
 	progressText: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: neutral.neutral6,
 		textShadowColor: "rgba(0, 0, 0, 0.5)",
-		textShadowOffset: { width: 0, height: 1 },
-		textShadowRadius: 3,
+		textShadowOffset: { width: 0, height: scale(1) },
+		textShadowRadius: scale(3),
 	},
 });

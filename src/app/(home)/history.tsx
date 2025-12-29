@@ -25,6 +25,7 @@ import { TransactionHistoryItem, TransactionDetailModal } from "@/components";
 import { transferService, type Transaction } from "@/services/transferService";
 import { accountService } from "@/services/accountService";
 import { getUserData } from "@/utils/storage";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 // Helper function to map API transaction type to UI type
 const mapTransactionType = (
@@ -237,7 +238,7 @@ const History = () => {
 			<Animated.View
 				entering={FadeIn.delay(200).duration(400)}
 				style={styles.emptyState}>
-				<Calendar size={64} color={neutral.neutral4} weight="thin" />
+				<Calendar size={scale(64)} color={neutral.neutral4} weight="thin" />
 				<Text style={styles.emptyTitle}>No Transactions</Text>
 				<Text style={styles.emptyMessage}>
 					{filter === "all"
@@ -278,7 +279,7 @@ const History = () => {
 				<Animated.View style={[styles.header, headerAnimatedStyle]}>
 					<View style={styles.headerTop}>
 						<ClockClockwise
-							size={28}
+							size={scale(28)}
 							color={neutral.neutral6}
 							weight="bold"
 						/>
@@ -390,7 +391,7 @@ const History = () => {
 						{filterLoading && (
 							<View style={styles.filterLoadingOverlay}>
 								<ActivityIndicator
-									size="small"
+									size={scale(20)}
 									color={primary.primary1}
 								/>
 							</View>
@@ -436,35 +437,35 @@ const styles = StyleSheet.create({
 		backgroundColor: primary.primary1,
 	},
 	headerGradient: {
-		paddingHorizontal: 24,
-		paddingTop: 20,
-		paddingBottom: 24,
+		paddingHorizontal: spacing(24),
+		paddingTop: spacing(20),
+		paddingBottom: spacing(24),
 	},
 	header: {
-		gap: 20,
+		gap: spacing(20),
 	},
 	headerTop: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 12,
+		gap: spacing(12),
 	},
 	headerTitle: {
-		fontSize: 24,
+		fontSize: fontSize(24),
 		fontFamily: "Poppins",
 		fontWeight: "700",
 		color: neutral.neutral6,
-		lineHeight: 32,
+		lineHeight: fontSize(32),
 	},
 	accountsContainer: {
 		flexGrow: 0,
 	},
 	accountCard: {
 		backgroundColor: "rgba(255, 255, 255, 0.15)",
-		borderRadius: 16,
-		padding: 16,
-		marginRight: 12,
-		minWidth: 160,
-		borderWidth: 2,
+		borderRadius: scale(16),
+		padding: spacing(16),
+		marginRight: spacing(12),
+		minWidth: scale(160),
+		borderWidth: scale(2),
 		borderColor: "transparent",
 	},
 	accountCardActive: {
@@ -472,47 +473,47 @@ const styles = StyleSheet.create({
 		borderColor: neutral.neutral6,
 	},
 	accountLabel: {
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontFamily: "Poppins",
 		fontWeight: "500",
 		color: "rgba(255, 255, 255, 0.8)",
-		lineHeight: 16,
-		marginBottom: 4,
+		lineHeight: fontSize(16),
+		marginBottom: spacing(4),
 	},
 	accountBalance: {
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontFamily: "Poppins",
 		fontWeight: "700",
 		color: neutral.neutral6,
-		lineHeight: 28,
-		marginBottom: 2,
+		lineHeight: fontSize(28),
+		marginBottom: spacing(2),
 	},
 	accountStatus: {
-		fontSize: 10,
+		fontSize: fontSize(10),
 		fontFamily: "Poppins",
 		fontWeight: "500",
 		color: "rgba(255, 255, 255, 0.7)",
-		lineHeight: 14,
+		lineHeight: fontSize(14),
 		textTransform: "uppercase",
 	},
 	content: {
 		flex: 1,
 		backgroundColor: neutral.neutral6,
-		borderTopLeftRadius: 30,
-		borderTopRightRadius: 30,
-		paddingTop: 24,
+		borderTopLeftRadius: scale(30),
+		borderTopRightRadius: scale(30),
+		paddingTop: spacing(24),
 	},
 	filterContainer: {
 		flexDirection: "row",
-		paddingHorizontal: 24,
-		gap: 12,
-		marginBottom: 20,
+		paddingHorizontal: spacing(24),
+		gap: spacing(12),
+		marginBottom: spacing(20),
 	},
 	filterButton: {
 		flex: 1,
-		paddingVertical: 10,
-		paddingHorizontal: 16,
-		borderRadius: 12,
+		paddingVertical: spacing(10),
+		paddingHorizontal: spacing(16),
+		borderRadius: scale(12),
 		backgroundColor: neutral.neutral5,
 		alignItems: "center",
 		justifyContent: "center",
@@ -521,58 +522,58 @@ const styles = StyleSheet.create({
 		backgroundColor: primary.primary1,
 	},
 	filterText: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontFamily: "Poppins",
 		fontWeight: "600",
 		color: neutral.neutral2,
-		lineHeight: 20,
+		lineHeight: fontSize(20),
 	},
 	filterTextActive: {
 		color: neutral.neutral6,
 	},
 	scrollContent: {
-		paddingHorizontal: 24,
-		paddingBottom: 120,
+		paddingHorizontal: spacing(24),
+		paddingBottom: spacing(120),
 		flexGrow: 1,
 	},
 	emptyState: {
 		alignItems: "center",
 		justifyContent: "center",
-		paddingVertical: 60,
-		paddingHorizontal: 40,
+		paddingVertical: spacing(60),
+		paddingHorizontal: spacing(40),
 	},
 	emptyTitle: {
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontFamily: "Poppins",
 		fontWeight: "600",
 		color: neutral.neutral1,
-		lineHeight: 28,
-		marginTop: 16,
-		marginBottom: 8,
+		lineHeight: fontSize(28),
+		marginTop: spacing(16),
+		marginBottom: spacing(8),
 	},
 	emptyMessage: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontFamily: "Poppins",
 		fontWeight: "400",
 		color: neutral.neutral3,
-		lineHeight: 21,
+		lineHeight: fontSize(21),
 		textAlign: "center",
 	},
 	loadingContainer: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingVertical: 60,
+		paddingVertical: spacing(60),
 	},
 	loadingText: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontFamily: "Poppins",
 		fontWeight: "500",
 		color: neutral.neutral3,
-		marginTop: 12,
+		marginTop: spacing(12),
 	},
 	loadingMore: {
-		paddingVertical: 20,
+		paddingVertical: spacing(20),
 		alignItems: "center",
 	},
 	filterLoadingOverlay: {
@@ -580,18 +581,18 @@ const styles = StyleSheet.create({
 		top: 0,
 		left: 0,
 		right: 0,
-		padding: 16,
+		padding: spacing(16),
 		alignItems: "center",
 		zIndex: 10,
 		backgroundColor: "rgba(255, 255, 255, 0.9)",
-		borderRadius: 8,
-		marginHorizontal: 24,
-		marginTop: 8,
+		borderRadius: scale(8),
+		marginHorizontal: spacing(24),
+		marginTop: spacing(8),
 	},
 	centerLoading: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingVertical: 60,
+		paddingVertical: spacing(60),
 	},
 });

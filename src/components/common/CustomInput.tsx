@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { neutral } from "@/constants/colors";
 import { semantic } from "@/constants";
+import { componentSizes, typography, spacingScale, borderRadius } from "@/constants/responsive";
+import { spacing, fontSize } from "@/utils/responsive";
 
 interface CustomInputProps extends TextInputProps {
 	isActive?: boolean;
@@ -43,12 +45,12 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
 const styles = StyleSheet.create({
 	input: {
-		height: 44,
+		height: componentSizes.inputHeight,
 		borderWidth: 1,
 		borderColor: neutral.neutral4,
-		borderRadius: 15,
-		paddingHorizontal: 12,
-		fontSize: 14,
+		borderRadius: borderRadius.lg,
+		paddingHorizontal: spacingScale.md,
+		fontSize: typography.bodySmall,
 		fontWeight: "500",
 		color: neutral.neutral1,
 		backgroundColor: neutral.neutral6,
@@ -62,10 +64,10 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 	},
 	errorText: {
-		fontSize: 12,
+		fontSize: typography.caption,
 		color: "#EF4444",
-		marginTop: 4,
-		marginLeft: 4,
+		marginTop: spacing(4),
+		marginLeft: spacing(4),
 		fontFamily: "Poppins",
 	},
 });

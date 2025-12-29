@@ -3,6 +3,7 @@ import { StyleSheet, View, Pressable, ActivityIndicator } from "react-native";
 import { Camera, useCameraPermission } from "react-native-vision-camera";
 import { CameraRotate } from "phosphor-react-native";
 import { neutral } from "@/constants";
+import { scale, spacing } from "@/utils/responsive";
 import { useFrontCameraDevice } from "@/hooks/useCameraDevice";
 import { useFaceDetection } from "@/hooks/useFaceDetection";
 import { useAutoCapture } from "@/hooks/useAutoCapture";
@@ -306,10 +307,10 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	faceFrame: {
-		width: 280,
-		height: 360,
-		borderRadius: 140,
-		borderWidth: 4,
+		width: scale(280),
+		height: scale(360),
+		borderRadius: scale(140),
+		borderWidth: scale(4),
 		borderColor: neutral.neutral6,
 		borderStyle: "dashed",
 	},
@@ -317,16 +318,16 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		paddingHorizontal: 40,
-		paddingBottom: 50,
+		paddingHorizontal: spacing(40),
+		paddingBottom: spacing(50),
 	},
 	placeholder: {
-		width: 56,
-		height: 56,
+		width: scale(56),
+		height: scale(56),
 	},
 	centerPlaceholder: {
-		width: 80,
-		height: 80,
+		width: scale(80),
+		height: scale(80),
 	},
 	processingOverlay: {
 		...StyleSheet.absoluteFillObject,

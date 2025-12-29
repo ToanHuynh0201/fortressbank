@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { neutral } from '@/constants/colors';
+import { borderRadius, spacingScale } from '@/constants/responsive';
 
 interface CardContainerProps {
   children: ReactNode;
@@ -23,8 +24,8 @@ const CardContainer: React.FC<CardContainerProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: neutral.neutral6,
-    borderRadius: 15,
-    padding: 16,
+    borderRadius: borderRadius.lg,
+    padding: spacingScale.lg,
     shadowOffset: {
       width: 0,
       height: 4,

@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { primary, neutral } from '@/constants/colors';
+import { typography, spacingScale, borderRadius } from '@/constants/responsive';
+import { scale } from '@/utils/responsive';
 
 interface CheckboxWithLabelProps {
   checked: boolean;
@@ -39,12 +41,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 4,
+    width: scale(24),
+    height: scale(24),
+    borderRadius: borderRadius.xs,
     borderWidth: 1,
     borderColor: neutral.neutral4,
-    marginRight: 12,
+    marginRight: spacingScale.md,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: neutral.neutral6,
@@ -55,12 +57,12 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     color: neutral.neutral6,
-    fontSize: 16,
+    fontSize: typography.subtitle,
     fontWeight: 'bold',
   },
   label: {
     flex: 1,
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '900',
     color: neutral.neutral1,
     lineHeight: 16,

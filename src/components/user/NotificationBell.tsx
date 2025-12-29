@@ -2,6 +2,8 @@ import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { Bell } from 'phosphor-react-native';
 import { neutral, semantic } from '@/constants/colors';
+import { scale, fontSize, spacing } from '@/utils/responsive';
+import { typography, borderRadius } from '@/constants/responsive';
 
 interface NotificationBellProps {
   count?: number;
@@ -39,12 +41,12 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    width: 48,
-    height: 48,
+    width: scale(48),
+    height: scale(48),
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
   },
   bellContainer: {
     position: 'relative',
@@ -53,15 +55,15 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: -8,
-    right: -8,
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
+    top: scale(-8),
+    right: scale(-8),
+    minWidth: scale(20),
+    height: scale(20),
+    borderRadius: scale(10),
     backgroundColor: semantic.error,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 5,
+    paddingHorizontal: spacing(5),
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     shadowColor: semantic.error,
@@ -71,11 +73,11 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   badgeText: {
-    fontSize: 11,
+    fontSize: fontSize(11),
     fontFamily: 'Poppins',
     fontWeight: '700',
     color: neutral.neutral6,
-    lineHeight: 16,
+    lineHeight: scale(16),
   },
 });
 

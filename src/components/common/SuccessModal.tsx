@@ -11,6 +11,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { CheckCircle } from "phosphor-react-native";
 import { neutral, primary } from "@/constants/colors";
+import { scale } from "@/utils/responsive";
+import { typography, spacingScale, borderRadius, componentSizes } from "@/constants/responsive";
 import PrimaryButton from "./PrimaryButton";
 
 interface SuccessModalProps {
@@ -101,7 +103,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
 							<View style={styles.iconContainer}>
 								<Animated.View style={checkmarkAnimatedStyle}>
 									<CheckCircle
-										size={64}
+										size={scale(64)}
 										color="#40C957"
 										weight="fill"
 									/>
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "rgba(0, 0, 0, 0.5)",
 		justifyContent: "center",
 		alignItems: "center",
-		padding: 10,
+		padding: spacingScale.sm,
 	},
 	overlayPressable: {
 		flex: 1,
@@ -168,63 +170,63 @@ const styles = StyleSheet.create({
 	},
 	modalContent: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 20,
+		borderRadius: borderRadius.xl,
 		width: "100%",
-		maxWidth: 400,
-		padding: 24,
+		maxWidth: scale(400),
+		padding: spacingScale.xl,
 		alignItems: "center",
 	},
 	iconContainer: {
-		marginBottom: 12,
+		marginBottom: spacingScale.md,
 	},
 	modalTitle: {
-		fontSize: 22,
+		fontSize: typography.h2,
 		fontWeight: "700",
 		color: neutral.neutral1,
 		textAlign: "center",
-		marginBottom: 6,
+		marginBottom: spacingScale.xs + 2,
 		fontFamily: "Poppins",
 	},
 	modalSubtitle: {
-		fontSize: 13,
+		fontSize: typography.caption + 1,
 		fontWeight: "400",
 		color: neutral.neutral3,
 		textAlign: "center",
-		lineHeight: 18,
-		marginBottom: 20,
+		lineHeight: spacingScale.lg + 2,
+		marginBottom: spacingScale.lg + 4,
 		fontFamily: "Poppins",
-		paddingHorizontal: 8,
+		paddingHorizontal: spacingScale.sm,
 	},
 	detailsCard: {
 		width: "100%",
 		backgroundColor: neutral.neutral5,
-		borderRadius: 12,
-		paddingHorizontal: 16,
-		paddingVertical: 16,
-		marginBottom: 20,
+		borderRadius: borderRadius.md,
+		paddingHorizontal: spacingScale.lg,
+		paddingVertical: spacingScale.lg,
+		marginBottom: spacingScale.lg + 4,
 	},
 	detailRow: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		paddingVertical: 12,
-		paddingHorizontal: 4,
-		minHeight: 44,
+		paddingVertical: spacingScale.md,
+		paddingHorizontal: spacingScale.xs,
+		minHeight: componentSizes.inputHeight,
 	},
 	detailRowBorder: {
 		borderBottomWidth: 1,
 		borderBottomColor: "rgba(74, 63, 219, 0.1)",
 	},
 	detailLabel: {
-		fontSize: 13,
+		fontSize: typography.caption + 1,
 		fontWeight: "500",
 		color: neutral.neutral2,
 		fontFamily: "Poppins",
 		flexShrink: 1,
-		marginRight: 12,
+		marginRight: spacingScale.md,
 	},
 	detailValue: {
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "600",
 		color: neutral.neutral1,
 		fontFamily: "Poppins",
@@ -232,7 +234,7 @@ const styles = StyleSheet.create({
 	},
 	button: {
 		width: "100%",
-		marginTop: 4,
+		marginTop: spacingScale.xs,
 	},
 });
 

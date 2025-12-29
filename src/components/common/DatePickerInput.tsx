@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { Calendar } from 'phosphor-react-native';
 import { neutral, primary } from '@/constants/colors';
+import { scale, fontSize, spacing } from '@/utils/responsive';
+import { typography, spacingScale, borderRadius, componentSizes } from '@/constants/responsive';
 
 interface DatePickerInputProps {
   value: string;
@@ -198,12 +200,12 @@ const DatePickerInput: React.FC<DatePickerInputProps> = ({
 
 const styles = StyleSheet.create({
   input: {
-    height: 44,
+    height: componentSizes.inputHeight,
     borderWidth: 1,
     borderColor: neutral.neutral4,
-    borderRadius: 15,
-    paddingHorizontal: 12,
-    fontSize: 14,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacingScale.md,
+    fontSize: typography.bodySmall,
     fontWeight: '500',
     color: neutral.neutral1,
     backgroundColor: neutral.neutral6,
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   inputText: {
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '500',
     color: neutral.neutral1,
     fontFamily: 'Poppins',
@@ -229,10 +231,10 @@ const styles = StyleSheet.create({
     color: neutral.neutral4,
   },
   errorText: {
-    fontSize: 12,
+    fontSize: typography.caption,
     color: '#EF4444',
-    marginTop: 4,
-    marginLeft: 4,
+    marginTop: spacing(4),
+    marginLeft: spacing(4),
     fontFamily: 'Poppins',
   },
   modalOverlay: {
@@ -240,20 +242,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacingScale.lg,
   },
   modalContent: {
     backgroundColor: neutral.neutral6,
-    borderRadius: 20,
+    borderRadius: borderRadius.xl,
     width: '100%',
-    maxWidth: 400,
-    padding: 24,
+    maxWidth: scale(400),
+    padding: spacingScale.xl,
   },
   modalHeader: {
-    marginBottom: 20,
+    marginBottom: spacingScale.lg,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: typography.h3,
     fontWeight: '700',
     color: neutral.neutral1,
     textAlign: 'center',
@@ -261,56 +263,56 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
+    gap: spacingScale.md,
+    marginBottom: spacingScale.xl,
   },
   pickerColumn: {
     flex: 1,
   },
   pickerLabel: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '600',
     color: neutral.neutral2,
-    marginBottom: 8,
+    marginBottom: spacingScale.sm,
     textAlign: 'center',
     fontFamily: 'Poppins',
   },
   pickerScroll: {
-    maxHeight: 200,
-    borderRadius: 12,
+    maxHeight: scale(200),
+    borderRadius: borderRadius.md,
     borderWidth: 1,
     borderColor: neutral.neutral5,
   },
   pickerScrollContent: {
-    paddingVertical: 4,
+    paddingVertical: spacing(4),
   },
   pickerItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingVertical: spacingScale.md,
+    paddingHorizontal: spacingScale.sm,
     alignItems: 'center',
   },
   pickerItemSelected: {
     backgroundColor: primary.primary4,
   },
   pickerItemText: {
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '500',
     color: neutral.neutral2,
     fontFamily: 'Poppins',
   },
   pickerItemTextSelected: {
-    fontSize: 16,
+    fontSize: typography.body,
     fontWeight: '700',
     color: primary.primary1,
   },
   modalActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: spacingScale.md,
   },
   modalButton: {
     flex: 1,
-    height: 44,
-    borderRadius: 15,
+    height: componentSizes.inputHeight,
+    borderRadius: borderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -321,13 +323,13 @@ const styles = StyleSheet.create({
     backgroundColor: primary.primary1,
   },
   cancelButtonText: {
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '600',
     color: neutral.neutral1,
     fontFamily: 'Poppins',
   },
   confirmButtonText: {
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '600',
     color: neutral.neutral6,
     fontFamily: 'Poppins',

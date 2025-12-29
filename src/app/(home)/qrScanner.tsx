@@ -19,6 +19,7 @@ import { Account, accountService } from "@/services/accountService";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { CameraView, Camera } from "expo-camera";
 import { AlertModal, ConfirmationModal } from "@/components";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 type QRMode = "static" | "dynamic";
 type PageMode = "show" | "scan";
@@ -251,7 +252,7 @@ const QRScanner = () => {
 					<View style={styles.errorCard}>
 						<Feather
 							name="camera-off"
-							size={64}
+							size={scale(64)}
 							color={neutral.neutral6}
 						/>
 						<Text style={styles.errorTitle}>
@@ -266,7 +267,7 @@ const QRScanner = () => {
 							onPress={() => handlePageModeSwitch("show")}>
 							<Feather
 								name="arrow-left"
-								size={20}
+								size={scale(20)}
 								color={neutral.neutral6}
 							/>
 							<Text style={styles.primaryButtonText}>
@@ -313,9 +314,9 @@ const QRScanner = () => {
 				<View style={styles.scannerInstructionCard}>
 					<Feather
 						name={scanned ? "check-circle" : "maximize"}
-						size={32}
+						size={scale(32)}
 						color={scanned ? "#22C55E" : neutral.neutral6}
-						style={{ marginBottom: 12 }}
+						style={{ marginBottom: spacing(12) }}
 					/>
 					<Text style={styles.scannerInstructionTitle}>
 						{scanned ? "QR Code Scanned!" : "Position QR Code"}
@@ -332,7 +333,7 @@ const QRScanner = () => {
 							onPress={() => setScanned(false)}>
 							<Feather
 								name="rotate-cw"
-								size={20}
+								size={scale(20)}
 								color={neutral.neutral6}
 							/>
 							<Text style={styles.scanAgainText}>Scan Again</Text>
@@ -357,7 +358,7 @@ const QRScanner = () => {
 						onPress={() => router.back()}>
 						<Feather
 							name="arrow-left"
-							size={24}
+							size={scale(24)}
 							color={neutral.neutral6}
 						/>
 					</TouchableOpacity>
@@ -373,7 +374,7 @@ const QRScanner = () => {
 						}>
 						<Feather
 							name={pageMode === "show" ? "share-2" : "x"}
-							size={20}
+							size={scale(20)}
 							color={neutral.neutral6}
 						/>
 					</TouchableOpacity>
@@ -393,7 +394,7 @@ const QRScanner = () => {
 						activeOpacity={0.7}>
 						<Feather
 							name="image"
-							size={18}
+							size={scale(18)}
 							color={
 								pageMode === "show"
 									? primary.primary1
@@ -420,7 +421,7 @@ const QRScanner = () => {
 						activeOpacity={0.7}>
 						<Feather
 							name="camera"
-							size={18}
+							size={scale(18)}
 							color={
 								pageMode === "scan"
 									? primary.primary1
@@ -506,7 +507,7 @@ const QRScanner = () => {
 								activeOpacity={0.7}>
 								<Feather
 									name="lock"
-									size={16}
+									size={scale(16)}
 									color={
 										qrMode === "static"
 											? neutral.neutral6
@@ -533,7 +534,7 @@ const QRScanner = () => {
 								activeOpacity={0.7}>
 								<Feather
 									name="edit-3"
-									size={16}
+									size={scale(16)}
 									color={
 										qrMode === "dynamic"
 											? neutral.neutral6
@@ -616,7 +617,7 @@ const QRScanner = () => {
 									<View style={styles.userAvatar}>
 										<Feather
 											name="user"
-											size={24}
+											size={scale(24)}
 											color={primary.primary1}
 										/>
 									</View>
@@ -626,7 +627,7 @@ const QRScanner = () => {
 									<View style={styles.bankBadge}>
 										<Feather
 											name="shield"
-											size={12}
+											size={scale(12)}
 											color={primary.primary1}
 										/>
 										<Text style={styles.bankName}>
@@ -641,13 +642,13 @@ const QRScanner = () => {
 										{qrValue && (
 											<QRCode
 												value={qrValue}
-												size={180}
+												size={scale(180)}
 												color={primary.primary1}
 												backgroundColor="white"
 												logo={require("../../../assets/icon.png")}
-												logoSize={40}
+												logoSize={scale(40)}
 												logoBackgroundColor="white"
-												logoBorderRadius={8}
+												logoBorderRadius={scale(8)}
 											/>
 										)}
 									</View>
@@ -664,7 +665,7 @@ const QRScanner = () => {
 										</Text>
 										<Feather
 											name="copy"
-											size={18}
+											size={scale(18)}
 											color={primary.primary1}
 										/>
 									</TouchableOpacity>
@@ -681,7 +682,7 @@ const QRScanner = () => {
 													}>
 													<Feather
 														name="dollar-sign"
-														size={14}
+														size={scale(14)}
 														color={primary.primary1}
 													/>
 													<Text
@@ -705,7 +706,7 @@ const QRScanner = () => {
 													}>
 													<Feather
 														name="message-circle"
-														size={14}
+														size={scale(14)}
 														color={primary.primary1}
 													/>
 													<Text
@@ -736,7 +737,7 @@ const QRScanner = () => {
 								<View style={styles.infoCardHeader}>
 									<Feather
 										name="shield"
-										size={20}
+										size={scale(20)}
 										color={primary.primary1}
 									/>
 									<Text style={styles.infoCardTitle}>
@@ -755,7 +756,7 @@ const QRScanner = () => {
 									<View style={styles.infoCardHeader}>
 										<Feather
 											name="zap"
-											size={20}
+											size={scale(20)}
 											color={primary.primary1}
 										/>
 										<Text style={styles.infoCardTitle}>
@@ -773,7 +774,7 @@ const QRScanner = () => {
 									<View style={styles.infoCardHeader}>
 										<Feather
 											name="edit-3"
-											size={20}
+											size={scale(20)}
 											color={primary.primary1}
 										/>
 										<Text style={styles.infoCardTitle}>
@@ -824,7 +825,7 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		paddingBottom: 50,
+		paddingBottom: spacing(50),
 	},
 	centerContainer: {
 		flex: 1,
@@ -832,7 +833,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	loadingText: {
-		fontSize: 16,
+		fontSize: fontSize(16),
 		color: neutral.neutral6,
 		fontWeight: "600",
 	},
@@ -840,19 +841,19 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
-		paddingHorizontal: 24,
-		paddingVertical: 16,
+		paddingHorizontal: spacing(24),
+		paddingVertical: spacing(16),
 	},
 	headerButton: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	headerTitle: {
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "700",
 		color: neutral.neutral6,
 		fontFamily: "Poppins",
@@ -861,48 +862,48 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	scrollContentContainer: {
-		paddingHorizontal: 24,
-		paddingBottom: 100,
-		paddingTop: 8,
+		paddingHorizontal: spacing(24),
+		paddingBottom: spacing(100),
+		paddingTop: spacing(8),
 	},
 	accountSelectorContainer: {
-		marginBottom: 12,
+		marginBottom: spacing(12),
 	},
 	sectionTitle: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: neutral.neutral6,
-		marginBottom: 8,
+		marginBottom: spacing(8),
 		fontFamily: "Poppins",
 	},
 	accountScrollContainer: {
-		gap: 12,
+		gap: spacing(12),
 	},
 	accountChip: {
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
-		borderRadius: 12,
-		paddingHorizontal: 16,
-		paddingVertical: 10,
-		borderWidth: 1.5,
+		borderRadius: scale(12),
+		paddingHorizontal: spacing(16),
+		paddingVertical: spacing(10),
+		borderWidth: scale(1.5),
 		borderColor: "rgba(255, 255, 255, 0.3)",
-		minWidth: 120,
+		minWidth: scale(120),
 	},
 	accountChipActive: {
 		backgroundColor: neutral.neutral6,
 		borderColor: neutral.neutral6,
 	},
 	accountChipText: {
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "600",
 		color: neutral.neutral6,
-		marginBottom: 2,
+		marginBottom: spacing(2),
 		fontFamily: "Poppins",
 	},
 	accountChipTextActive: {
 		color: primary.primary1,
 	},
 	accountChipBalance: {
-		fontSize: 11,
+		fontSize: fontSize(11),
 		fontWeight: "500",
 		color: "rgba(255, 255, 255, 0.8)",
 		fontFamily: "Poppins",
@@ -911,79 +912,79 @@ const styles = StyleSheet.create({
 		color: neutral.neutral2,
 	},
 	qrCard: {
-		borderRadius: 20,
+		borderRadius: scale(20),
 		overflow: "hidden",
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 6 },
+		shadowOffset: { width: 0, height: scale(6) },
 		shadowOpacity: 0.12,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 8,
-		marginBottom: 16,
+		marginBottom: spacing(16),
 	},
 	qrCardGradient: {
-		padding: 20,
+		padding: spacing(20),
 		alignItems: "center",
 	},
 	userInfoSection: {
 		alignItems: "center",
-		marginBottom: 16,
+		marginBottom: spacing(16),
 	},
 	userAvatar: {
-		width: 56,
-		height: 56,
-		borderRadius: 28,
+		width: scale(56),
+		height: scale(56),
+		borderRadius: scale(28),
 		backgroundColor: "rgba(74, 63, 219, 0.1)",
 		justifyContent: "center",
 		alignItems: "center",
-		marginBottom: 8,
-		borderWidth: 2,
+		marginBottom: spacing(8),
+		borderWidth: scale(2),
 		borderColor: "rgba(74, 63, 219, 0.2)",
 	},
 	userName: {
-		fontSize: 18,
+		fontSize: fontSize(18),
 		fontWeight: "700",
 		color: neutral.neutral1,
-		marginBottom: 6,
+		marginBottom: spacing(6),
 		fontFamily: "Poppins",
 	},
 	bankBadge: {
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: "rgba(74, 63, 219, 0.1)",
-		paddingHorizontal: 12,
-		paddingVertical: 4,
-		borderRadius: 16,
-		gap: 4,
+		paddingHorizontal: spacing(12),
+		paddingVertical: spacing(4),
+		borderRadius: scale(16),
+		gap: spacing(4),
 	},
 	bankName: {
-		fontSize: 11,
+		fontSize: fontSize(11),
 		fontWeight: "600",
 		color: primary.primary1,
 		fontFamily: "Poppins",
 	},
 	qrCodeContainer: {
-		marginBottom: 16,
+		marginBottom: spacing(16),
 	},
 	qrCodeWrapper: {
-		padding: 16,
+		padding: spacing(16),
 		backgroundColor: "white",
-		borderRadius: 16,
+		borderRadius: scale(16),
 		shadowColor: primary.primary1,
-		shadowOffset: { width: 0, height: 3 },
+		shadowOffset: { width: 0, height: scale(3) },
 		shadowOpacity: 0.08,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 4,
 	},
 	accountInfoSection: {
 		width: "100%",
 		alignItems: "center",
-		marginBottom: 12,
+		marginBottom: spacing(12),
 	},
 	accountInfoLabel: {
-		fontSize: 11,
+		fontSize: fontSize(11),
 		fontWeight: "500",
 		color: neutral.neutral3,
-		marginBottom: 6,
+		marginBottom: spacing(6),
 		textTransform: "uppercase",
 		letterSpacing: 0.5,
 		fontFamily: "Poppins",
@@ -992,13 +993,13 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: "rgba(74, 63, 219, 0.08)",
-		paddingHorizontal: 16,
-		paddingVertical: 10,
-		borderRadius: 10,
-		gap: 8,
+		paddingHorizontal: spacing(16),
+		paddingVertical: spacing(10),
+		borderRadius: scale(10),
+		gap: spacing(8),
 	},
 	accountNumber: {
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		color: primary.primary1,
 		letterSpacing: 0.8,
@@ -1008,105 +1009,105 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: "rgba(74, 63, 219, 0.05)",
-		paddingHorizontal: 12,
-		paddingVertical: 10,
-		borderRadius: 10,
-		gap: 6,
+		paddingHorizontal: spacing(12),
+		paddingVertical: spacing(10),
+		borderRadius: scale(10),
+		gap: spacing(6),
 		width: "100%",
 	},
 	instructionText: {
-		fontSize: 11,
+		fontSize: fontSize(11),
 		color: neutral.neutral3,
 		flex: 1,
 		fontFamily: "Poppins",
 	},
 	actionButtonsContainer: {
 		flexDirection: "row",
-		gap: 10,
-		marginBottom: 16,
+		gap: spacing(10),
+		marginBottom: spacing(16),
 	},
 	actionButton: {
 		flex: 1,
 		backgroundColor: neutral.neutral6,
-		borderRadius: 14,
-		padding: 12,
+		borderRadius: scale(14),
+		padding: spacing(12),
 		alignItems: "center",
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.08,
-		shadowRadius: 6,
+		shadowRadius: scale(6),
 		elevation: 2,
 	},
 	actionButtonIconContainer: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: "rgba(74, 63, 219, 0.1)",
 		justifyContent: "center",
 		alignItems: "center",
-		marginBottom: 6,
+		marginBottom: spacing(6),
 	},
 	actionButtonText: {
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "600",
 		color: neutral.neutral1,
 		fontFamily: "Poppins",
 	},
 	infoCardsContainer: {
-		gap: 10,
+		gap: spacing(10),
 	},
 	infoCard: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 14,
-		padding: 14,
+		borderRadius: scale(14),
+		padding: spacing(14),
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 1 },
+		shadowOffset: { width: 0, height: scale(1) },
 		shadowOpacity: 0.04,
-		shadowRadius: 6,
+		shadowRadius: scale(6),
 		elevation: 1,
 	},
 	infoCardHeader: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 6,
-		marginBottom: 6,
+		gap: spacing(6),
+		marginBottom: spacing(6),
 	},
 	infoCardTitle: {
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "600",
 		color: neutral.neutral1,
 		fontFamily: "Poppins",
 	},
 	infoCardText: {
-		fontSize: 11,
+		fontSize: fontSize(11),
 		color: neutral.neutral2,
-		lineHeight: 16,
+		lineHeight: fontSize(16),
 		fontFamily: "Poppins",
 	},
 	// Mode Toggle Styles
 	modeToggleContainer: {
 		flexDirection: "row",
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
-		borderRadius: 14,
-		padding: 3,
-		marginBottom: 12,
-		gap: 3,
+		borderRadius: scale(14),
+		padding: spacing(3),
+		marginBottom: spacing(12),
+		gap: spacing(3),
 	},
 	modeToggleButton: {
 		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingVertical: 10,
-		paddingHorizontal: 12,
-		borderRadius: 11,
-		gap: 5,
+		paddingVertical: spacing(10),
+		paddingHorizontal: spacing(12),
+		borderRadius: scale(11),
+		gap: spacing(5),
 	},
 	modeToggleButtonActive: {
 		backgroundColor: primary.primary1,
 	},
 	modeToggleText: {
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "600",
 		color: primary.primary1,
 		fontFamily: "Poppins",
@@ -1117,21 +1118,21 @@ const styles = StyleSheet.create({
 	// Dynamic Inputs Styles
 	dynamicInputsContainer: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 16,
-		padding: 16,
-		marginBottom: 12,
+		borderRadius: scale(16),
+		padding: spacing(16),
+		marginBottom: spacing(12),
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 3 },
+		shadowOffset: { width: 0, height: scale(3) },
 		shadowOpacity: 0.06,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 3,
-		gap: 12,
+		gap: spacing(12),
 	},
 	inputGroup: {
-		gap: 6,
+		gap: spacing(6),
 	},
 	inputLabel: {
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "600",
 		color: neutral.neutral1,
 		fontFamily: "Poppins",
@@ -1140,65 +1141,65 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: "rgba(74, 63, 219, 0.05)",
-		borderRadius: 10,
-		borderWidth: 1.5,
+		borderRadius: scale(10),
+		borderWidth: scale(1.5),
 		borderColor: "rgba(74, 63, 219, 0.1)",
-		paddingHorizontal: 14,
+		paddingHorizontal: spacing(14),
 	},
 	currencySymbol: {
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		color: primary.primary1,
-		marginRight: 6,
+		marginRight: spacing(6),
 		fontFamily: "Poppins",
 	},
 	input: {
 		flex: 1,
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "500",
 		color: neutral.neutral1,
-		paddingVertical: 12,
+		paddingVertical: spacing(12),
 		fontFamily: "Poppins",
 		backgroundColor: "rgba(74, 63, 219, 0.05)",
-		borderRadius: 10,
-		borderWidth: 1.5,
+		borderRadius: scale(10),
+		borderWidth: scale(1.5),
 		borderColor: "rgba(74, 63, 219, 0.1)",
-		paddingHorizontal: 14,
+		paddingHorizontal: spacing(14),
 	},
 	messageInput: {
-		minHeight: 70,
+		minHeight: scale(70),
 		textAlignVertical: "top",
-		paddingTop: 10,
+		paddingTop: spacing(10),
 	},
 	charCount: {
-		fontSize: 11,
+		fontSize: fontSize(11),
 		color: neutral.neutral3,
 		textAlign: "right",
 		fontFamily: "Poppins",
-		marginTop: 4,
+		marginTop: spacing(4),
 	},
 	// Dynamic Info Display Styles
 	dynamicInfoDisplay: {
 		width: "100%",
 		backgroundColor: "rgba(74, 63, 219, 0.05)",
-		borderRadius: 10,
-		padding: 10,
-		marginBottom: 12,
-		gap: 6,
+		borderRadius: scale(10),
+		padding: spacing(10),
+		marginBottom: spacing(12),
+		gap: spacing(6),
 	},
 	dynamicInfoItem: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 5,
+		gap: spacing(5),
 	},
 	dynamicInfoLabel: {
-		fontSize: 11,
+		fontSize: fontSize(11),
 		fontWeight: "500",
 		color: neutral.neutral2,
 		fontFamily: "Poppins",
 	},
 	dynamicInfoValue: {
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "600",
 		color: primary.primary1,
 		fontFamily: "Poppins",
@@ -1208,27 +1209,27 @@ const styles = StyleSheet.create({
 	pageModeToggleContainer: {
 		flexDirection: "row",
 		backgroundColor: "rgba(255, 255, 255, 0.15)",
-		borderRadius: 16,
-		padding: 4,
-		marginHorizontal: 24,
-		marginBottom: 20,
-		gap: 4,
+		borderRadius: scale(16),
+		padding: spacing(4),
+		marginHorizontal: spacing(24),
+		marginBottom: spacing(20),
+		gap: spacing(4),
 	},
 	pageModeToggleButton: {
 		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingVertical: 14,
-		paddingHorizontal: 16,
-		borderRadius: 12,
-		gap: 8,
+		paddingVertical: spacing(14),
+		paddingHorizontal: spacing(16),
+		borderRadius: scale(12),
+		gap: spacing(8),
 	},
 	pageModeToggleButtonActive: {
 		backgroundColor: neutral.neutral6,
 	},
 	pageModeToggleText: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: neutral.neutral6,
 		fontFamily: "Poppins",
@@ -1239,19 +1240,19 @@ const styles = StyleSheet.create({
 	// Scanner Styles
 	scannerContainer: {
 		flex: 1,
-		paddingHorizontal: 24,
-		paddingBottom: 140,
-		gap: 20,
+		paddingHorizontal: spacing(24),
+		paddingBottom: spacing(140),
+		gap: spacing(20),
 	},
 	cameraWrapper: {
 		flex: 1,
-		borderRadius: 24,
+		borderRadius: scale(24),
 		overflow: "hidden",
 		backgroundColor: neutral.neutral1,
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 8 },
+		shadowOffset: { width: 0, height: scale(8) },
 		shadowOpacity: 0.3,
-		shadowRadius: 16,
+		shadowRadius: scale(16),
 		elevation: 10,
 	},
 	camera: {
@@ -1264,106 +1265,106 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	scanFrame: {
-		width: 280,
-		height: 280,
+		width: scale(280),
+		height: scale(280),
 		position: "relative",
 	},
 	corner: {
 		position: "absolute",
-		width: 50,
-		height: 50,
+		width: scale(50),
+		height: scale(50),
 		borderColor: neutral.neutral6,
-		borderWidth: 5,
+		borderWidth: scale(5),
 	},
 	topLeft: {
 		top: 0,
 		left: 0,
 		borderBottomWidth: 0,
 		borderRightWidth: 0,
-		borderTopLeftRadius: 16,
+		borderTopLeftRadius: scale(16),
 	},
 	topRight: {
 		top: 0,
 		right: 0,
 		borderBottomWidth: 0,
 		borderLeftWidth: 0,
-		borderTopRightRadius: 16,
+		borderTopRightRadius: scale(16),
 	},
 	bottomLeft: {
 		bottom: 0,
 		left: 0,
 		borderTopWidth: 0,
 		borderRightWidth: 0,
-		borderBottomLeftRadius: 16,
+		borderBottomLeftRadius: scale(16),
 	},
 	bottomRight: {
 		bottom: 0,
 		right: 0,
 		borderTopWidth: 0,
 		borderLeftWidth: 0,
-		borderBottomRightRadius: 16,
+		borderBottomRightRadius: scale(16),
 	},
 	scanLine: {
 		position: "absolute",
 		top: "50%",
 		left: 0,
 		right: 0,
-		height: 2,
+		height: scale(2),
 		backgroundColor: neutral.neutral6,
 		opacity: 0.8,
 	},
 	scannerInstructionCard: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 20,
-		padding: 24,
+		borderRadius: scale(20),
+		padding: spacing(24),
 		alignItems: "center",
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.1,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 5,
 	},
 	scannerInstructionTitle: {
-		fontSize: 18,
+		fontSize: fontSize(18),
 		fontWeight: "700",
 		color: neutral.neutral1,
-		marginBottom: 8,
+		marginBottom: spacing(8),
 		fontFamily: "Poppins",
 	},
 	scannerInstructionText: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		color: neutral.neutral2,
 		textAlign: "center",
-		lineHeight: 20,
+		lineHeight: fontSize(20),
 		fontFamily: "Poppins",
 	},
 	errorCard: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 24,
-		padding: 32,
+		borderRadius: scale(24),
+		padding: spacing(32),
 		alignItems: "center",
 		width: "90%",
-		maxWidth: 320,
+		maxWidth: scale(320),
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.1,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 5,
 	},
 	errorTitle: {
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "700",
 		color: neutral.neutral1,
-		marginTop: 16,
-		marginBottom: 8,
+		marginTop: spacing(16),
+		marginBottom: spacing(8),
 		fontFamily: "Poppins",
 	},
 	errorText: {
-		fontSize: 14,
+		fontSize: fontSize(14),
 		color: neutral.neutral2,
 		textAlign: "center",
-		lineHeight: 20,
-		marginBottom: 24,
+		lineHeight: fontSize(20),
+		marginBottom: spacing(24),
 		fontFamily: "Poppins",
 	},
 	primaryButton: {
@@ -1371,14 +1372,14 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingHorizontal: 32,
-		paddingVertical: 16,
-		borderRadius: 30,
-		gap: 8,
+		paddingHorizontal: spacing(32),
+		paddingVertical: spacing(16),
+		borderRadius: scale(30),
+		gap: spacing(8),
 	},
 	primaryButtonText: {
 		color: neutral.neutral6,
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		fontFamily: "Poppins",
 	},
@@ -1387,15 +1388,15 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingHorizontal: 28,
-		paddingVertical: 14,
-		borderRadius: 30,
-		marginTop: 20,
-		gap: 8,
+		paddingHorizontal: spacing(28),
+		paddingVertical: spacing(14),
+		borderRadius: scale(30),
+		marginTop: spacing(20),
+		gap: spacing(8),
 	},
 	scanAgainText: {
 		color: neutral.neutral6,
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		fontFamily: "Poppins",
 	},

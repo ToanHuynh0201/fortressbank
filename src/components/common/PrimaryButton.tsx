@@ -10,6 +10,8 @@ import {
 	ActivityIndicator,
 } from "react-native";
 import { primary, neutral } from "@/constants/colors";
+import { componentSizes, typography, spacingScale, borderRadius } from "@/constants/responsive";
+import { spacing } from "@/utils/responsive";
 
 interface PrimaryButtonProps extends Omit<PressableProps, "style"> {
 	title: string;
@@ -71,18 +73,18 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
 
 const styles = StyleSheet.create({
 	button: {
-		height: 48,
+		height: componentSizes.buttonHeight,
 		backgroundColor: primary.primary1,
-		borderRadius: 16,
+		borderRadius: borderRadius.lg,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingHorizontal: 24,
+		paddingHorizontal: spacingScale.xl,
 	},
 	buttonDisabled: {
 		backgroundColor: primary.primary4,
 	},
 	buttonText: {
-		fontSize: 15,
+		fontSize: typography.button,
 		fontWeight: "600",
 		color: neutral.neutral6,
 		fontFamily: "Poppins",
@@ -93,7 +95,7 @@ const styles = StyleSheet.create({
 	loadingContainer: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
+		gap: spacingScale.sm,
 	},
 });
 

@@ -8,6 +8,7 @@ import {
 	ViewStyle,
 } from "react-native";
 import { primary, neutral } from "@/constants/colors";
+import { spacingScale, borderRadius } from "@/constants/responsive";
 import AppHeader from "../common/AppHeader";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -73,13 +74,14 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		borderTopLeftRadius: 30,
-		borderTopRightRadius: 30,
+		borderTopLeftRadius: borderRadius.xxl,
+		borderTopRightRadius: borderRadius.xxl,
 	},
 	contentContainer: {
-		paddingHorizontal: 24,
-		paddingTop: 24,
-		paddingBottom: 40,
+		paddingHorizontal: spacingScale.xl,
+		paddingTop: spacingScale.lg,
+		paddingBottom: spacingScale.xl,
+		flexGrow: 1,
 	},
 });
 

@@ -15,6 +15,7 @@ import { NotificationItem } from '@/components/notifications';
 import { primary, neutral, semantic } from '@/constants/colors';
 import { useNotifications } from '@/contexts';
 import { CheckCircle } from 'phosphor-react-native';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -61,12 +62,12 @@ const Notification = () => {
               entering={FadeIn.delay(100).duration(400)}
               style={styles.actionContainer}
             >
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.markAllButton}
                 onPress={markAllAsRead}
                 activeOpacity={0.8}
               >
-                <CheckCircle size={20} color={neutral.neutral6} weight="bold" />
+                <CheckCircle size={scale(20)} color={neutral.neutral6} weight="bold" />
                 <Text style={styles.markAllButtonText}>
                   Mark all as read ({unreadCount})
                 </Text>
@@ -109,37 +110,37 @@ const styles = StyleSheet.create({
     backgroundColor: neutral.neutral6,
   },
   contentContainer: {
-    paddingTop: 16,
-    paddingBottom: 100,
+    paddingTop: spacing(16),
+    paddingBottom: spacing(100),
   },
   actionContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 16,
+    paddingHorizontal: spacing(24),
+    paddingBottom: spacing(16),
   },
   markAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: primary.primary1,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    gap: 10,
+    paddingVertical: spacing(14),
+    paddingHorizontal: spacing(20),
+    borderRadius: scale(12),
+    gap: spacing(10),
     shadowColor: primary.primary1,
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: scale(4),
     },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: scale(8),
     elevation: 6,
   },
   markAllButtonText: {
     fontFamily: 'Poppins',
-    fontSize: 15,
+    fontSize: fontSize(15),
     fontWeight: '600',
     color: neutral.neutral6,
-    lineHeight: 22,
+    lineHeight: fontSize(22),
   },
   notificationsList: {
     gap: 0,

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Image, Text, StyleSheet, ImageStyle } from "react-native";
 import { neutral, primary } from "@/constants/colors";
 import { useAuth } from "@/hooks";
+import { scale } from "@/utils/responsive";
 
 interface UserAvatarProps {
 	size?: number;
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
 	avatar: {
 		justifyContent: "center",
 		alignItems: "center",
-		borderWidth: 3,
+		borderWidth: scale(3),
 		borderColor: "rgba(255, 255, 255, 0.3)",
 	},
 	avatarBorder: {
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
 		width: "100%",
 		height: "100%",
 		borderRadius: 999,
-		borderWidth: 2,
+		borderWidth: scale(2),
 		borderColor: "rgba(255, 255, 255, 0.2)",
 	},
 	initials: {

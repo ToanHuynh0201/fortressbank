@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TextInputProps, TouchableOpacity } from 'react-native';
 import colors from '@/constants/colors';
 import { formatCurrencyInput, parseCurrency } from '@/utils/currency';
+import { componentSizes, typography, spacingScale, borderRadius } from '@/constants/responsive';
+import { spacing, fontSize } from '@/utils/responsive';
 
 interface CurrencyInputProps extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   value: string;
@@ -84,7 +86,7 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
                 onPress={() => handleQuickAmount(percentage)}
                 style={[
                   styles.quickAmountButtonWrapper,
-                  index < 3 ? { marginRight: 8 } : null
+                  index < 3 ? { marginRight: spacingScale.sm } : null
                 ]}
               >
                 <Text style={styles.quickAmountButton}>
@@ -115,16 +117,16 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    marginBottom: spacingScale.xl,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 44,
+    height: componentSizes.inputHeight,
     borderWidth: 1,
     borderColor: colors.neutral.neutral4,
-    borderRadius: 15,
-    paddingHorizontal: 12,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacingScale.md,
     backgroundColor: colors.neutral.neutral6,
   },
   inputWrapperFocused: {
@@ -136,27 +138,27 @@ const styles = StyleSheet.create({
   },
   currencySymbol: {
     fontFamily: 'Poppins',
-    fontSize: 16,
+    fontSize: fontSize(16),
     fontWeight: '600',
     color: colors.primary.primary1,
-    marginRight: 8,
+    marginRight: spacingScale.sm,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: fontSize(16),
     fontWeight: '600',
     color: colors.neutral.neutral1,
     padding: 0,
   },
   quickAmountContainer: {
-    marginTop: 12,
+    marginTop: spacingScale.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   quickAmountLabel: {
     fontFamily: 'Poppins',
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '500',
     color: colors.neutral.neutral3,
   },
@@ -164,30 +166,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   quickAmountButtonWrapper: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: spacingScale.md,
+    paddingVertical: spacing(6),
     backgroundColor: colors.primary.primary4,
-    borderRadius: 8,
+    borderRadius: borderRadius.sm,
   },
   quickAmountButton: {
     fontFamily: 'Poppins',
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '600',
     color: colors.primary.primary1,
   },
   balanceText: {
     fontFamily: 'Poppins',
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '500',
     color: colors.neutral.neutral3,
-    marginTop: 8,
+    marginTop: spacingScale.sm,
   },
   errorText: {
     fontFamily: 'Poppins',
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '500',
     color: colors.semantic.error,
-    marginTop: 8,
+    marginTop: spacingScale.sm,
   },
 });
 

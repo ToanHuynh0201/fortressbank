@@ -33,6 +33,7 @@ import { SettingRow, BiometricSettings } from "@/components/settings";
 import { primary, neutral } from "@/constants/colors";
 import { UserAvatar } from "@/components";
 import { useAuth } from "@/hooks";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -157,7 +158,7 @@ const Setting = () => {
 					</View>
 					<TouchableOpacity style={styles.editButton}>
 						<PencilSimple
-							size={18}
+							size={scale(18)}
 							color={primary.primary1}
 							weight="bold"
 						/>
@@ -175,7 +176,7 @@ const Setting = () => {
 						title="Password"
 						icon={
 							<Lock
-								size={20}
+								size={scale(20)}
 								color={primary.primary1}
 								weight="bold"
 							/>
@@ -186,7 +187,7 @@ const Setting = () => {
 						title="PIN"
 						icon={
 							<LockKey
-								size={20}
+								size={scale(20)}
 								color={primary.primary1}
 								weight="bold"
 							/>
@@ -198,7 +199,7 @@ const Setting = () => {
 						subtitle="Update your face recognition"
 						icon={
 							<User
-								size={20}
+								size={scale(20)}
 								color={primary.primary1}
 								weight="bold"
 							/>
@@ -215,7 +216,7 @@ const Setting = () => {
 						subtitle="19008989"
 						icon={
 							<Phone
-								size={20}
+								size={scale(20)}
 								color={primary.primary1}
 								weight="bold"
 							/>
@@ -234,7 +235,7 @@ const Setting = () => {
 						onPress={handleLogoutPress}>
 						<View style={styles.logoutIconContainer}>
 							<SignOut
-								size={20}
+								size={scale(20)}
 								color={neutral.neutral6}
 								weight="bold"
 							/>
@@ -283,98 +284,98 @@ const styles = StyleSheet.create({
 		backgroundColor: neutral.neutral6,
 	},
 	contentContainer: {
-		paddingTop: 20,
-		paddingBottom: 130,
+		paddingTop: spacing(20),
+		paddingBottom: spacing(130),
 	},
 	profileCard: {
 		flexDirection: "row",
 		alignItems: "center",
-		marginHorizontal: 24,
-		marginBottom: 24,
+		marginHorizontal: spacing(24),
+		marginBottom: spacing(24),
 		backgroundColor: neutral.neutral6,
-		borderRadius: 20,
-		padding: 16,
+		borderRadius: scale(20),
+		padding: spacing(16),
 		shadowColor: primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.1,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 5,
-		borderWidth: 1,
+		borderWidth: scale(1),
 		borderColor: neutral.neutral5,
 	},
 	profileInfo: {
 		flex: 1,
-		marginLeft: 16,
+		marginLeft: spacing(16),
 	},
 	userName: {
 		fontFamily: "Poppins",
-		fontSize: 18,
+		fontSize: fontSize(18),
 		fontWeight: "700",
-		lineHeight: 24,
+		lineHeight: fontSize(24),
 		color: neutral.neutral1,
-		marginBottom: 2,
+		marginBottom: spacing(2),
 	},
 	userEmail: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "500",
-		lineHeight: 18,
+		lineHeight: fontSize(18),
 		color: neutral.neutral3,
 	},
 	editButton: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	section: {
-		marginBottom: 12,
+		marginBottom: spacing(12),
 	},
 	sectionTitle: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "700",
-		lineHeight: 20,
+		lineHeight: fontSize(20),
 		color: neutral.neutral2,
 		textTransform: "uppercase",
 		letterSpacing: 0.5,
-		marginBottom: 12,
-		marginLeft: 24,
+		marginBottom: spacing(12),
+		marginLeft: spacing(24),
 	},
 	logoutContainer: {
-		paddingHorizontal: 24,
-		marginTop: 16,
-		marginBottom: 8,
+		paddingHorizontal: spacing(24),
+		marginTop: spacing(16),
+		marginBottom: spacing(8),
 	},
 	logoutButton: {
 		backgroundColor: "#FF3B30",
-		height: 56,
-		borderRadius: 20,
+		height: scale(56),
+		borderRadius: scale(20),
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
 		shadowColor: "#FF3B30",
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.3,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 6,
-		gap: 8,
+		gap: spacing(8),
 	},
 	logoutButtonPressed: {
 		opacity: 0.8,
 		transform: [{ scale: 0.98 }],
 	},
 	logoutIconContainer: {
-		width: 24,
-		height: 24,
+		width: scale(24),
+		height: scale(24),
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	logoutText: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "700",
 		color: neutral.neutral6,
 	},

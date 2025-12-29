@@ -13,6 +13,7 @@ import { MagnifyingGlass, X } from "phosphor-react-native";
 import { Beneficiary } from "@/types/beneficiary";
 import beneficiaryService from "@/services/beneficiaryService";
 import colors from "@/constants/colors";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 import BeneficiaryCard from "./BeneficiaryCard";
 
 interface BeneficiarySelectorProps {
@@ -96,7 +97,7 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
 							onPress={onClose}
 							style={styles.closeButton}>
 							<X
-								size={24}
+								size={scale(24)}
 								color={colors.neutral.neutral1}
 								weight="regular"
 							/>
@@ -106,7 +107,7 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
 					{/* Search Bar */}
 					<View style={styles.searchContainer}>
 						<MagnifyingGlass
-							size={20}
+							size={scale(20)}
 							color={colors.neutral.neutral3}
 							weight="regular"
 						/>
@@ -121,7 +122,7 @@ const BeneficiarySelector: React.FC<BeneficiarySelectorProps> = ({
 							<TouchableOpacity
 								onPress={() => setSearchQuery("")}>
 								<X
-									size={20}
+									size={scale(20)}
 									color={colors.neutral.neutral3}
 									weight="regular"
 								/>
@@ -178,28 +179,28 @@ const styles = StyleSheet.create({
 	},
 	modalContent: {
 		backgroundColor: colors.neutral.neutral6,
-		borderTopLeftRadius: 25,
-		borderTopRightRadius: 25,
+		borderTopLeftRadius: scale(25),
+		borderTopRightRadius: scale(25),
 		maxHeight: "85%",
-		paddingTop: 20,
-		paddingHorizontal: 20,
-		paddingBottom: 40,
+		paddingTop: spacing(20),
+		paddingHorizontal: spacing(20),
+		paddingBottom: spacing(40),
 	},
 	header: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		marginBottom: 20,
+		marginBottom: spacing(20),
 	},
 	title: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
 	},
 	closeButton: {
-		width: 32,
-		height: 32,
+		width: scale(32),
+		height: scale(32),
 		justifyContent: "center",
 		alignItems: "center",
 	},
@@ -207,44 +208,44 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: colors.neutral.neutral5,
-		borderRadius: 12,
-		paddingHorizontal: 12,
-		paddingVertical: 10,
-		marginBottom: 20,
+		borderRadius: scale(12),
+		paddingHorizontal: spacing(12),
+		paddingVertical: spacing(10),
+		marginBottom: spacing(20),
 	},
 	searchInput: {
 		flex: 1,
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		color: colors.neutral.neutral1,
-		marginLeft: 8,
+		marginLeft: spacing(8),
 		padding: 0,
 	},
 	listContent: {
-		paddingBottom: 20,
+		paddingBottom: spacing(20),
 	},
 	loadingContainer: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingVertical: 40,
+		paddingVertical: spacing(40),
 	},
 	emptyContainer: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingVertical: 60,
+		paddingVertical: spacing(60),
 	},
 	emptyTitle: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		color: colors.neutral.neutral2,
-		marginBottom: 8,
+		marginBottom: spacing(8),
 	},
 	emptySubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 		textAlign: "center",

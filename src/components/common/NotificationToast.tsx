@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useRouter } from "expo-router";
 import { primary, neutral, semantic } from "@/constants";
+import { typography, spacingScale, borderRadius } from "@/constants/responsive";
+import { scale } from "@/utils/responsive";
 
 const NotificationToast = () => {
 	const { toastVisible, currentToast, hideToast } = useNotifications();
@@ -139,17 +141,17 @@ const NotificationToast = () => {
 const styles = StyleSheet.create({
 	container: {
 		position: "absolute",
-		top: 60,
-		left: 16,
-		right: 16,
+		top: scale(60),
+		left: spacingScale.lg,
+		right: spacingScale.lg,
 		zIndex: 999,
 		pointerEvents: "box-none",
 	},
 	toast: {
 		flexDirection: "row",
 		alignItems: "center",
-		padding: 16,
-		borderRadius: 16,
+		padding: spacingScale.lg,
+		borderRadius: borderRadius.lg,
 		backgroundColor: neutral.neutral6,
 		shadowColor: "#000",
 		shadowOffset: {
@@ -162,38 +164,38 @@ const styles = StyleSheet.create({
 		pointerEvents: "auto",
 	},
 	iconContainer: {
-		width: 48,
-		height: 48,
-		borderRadius: 24,
+		width: scale(48),
+		height: scale(48),
+		borderRadius: scale(24),
 		alignItems: "center",
 		justifyContent: "center",
-		marginRight: 12,
+		marginRight: spacingScale.md,
 	},
 	content: {
 		flex: 1,
-		marginRight: 8,
+		marginRight: spacingScale.sm,
 	},
 	title: {
-		fontSize: 15,
+		fontSize: typography.body,
 		fontWeight: "700",
 		color: neutral.neutral1,
-		marginBottom: 4,
+		marginBottom: spacingScale.xs,
 	},
 	message: {
-		fontSize: 13,
+		fontSize: typography.caption,
 		fontWeight: "400",
 		color: neutral.neutral2,
 		lineHeight: 18,
-		marginBottom: 4,
+		marginBottom: spacingScale.xs,
 	},
 	time: {
-		fontSize: 11,
+		fontSize: typography.tiny,
 		fontWeight: "500",
 		color: neutral.neutral3,
 	},
 	closeButton: {
-		padding: 4,
-		marginLeft: 4,
+		padding: spacingScale.xs,
+		marginLeft: spacingScale.xs,
 	},
 });
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { CaretRight } from 'phosphor-react-native';
 import { neutral, primary } from '@/constants/colors';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 interface SettingRowProps {
   title: string;
@@ -40,7 +41,7 @@ const SettingRow: React.FC<SettingRowProps> = ({
           )}
         </View>
         {showChevron && (
-          <CaretRight size={20} color={neutral.neutral3} weight="bold" />
+          <CaretRight size={scale(20)} color={neutral.neutral3} weight="bold" />
         )}
       </View>
     </Pressable>
@@ -49,16 +50,16 @@ const SettingRow: React.FC<SettingRowProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 24,
-    marginBottom: 12,
+    marginHorizontal: spacing(24),
+    marginBottom: spacing(12),
     backgroundColor: neutral.neutral6,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    borderRadius: scale(16),
+    paddingVertical: spacing(16),
+    paddingHorizontal: spacing(16),
     shadowColor: primary.primary1,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: scale(2) },
     shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowRadius: scale(8),
     elevation: 2,
     borderWidth: 1,
     borderColor: neutral.neutral5,
@@ -72,31 +73,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     backgroundColor: primary.primary4,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing(12),
   },
   textContainer: {
     flex: 1,
   },
   title: {
     fontFamily: 'Poppins',
-    fontSize: 15,
+    fontSize: fontSize(15),
     fontWeight: '600',
     lineHeight: 20,
     color: neutral.neutral1,
   },
   subtitle: {
     fontFamily: 'Poppins',
-    fontSize: 13,
+    fontSize: fontSize(13),
     fontWeight: '500',
     lineHeight: 18,
     color: neutral.neutral3,
-    marginTop: 2,
+    marginTop: spacing(2),
   },
 });
 

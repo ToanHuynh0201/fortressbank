@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, ActivityIndicator, StyleSheet, ViewStyle, TextStyle } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import colors from "@/constants/colors";
+import { typography, spacingScale } from "@/constants/responsive";
 
 interface LoadingSpinnerProps {
 	size?: number | "small" | "large";
@@ -41,16 +42,16 @@ const styles = StyleSheet.create({
 	containerHorizontal: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
+		gap: spacingScale.sm,
 	},
 	containerVertical: {
 		flexDirection: "column",
 		alignItems: "center",
-		gap: 8,
+		gap: spacingScale.sm,
 	},
 	text: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: typography.caption,
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 	},

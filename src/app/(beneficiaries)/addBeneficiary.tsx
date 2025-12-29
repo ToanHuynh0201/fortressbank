@@ -33,6 +33,7 @@ import { useForm } from "@/hooks";
 import { BeneficiaryFormData } from "@/types/beneficiary";
 import beneficiaryService from "@/services/beneficiaryService";
 import type { AccountLookupData } from "@/services/transferService";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -205,7 +206,7 @@ const AddBeneficiary = () => {
 						onPress={() => router.back()}
 						style={styles.backButton}>
 						<CaretLeft
-							size={24}
+							size={scale(24)}
 							color={colors.neutral.neutral6}
 							weight="bold"
 						/>
@@ -238,7 +239,7 @@ const AddBeneficiary = () => {
 							end={{ x: 1, y: 1 }}
 							style={styles.iconGradient}>
 							<User
-								size={48}
+								size={scale(48)}
 								color={colors.neutral.neutral6}
 								weight="regular"
 							/>
@@ -269,7 +270,7 @@ const AddBeneficiary = () => {
 						<View style={styles.inputGroup}>
 							<View style={styles.inputLabelRow}>
 								<IdentificationCard
-									size={20}
+									size={scale(20)}
 									color={colors.primary.primary1}
 									weight="regular"
 								/>
@@ -292,7 +293,7 @@ const AddBeneficiary = () => {
 						<View style={styles.inputGroup}>
 							<View style={styles.inputLabelRow}>
 								<Bank
-									size={20}
+									size={scale(20)}
 									color={colors.primary.primary1}
 									weight="regular"
 								/>
@@ -311,7 +312,7 @@ const AddBeneficiary = () => {
 						<View style={styles.inputGroup}>
 							<View style={styles.inputLabelRow}>
 								<User
-									size={20}
+									size={scale(20)}
 									color={colors.primary.primary1}
 									weight="regular"
 								/>
@@ -370,9 +371,9 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.primary.primary1,
 	},
 	headerGradient: {
-		paddingHorizontal: 24,
-		paddingTop: 16,
-		paddingBottom: 24,
+		paddingHorizontal: spacing(24),
+		paddingTop: spacing(16),
+		paddingBottom: spacing(24),
 	},
 	header: {
 		flexDirection: "row",
@@ -380,101 +381,101 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	backButton: {
-		width: 40,
-		height: 40,
+		width: scale(40),
+		height: scale(40),
 		justifyContent: "center",
 		alignItems: "flex-start",
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "700",
 		color: colors.neutral.neutral6,
 		flex: 1,
 		textAlign: "center",
 	},
 	headerRight: {
-		width: 40,
+		width: scale(40),
 	},
 	content: {
 		flex: 1,
 		backgroundColor: colors.neutral.neutral6,
-		borderTopLeftRadius: 30,
-		borderTopRightRadius: 30,
+		borderTopLeftRadius: scale(30),
+		borderTopRightRadius: scale(30),
 	},
 	scrollContent: {
-		padding: 24,
-		paddingTop: 32,
-		paddingBottom: 40,
+		padding: spacing(24),
+		paddingTop: spacing(32),
+		paddingBottom: spacing(40),
 	},
 	iconContainer: {
 		alignItems: "center",
-		marginBottom: 24,
+		marginBottom: spacing(24),
 	},
 	iconGradient: {
-		width: 96,
-		height: 96,
-		borderRadius: 48,
+		width: scale(96),
+		height: scale(96),
+		borderRadius: scale(48),
 		justifyContent: "center",
 		alignItems: "center",
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 8 },
+		shadowOffset: { width: 0, height: scale(8) },
 		shadowOpacity: 0.3,
-		shadowRadius: 16,
+		shadowRadius: scale(16),
 		elevation: 8,
 	},
 	titleSection: {
 		alignItems: "center",
-		marginBottom: 32,
+		marginBottom: spacing(32),
 	},
 	formTitle: {
 		fontFamily: "Poppins",
-		fontSize: 24,
+		fontSize: fontSize(24),
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 8,
+		marginBottom: spacing(8),
 		textAlign: "center",
 	},
 	formSubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 		textAlign: "center",
-		lineHeight: 20,
-		paddingHorizontal: 20,
+		lineHeight: fontSize(20),
+		paddingHorizontal: spacing(20),
 	},
 	formCard: {
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 20,
-		padding: 20,
-		marginBottom: 24,
-		borderWidth: 1,
+		borderRadius: scale(20),
+		padding: spacing(20),
+		marginBottom: spacing(24),
+		borderWidth: scale(1),
 		borderColor: colors.neutral.neutral5,
 		shadowColor: "rgba(54, 41, 183, 0.08)",
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 1,
-		shadowRadius: 20,
+		shadowRadius: scale(20),
 		elevation: 3,
 	},
 	inputGroup: {
-		marginBottom: 20,
+		marginBottom: spacing(20),
 	},
 	inputLabelRow: {
 		flexDirection: "row",
 		alignItems: "center",
-		marginBottom: 8,
-		gap: 8,
+		marginBottom: spacing(8),
+		gap: spacing(8),
 	},
 	inputLabel: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
 	},
 	optionalText: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 	},
@@ -485,7 +486,7 @@ const styles = StyleSheet.create({
 		marginBottom: 0,
 	},
 	buttonContainer: {
-		paddingHorizontal: 4,
+		paddingHorizontal: spacing(4),
 	},
 });
 

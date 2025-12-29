@@ -1,5 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { scale } from '@/utils/responsive';
+import { typography, spacingScale, borderRadius } from '@/constants/responsive';
 
 interface CategoryCardProps {
   title: string;
@@ -29,31 +31,31 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 const styles = StyleSheet.create({
   categoryCard: {
     width: '30%',
-    height: 100,
-    borderRadius: 15,
-    padding: 16,
+    height: scale(100),
+    borderRadius: borderRadius.lg,
+    padding: spacingScale.lg,
     shadowColor: 'rgba(0, 0, 0, 0.05)',
-    shadowOffset: { width: 0, height: 5 },
+    shadowOffset: { width: 0, height: scale(5) },
     shadowOpacity: 1,
-    shadowRadius: 30,
+    shadowRadius: scale(30),
     elevation: 2,
   },
   categoryIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: scale(28),
+    height: scale(28),
+    borderRadius: scale(14),
     justifyContent: 'center',
     backgroundColor: 'transparent',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacingScale.md,
     alignSelf: 'center',
   },
   categoryTitle: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontFamily: 'Poppins',
     fontWeight: '500',
     color: '#979797',
-    lineHeight: 16,
+    lineHeight: scale(16),
     textAlign: 'center',
   },
 });

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
   withSpring,
   withTiming,
   Easing,
@@ -10,6 +10,7 @@ import Animated, {
 import { ArrowUp, ArrowDown } from 'phosphor-react-native';
 import { neutral, semantic, primary } from '@/constants/colors';
 import { formatDate, formatTime } from '@/utils/date';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 export interface TransactionHistoryItemProps {
   id: string;
@@ -35,15 +36,15 @@ const TransactionHistoryItem: React.FC<TransactionHistoryItemProps> = ({
   index = 0,
   style,
 }) => {
-  const scale = useSharedValue(0.95);
+  const scaleAnim = useSharedValue(0.95);
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(10);
 
   useEffect(() => {
     const delay = index * 50;
-    
+
     setTimeout(() => {
-      scale.value = withSpring(1, {
+      scaleAnim.value = withSpring(1, {
         damping: 20,
         stiffness: 100,
       });
@@ -60,7 +61,7 @@ const TransactionHistoryItem: React.FC<TransactionHistoryItemProps> = ({
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
-      { scale: scale.value },
+      { scale: scaleAnim.value },
       { translateY: translateY.value },
     ],
     opacity: opacity.value,
@@ -109,9 +110,9 @@ const TransactionHistoryItem: React.FC<TransactionHistoryItemProps> = ({
           { backgroundColor: type === 'sent' ? '#FFF0F0' : '#F0FFF4' }
         ]}>
           {type === 'sent' ? (
-            <ArrowUp size={24} color={semantic.error} weight="bold" />
+            <ArrowUp size={scale(24)} color={semantic.error} weight="bold" />
           ) : (
-            <ArrowDown size={24} color={semantic.success} weight="bold" />
+            <ArrowDown size={scale(24)} color={semantic.success} weight="bold" />
           )}
         </View>
 
@@ -154,24 +155,24 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     backgroundColor: neutral.neutral6,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: scale(16),
+    padding: spacing(16),
+    marginBottom: spacing(12),
     shadowColor: 'rgba(54, 41, 183, 0.08)',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 1,
-    shadowRadius: 20,
+    shadowRadius: scale(20),
     elevation: 3,
     borderWidth: 1,
     borderColor: '#F5F5F5',
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(24),
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing(12),
   },
   infoContainer: {
     flex: 1,
@@ -180,60 +181,60 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing(6),
   },
   recipient: {
     flex: 1,
     fontFamily: 'Poppins',
-    fontSize: 15,
+    fontSize: fontSize(15),
     fontWeight: '600',
-    lineHeight: 22,
+    lineHeight: scale(22),
     color: neutral.neutral1,
-    marginRight: 8,
+    marginRight: spacing(8),
   },
   amount: {
     fontFamily: 'Poppins',
-    fontSize: 16,
+    fontSize: fontSize(16),
     fontWeight: '700',
-    lineHeight: 24,
+    lineHeight: scale(24),
   },
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: spacing(4),
   },
   dateTime: {
     fontFamily: 'Poppins',
-    fontSize: 12,
+    fontSize: fontSize(12),
     fontWeight: '400',
-    lineHeight: 18,
+    lineHeight: scale(18),
     color: neutral.neutral3,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    gap: 4,
+    paddingHorizontal: spacing(8),
+    paddingVertical: spacing(2),
+    borderRadius: scale(8),
+    gap: spacing(4),
   },
   statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: scale(6),
+    height: scale(6),
+    borderRadius: scale(3),
   },
   statusText: {
     fontFamily: 'Poppins',
-    fontSize: 11,
+    fontSize: fontSize(11),
     fontWeight: '600',
-    lineHeight: 16,
+    lineHeight: scale(16),
   },
   transactionId: {
     fontFamily: 'Poppins',
-    fontSize: 11,
+    fontSize: fontSize(11),
     fontWeight: '400',
-    lineHeight: 16,
+    lineHeight: scale(16),
     color: neutral.neutral4,
   },
 });

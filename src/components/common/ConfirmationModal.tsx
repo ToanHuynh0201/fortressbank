@@ -8,6 +8,8 @@ import {
   StyleSheet,
 } from 'react-native';
 import { neutral, primary } from '@/constants/colors';
+import { scale } from '@/utils/responsive';
+import { typography, spacingScale, borderRadius, componentSizes } from '@/constants/responsive';
 
 interface ConfirmationModalProps {
   visible: boolean;
@@ -74,40 +76,40 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacingScale.lg,
   },
   modalContent: {
     backgroundColor: neutral.neutral6,
-    borderRadius: 20,
+    borderRadius: borderRadius.xl,
     width: '100%',
-    maxWidth: 340,
-    padding: 24,
+    maxWidth: scale(340),
+    padding: spacingScale.xl,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: typography.h3,
     fontWeight: '700',
     color: neutral.neutral1,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: spacingScale.md,
     fontFamily: 'Poppins',
   },
   modalMessage: {
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '400',
     color: neutral.neutral3,
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
+    lineHeight: spacingScale.lg + 4,
+    marginBottom: spacingScale.xl,
     fontFamily: 'Poppins',
   },
   modalActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: spacingScale.md,
   },
   modalButton: {
     flex: 1,
-    height: 44,
-    borderRadius: 15,
+    height: componentSizes.inputHeight,
+    borderRadius: borderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -123,13 +125,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF4444',
   },
   cancelButtonText: {
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '600',
     color: neutral.neutral1,
     fontFamily: 'Poppins',
   },
   confirmButtonText: {
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     fontWeight: '600',
     color: neutral.neutral6,
     fontFamily: 'Poppins',

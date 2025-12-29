@@ -44,6 +44,7 @@ import { parseCurrency } from "@/utils/currency";
 import { Beneficiary } from "@/types/beneficiary";
 import { Account, accountService } from "@/services/accountService";
 import type { AccountLookupData } from "@/services/transferService";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -223,7 +224,7 @@ const Transfer = () => {
 					style={styles.backButton}>
 					<View style={styles.backButtonCircle}>
 						<CaretLeft
-							size={20}
+							size={scale(20)}
 							color={colors.neutral.neutral1}
 							weight="bold"
 						/>
@@ -262,7 +263,7 @@ const Transfer = () => {
 								<View style={styles.accountSelectorContent}>
 									<View style={styles.accountIconContainer}>
 										<Bank
-											size={24}
+											size={scale(24)}
 											color={isLoadingAccounts ? colors.neutral.neutral3 : colors.primary.primary1}
 											weight={isLoadingAccounts ? "regular" : "duotone"}
 										/>
@@ -334,7 +335,7 @@ const Transfer = () => {
 												style={styles.eyeButton}>
 												{showAccountNumbers ? (
 													<Eye
-														size={20}
+														size={scale(20)}
 														color={
 															colors.primary
 																.primary1
@@ -343,7 +344,7 @@ const Transfer = () => {
 													/>
 												) : (
 													<EyeSlash
-														size={20}
+														size={scale(20)}
 														color={
 															colors.neutral
 																.neutral3
@@ -356,7 +357,7 @@ const Transfer = () => {
 										<View
 											style={styles.dropdownIconWrapper}>
 											<CaretLeft
-												size={16}
+												size={scale(16)}
 												color={colors.neutral.neutral3}
 												weight="bold"
 												style={{
@@ -456,7 +457,7 @@ const Transfer = () => {
 								}
 								disabled={!selectedAccount}>
 								<UserList
-									size={22}
+									size={scale(22)}
 									color={selectedAccount ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
@@ -467,7 +468,7 @@ const Transfer = () => {
 						<View style={styles.inputSection}>
 							<View style={styles.inputLabelRow}>
 								<Bank
-									size={18}
+									size={scale(18)}
 									color={selectedAccount ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
@@ -509,7 +510,7 @@ const Transfer = () => {
 											<>
 												<View style={styles.bankIconContainer}>
 													<Bank
-														size={24}
+														size={scale(24)}
 														color={colors.neutral.neutral3}
 														weight="regular"
 													/>
@@ -523,7 +524,7 @@ const Transfer = () => {
 										)}
 										<View style={styles.dropdownIconWrapper}>
 											<CaretLeft
-												size={16}
+												size={scale(16)}
 												color={colors.neutral.neutral3}
 												weight="bold"
 												style={{
@@ -593,7 +594,7 @@ const Transfer = () => {
 						]}>
 							<View style={styles.inputLabelRow}>
 								<User
-									size={18}
+									size={scale(18)}
 									color={selectedBank ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
@@ -623,7 +624,7 @@ const Transfer = () => {
 						]}>
 							<View style={styles.inputLabelRow}>
 								<CurrencyDollar
-									size={18}
+									size={scale(18)}
 									color={values.accountNumber && beneficiaryName ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
@@ -654,7 +655,7 @@ const Transfer = () => {
 						]}>
 							<View style={styles.inputLabelRow}>
 								<FileText
-									size={18}
+									size={scale(18)}
 									color={values.amount && numericAmount > 0 ? colors.primary.primary1 : colors.neutral.neutral3}
 									weight="bold"
 								/>
@@ -731,20 +732,20 @@ const styles = StyleSheet.create({
 	header: {
 		flexDirection: "row",
 		alignItems: "center",
-		paddingHorizontal: 24,
-		paddingTop: 16,
-		paddingBottom: 20,
+		paddingHorizontal: spacing(24),
+		paddingTop: spacing(16),
+		paddingBottom: spacing(20),
 		backgroundColor: colors.neutral.neutral6,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
 	backButton: {
-		marginRight: 16,
+		marginRight: spacing(16),
 	},
 	backButtonCircle: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
@@ -754,62 +755,62 @@ const styles = StyleSheet.create({
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 22,
+		fontSize: fontSize(22),
 		fontWeight: "700",
-		lineHeight: 28,
+		lineHeight: fontSize(28),
 		color: colors.neutral.neutral1,
-		marginBottom: 2,
+		marginBottom: spacing(2),
 	},
 	headerSubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
-		lineHeight: 18,
+		lineHeight: fontSize(18),
 	},
 	scrollView: {
 		flex: 1,
 	},
 	scrollContent: {
-		paddingBottom: 20,
+		paddingBottom: spacing(20),
 	},
 	section: {
-		paddingHorizontal: 24,
-		marginBottom: 16,
-		marginTop: 16,
+		paddingHorizontal: spacing(24),
+		marginBottom: spacing(16),
+		marginTop: spacing(16),
 	},
 	sectionLabel: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "700",
-		lineHeight: 18,
+		lineHeight: fontSize(18),
 		color: colors.neutral.neutral1,
-		marginBottom: 12,
+		marginBottom: spacing(12),
 		textTransform: "uppercase",
 		letterSpacing: 0.5,
 	},
 	sectionTitle: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "600",
-		lineHeight: 16,
+		lineHeight: fontSize(16),
 		color: colors.neutral.neutral3,
 	},
 	accountSelectorWrapper: {
 		position: "relative",
 	},
 	accountSelector: {
-		minHeight: 72,
+		minHeight: scale(72),
 		borderWidth: 1.5,
 		borderColor: colors.primary.primary4,
-		borderRadius: 16,
-		paddingHorizontal: 14,
-		paddingVertical: 12,
+		borderRadius: scale(16),
+		paddingHorizontal: spacing(14),
+		paddingVertical: spacing(12),
 		backgroundColor: colors.neutral.neutral6,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.06,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 3,
 	},
 	accountSelectorContent: {
@@ -818,101 +819,101 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	accountIconContainer: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 10,
+		marginRight: spacing(10),
 	},
 	accountTextContainer: {
 		flex: 1,
-		marginRight: 12,
+		marginRight: spacing(12),
 	},
 	accountSelectorIcons: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 12,
+		gap: spacing(12),
 	},
 	eyeButton: {
-		padding: 6,
-		borderRadius: 8,
+		padding: spacing(6),
+		borderRadius: scale(8),
 		backgroundColor: colors.primary.primary4,
 	},
 	accountLabel: {
 		fontFamily: "Poppins",
-		fontSize: 15,
+		fontSize: fontSize(15),
 		fontWeight: "600",
 		color: colors.neutral.neutral3,
-		marginBottom: 4,
+		marginBottom: spacing(4),
 	},
 	accountPlaceholder: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: colors.neutral.neutral4,
-		marginTop: 2,
+		marginTop: spacing(2),
 	},
 	accountLabelSelected: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 3,
+		marginBottom: spacing(3),
 	},
 	accountNumber: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
-		marginBottom: 4,
+		marginBottom: spacing(4),
 	},
 	balanceContainer: {
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: colors.primary.primary4,
-		paddingHorizontal: 10,
-		paddingVertical: 4,
-		borderRadius: 8,
+		paddingHorizontal: spacing(10),
+		paddingVertical: spacing(4),
+		borderRadius: scale(8),
 		alignSelf: "flex-start",
 	},
 	balanceLabel: {
 		fontFamily: "Poppins",
-		fontSize: 11,
+		fontSize: fontSize(11),
 		fontWeight: "500",
 		color: colors.neutral.neutral2,
 	},
 	balanceAmount: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "700",
 		color: colors.primary.primary1,
 	},
 	dropdownIconWrapper: {
-		width: 28,
-		height: 28,
-		borderRadius: 14,
+		width: scale(28),
+		height: scale(28),
+		borderRadius: scale(14),
 		backgroundColor: colors.neutral.neutral5,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	dropdownMenu: {
-		marginTop: 8,
+		marginTop: spacing(8),
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 16,
+		borderRadius: scale(16),
 		borderWidth: 1.5,
 		borderColor: colors.primary.primary4,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 3 },
+		shadowOffset: { width: 0, height: scale(3) },
 		shadowOpacity: 0.1,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 6,
 		overflow: "hidden",
 	},
 	dropdownItem: {
-		paddingVertical: 10,
-		paddingHorizontal: 14,
+		paddingVertical: spacing(10),
+		paddingHorizontal: spacing(14),
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
@@ -926,50 +927,50 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	cardIcon: {
-		width: 44,
-		height: 44,
-		borderRadius: 22,
+		width: scale(44),
+		height: scale(44),
+		borderRadius: scale(22),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 14,
+		marginRight: spacing(14),
 		borderWidth: 2,
 		borderColor: colors.primary.primary3,
 	},
 	cardIconText: {
-		fontSize: 22,
+		fontSize: fontSize(22),
 	},
 	dropdownItemInfo: {
 		flex: 1,
 	},
 	dropdownItemLabel: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "500",
 		color: colors.neutral.neutral1,
-		marginBottom: 4,
+		marginBottom: spacing(4),
 	},
 	dropdownItemBalance: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 	},
 	checkIcon: {
-		width: 28,
-		height: 28,
-		borderRadius: 14,
+		width: scale(28),
+		height: scale(28),
+		borderRadius: scale(14),
 		backgroundColor: colors.primary.primary1,
 		justifyContent: "center",
 		alignItems: "center",
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.3,
-		shadowRadius: 4,
+		shadowRadius: scale(4),
 		elevation: 3,
 	},
 	checkIconText: {
-		fontSize: 18,
+		fontSize: fontSize(18),
 		color: colors.neutral.neutral6,
 		fontWeight: "bold",
 	},
@@ -977,28 +978,28 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingVertical: 14,
-		paddingHorizontal: 16,
-		gap: 10,
+		paddingVertical: spacing(14),
+		paddingHorizontal: spacing(16),
+		gap: spacing(10),
 		backgroundColor: colors.primary.primary4,
 		borderTopWidth: 2,
 		borderTopColor: colors.neutral.neutral5,
 	},
 	dropdownEyeText: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "600",
 		color: colors.primary.primary1,
 	},
 	formCard: {
-		marginHorizontal: 24,
+		marginHorizontal: spacing(24),
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 20,
-		padding: 18,
+		borderRadius: scale(20),
+		padding: spacing(18),
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.08,
-		shadowRadius: 16,
+		shadowRadius: scale(16),
 		elevation: 6,
 		borderWidth: 1,
 		borderColor: colors.neutral.neutral5,
@@ -1007,8 +1008,8 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "flex-start",
-		marginBottom: 16,
-		paddingBottom: 14,
+		marginBottom: spacing(16),
+		paddingBottom: spacing(14),
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
@@ -1017,46 +1018,46 @@ const styles = StyleSheet.create({
 	},
 	formTitle: {
 		fontFamily: "Poppins",
-		fontSize: 18,
+		fontSize: fontSize(18),
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 4,
+		marginBottom: spacing(4),
 	},
 	formSubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
-		lineHeight: 16,
+		lineHeight: fontSize(16),
 	},
 	beneficiaryButton: {
-		width: 42,
-		height: 42,
-		borderRadius: 21,
+		width: scale(42),
+		height: scale(42),
+		borderRadius: scale(21),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginLeft: 10,
+		marginLeft: spacing(10),
 		borderWidth: 1.5,
 		borderColor: colors.primary.primary3,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.12,
-		shadowRadius: 4,
+		shadowRadius: scale(4),
 		elevation: 2,
 	},
 	inputSection: {
-		marginBottom: 16,
+		marginBottom: spacing(16),
 	},
 	inputLabelRow: {
 		flexDirection: "row",
 		alignItems: "center",
-		marginBottom: 8,
-		gap: 6,
+		marginBottom: spacing(8),
+		gap: spacing(6),
 	},
 	inputLabel: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
 		letterSpacing: 0.2,
@@ -1065,28 +1066,28 @@ const styles = StyleSheet.create({
 		marginBottom: 0,
 	},
 	confirmButton: {
-		marginTop: 8,
+		marginTop: spacing(8),
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 3 },
+		shadowOffset: { width: 0, height: scale(3) },
 		shadowOpacity: 0.25,
-		shadowRadius: 6,
+		shadowRadius: scale(6),
 		elevation: 4,
 	},
 	bankSelectorWrapper: {
 		position: "relative",
 	},
 	bankSelector: {
-		minHeight: 60,
+		minHeight: scale(60),
 		borderWidth: 1.5,
 		borderColor: colors.primary.primary4,
-		borderRadius: 14,
-		paddingHorizontal: 14,
-		paddingVertical: 10,
+		borderRadius: scale(14),
+		paddingHorizontal: spacing(14),
+		paddingVertical: spacing(10),
 		backgroundColor: colors.neutral.neutral6,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.04,
-		shadowRadius: 6,
+		shadowRadius: scale(6),
 		elevation: 2,
 	},
 	bankSelectorContent: {
@@ -1095,62 +1096,62 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	bankIconContainer: {
-		width: 38,
-		height: 38,
-		borderRadius: 19,
+		width: scale(38),
+		height: scale(38),
+		borderRadius: scale(19),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 10,
+		marginRight: spacing(10),
 	},
 	bankLogo: {
-		fontSize: 20,
+		fontSize: fontSize(20),
 	},
 	bankTextContainer: {
 		flex: 1,
-		marginRight: 10,
+		marginRight: spacing(10),
 	},
 	bankNameSelected: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
-		marginBottom: 3,
+		marginBottom: spacing(3),
 	},
 	bankCode: {
 		fontFamily: "Poppins",
-		fontSize: 11,
+		fontSize: fontSize(11),
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
 	},
 	bankPlaceholder: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
 	},
 	bankDropdownMenu: {
-		marginTop: 8,
+		marginTop: spacing(8),
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 14,
+		borderRadius: scale(14),
 		borderWidth: 1.5,
 		borderColor: colors.primary.primary4,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 3 },
+		shadowOffset: { width: 0, height: scale(3) },
 		shadowOpacity: 0.08,
-		shadowRadius: 10,
+		shadowRadius: scale(10),
 		elevation: 4,
-		maxHeight: 240,
+		maxHeight: scale(240),
 		overflow: "hidden",
 	},
 	bankDropdownScroll: {
-		maxHeight: 240,
+		maxHeight: scale(240),
 	},
 	bankDropdownItem: {
 		flexDirection: "row",
 		alignItems: "center",
-		paddingVertical: 10,
-		paddingHorizontal: 14,
+		paddingVertical: spacing(10),
+		paddingHorizontal: spacing(14),
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
@@ -1164,14 +1165,14 @@ const styles = StyleSheet.create({
 	},
 	bankDropdownItemName: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
-		marginBottom: 4,
+		marginBottom: spacing(4),
 	},
 	bankDropdownItemCode: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 	},

@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Swipeable } from 'react-native-gesture-handler';
 import { neutral, semantic } from '@/constants/colors';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 interface NotificationItemProps {
   title: string;
@@ -78,8 +79,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 const styles = StyleSheet.create({
   notificationItem: {
     flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingHorizontal: spacing(24),
+    paddingVertical: spacing(16),
     backgroundColor: neutral.neutral6,
     borderBottomWidth: 1,
     borderBottomColor: '#ECECEC',
@@ -88,9 +89,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FF',
   },
   typeIndicator: {
-    width: 4,
-    borderRadius: 2,
-    marginRight: 12,
+    width: scale(4),
+    borderRadius: scale(2),
+    marginRight: spacing(12),
   },
   notificationContent: {
     flex: 1,
@@ -99,60 +100,60 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing(6),
   },
   notificationTitle: {
     flex: 1,
     fontFamily: 'Poppins',
-    fontSize: 15,
+    fontSize: fontSize(15),
     fontWeight: '600',
-    lineHeight: 22,
+    lineHeight: scale(22),
     color: neutral.neutral1,
-    marginRight: 8,
+    marginRight: spacing(8),
   },
   notificationTime: {
     fontFamily: 'Poppins',
-    fontSize: 12,
+    fontSize: fontSize(12),
     fontWeight: '400',
-    lineHeight: 16,
+    lineHeight: scale(16),
     color: neutral.neutral3,
   },
   notificationMessage: {
     fontFamily: 'Poppins',
-    fontSize: 13,
+    fontSize: fontSize(13),
     fontWeight: '400',
-    lineHeight: 20,
+    lineHeight: scale(20),
     color: neutral.neutral2,
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4),
     backgroundColor: semantic.info,
-    marginLeft: 8,
-    marginTop: 8,
+    marginLeft: spacing(8),
+    marginTop: spacing(8),
   },
   deleteButton: {
     backgroundColor: semantic.error,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 80,
-    marginVertical: 8,
-    marginRight: 16,
-    borderRadius: 12,
+    width: scale(80),
+    marginVertical: spacing(8),
+    marginRight: spacing(16),
+    borderRadius: scale(12),
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: scale(2),
     },
     shadowOpacity: 0.15,
-    shadowRadius: 3.84,
+    shadowRadius: scale(3.84),
     elevation: 3,
   },
   deleteButtonText: {
     color: neutral.neutral6,
     fontFamily: 'Poppins',
-    fontSize: 14,
+    fontSize: fontSize(14),
     fontWeight: '600',
   },
 });

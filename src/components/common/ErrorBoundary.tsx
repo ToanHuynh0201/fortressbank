@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 interface Props {
   children: ReactNode;
@@ -120,62 +121,62 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing(20),
   },
   content: {
     alignItems: 'center',
-    maxWidth: 400,
+    maxWidth: scale(400),
   },
   emoji: {
-    fontSize: 64,
-    marginBottom: 20,
+    fontSize: fontSize(64),
+    marginBottom: spacing(20),
   },
   title: {
-    fontSize: 24,
+    fontSize: fontSize(24),
     fontWeight: 'bold',
     color: '#1a1a1a',
-    marginBottom: 12,
+    marginBottom: spacing(12),
     textAlign: 'center',
   },
   message: {
-    fontSize: 16,
+    fontSize: fontSize(16),
     color: '#666',
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 24,
+    marginBottom: spacing(24),
+    lineHeight: fontSize(24),
   },
   errorDetails: {
     backgroundColor: '#f5f5f5',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 24,
+    padding: spacing(16),
+    borderRadius: scale(8),
+    marginBottom: spacing(24),
     width: '100%',
   },
   errorTitle: {
-    fontSize: 14,
+    fontSize: fontSize(14),
     fontWeight: 'bold',
     color: '#d32f2f',
-    marginBottom: 8,
+    marginBottom: spacing(8),
   },
   errorText: {
-    fontSize: 12,
+    fontSize: fontSize(12),
     color: '#d32f2f',
-    marginBottom: 8,
+    marginBottom: spacing(8),
     fontFamily: 'monospace',
   },
   errorStack: {
-    fontSize: 10,
+    fontSize: fontSize(10),
     color: '#666',
     fontFamily: 'monospace',
   },
   buttonContainer: {
     width: '100%',
-    gap: 12,
+    gap: spacing(12),
   },
   button: {
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: spacing(14),
+    paddingHorizontal: spacing(24),
+    borderRadius: scale(8),
     alignItems: 'center',
   },
   primaryButton: {
@@ -183,17 +184,17 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: fontSize(16),
     fontWeight: '600',
   },
   secondaryButton: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: scale(1),
     borderColor: '#1976d2',
   },
   secondaryButtonText: {
     color: '#1976d2',
-    fontSize: 16,
+    fontSize: fontSize(16),
     fontWeight: '600',
   },
 });

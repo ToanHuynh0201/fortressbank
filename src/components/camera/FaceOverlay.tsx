@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import Svg, { Rect, Circle } from "react-native-svg";
 import { DetectedFace } from "@/utils/faceDetection";
 import { neutral, primary } from "@/constants";
+import { scale } from "@/utils/responsive";
 
 export interface FaceOverlayProps {
 	faces: DetectedFace[];
@@ -60,9 +61,9 @@ export const FaceOverlay: React.FC<FaceOverlayProps> = ({
 								width={bounds.width}
 								height={bounds.height}
 								stroke={boundColor}
-								strokeWidth={3}
+								strokeWidth={scale(3)}
 								fill="transparent"
-								rx={8}
+								rx={scale(8)}
 							/>
 
 							{/* Eye landmarks */}
@@ -70,7 +71,7 @@ export const FaceOverlay: React.FC<FaceOverlayProps> = ({
 								<Circle
 									cx={scalePoint(face.landmarks.leftEye).x}
 									cy={scalePoint(face.landmarks.leftEye).y}
-									r={4}
+									r={scale(4)}
 									fill={landmarkColor}
 								/>
 							)}
@@ -78,7 +79,7 @@ export const FaceOverlay: React.FC<FaceOverlayProps> = ({
 								<Circle
 									cx={scalePoint(face.landmarks.rightEye).x}
 									cy={scalePoint(face.landmarks.rightEye).y}
-									r={4}
+									r={scale(4)}
 									fill={landmarkColor}
 								/>
 							)}
@@ -88,7 +89,7 @@ export const FaceOverlay: React.FC<FaceOverlayProps> = ({
 								<Circle
 									cx={scalePoint(face.landmarks.noseBase).x}
 									cy={scalePoint(face.landmarks.noseBase).y}
-									r={3}
+									r={scale(3)}
 									fill={landmarkColor}
 								/>
 							)}
@@ -98,7 +99,7 @@ export const FaceOverlay: React.FC<FaceOverlayProps> = ({
 								<Circle
 									cx={scalePoint(face.landmarks.leftMouth).x}
 									cy={scalePoint(face.landmarks.leftMouth).y}
-									r={3}
+									r={scale(3)}
 									fill={landmarkColor}
 								/>
 							)}
@@ -106,7 +107,7 @@ export const FaceOverlay: React.FC<FaceOverlayProps> = ({
 								<Circle
 									cx={scalePoint(face.landmarks.rightMouth).x}
 									cy={scalePoint(face.landmarks.rightMouth).y}
-									r={3}
+									r={scale(3)}
 									fill={landmarkColor}
 								/>
 							)}

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import { useRouter } from "expo-router";
-import { neutral, primary, commonStyles } from "@/constants";
+import { neutral, primary, commonStyles, typography, spacingScale, borderRadius } from "@/constants";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 import {
 	AppHeader,
 	CustomInput,
@@ -389,32 +390,32 @@ const styles = StyleSheet.create({
 		backgroundColor: neutral.neutral6,
 	},
 	contentContainer: {
-		paddingHorizontal: 24,
-		paddingTop: 24,
-		paddingBottom: 40,
+		paddingHorizontal: spacingScale.xl,
+		paddingTop: spacingScale.xl,
+		paddingBottom: spacingScale.xxxl,
 	},
 	label: {
-		fontSize: 12,
+		fontSize: typography.caption,
 		fontWeight: "600",
 		color: "#979797",
-		marginBottom: 8,
+		marginBottom: spacingScale.sm,
 	},
 	inputWrapper: {
-		marginBottom: 16,
+		marginBottom: spacingScale.lg,
 	},
 	codeInputRow: {
 		flexDirection: "row",
-		gap: 12,
-		marginBottom: 16,
+		gap: spacingScale.md,
+		marginBottom: spacingScale.lg,
 	},
 	codeInput: {
 		flex: 1,
 	},
 	resendButton: {
-		width: 100,
-		height: 44,
+		width: scale(100),
+		height: scale(44),
 		backgroundColor: primary.primary1,
-		borderRadius: 15,
+		borderRadius: borderRadius.lg,
 		justifyContent: "center",
 		alignItems: "center",
 	},
@@ -423,29 +424,29 @@ const styles = StyleSheet.create({
 		opacity: 0.7,
 	},
 	resendButtonText: {
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "500",
 		color: neutral.neutral6,
 	},
 	infoText: {
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "500",
-		lineHeight: 21,
+		lineHeight: fontSize(21),
 		color: neutral.neutral2,
-		marginBottom: 16,
+		marginBottom: spacingScale.lg,
 	},
 	passwordSection: {
-		marginTop: 8,
+		marginTop: spacingScale.sm,
 	},
 	passwordFieldSpacing: {
-		marginBottom: 16,
+		marginBottom: spacingScale.lg,
 	},
 	linkButton: {
 		alignItems: "center",
-		paddingVertical: 12,
+		paddingVertical: spacingScale.md,
 	},
 	linkText: {
-		fontSize: 12,
+		fontSize: typography.caption,
 		fontWeight: "600",
 		color: primary.primary1,
 	},

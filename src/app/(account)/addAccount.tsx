@@ -22,6 +22,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { CaretLeft, CreditCard } from "phosphor-react-native";
 import colors from "@/constants/colors";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 import {
 	PrimaryButton,
 	PasswordInput,
@@ -206,7 +207,7 @@ const AddAccount = () => {
 						onPress={() => router.back()}
 						style={styles.backButton}>
 						<CaretLeft
-							size={24}
+							size={scale(24)}
 							color={colors.neutral.neutral6}
 							weight="bold"
 						/>
@@ -237,7 +238,7 @@ const AddAccount = () => {
 							end={{ x: 1, y: 1 }}
 							style={styles.iconGradient}>
 							<CreditCard
-								size={48}
+								size={scale(48)}
 								color={colors.neutral.neutral6}
 								weight="regular"
 							/>
@@ -416,9 +417,9 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.primary.primary1,
 	},
 	headerGradient: {
-		paddingHorizontal: 24,
-		paddingTop: 16,
-		paddingBottom: 24,
+		paddingHorizontal: spacing(24),
+		paddingTop: spacing(16),
+		paddingBottom: spacing(24),
 	},
 	header: {
 		flexDirection: "row",
@@ -426,110 +427,110 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	backButton: {
-		width: 40,
-		height: 40,
+		width: scale(40),
+		height: scale(40),
 		justifyContent: "center",
 		alignItems: "flex-start",
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "700",
 		color: colors.neutral.neutral6,
 		flex: 1,
 		textAlign: "center",
 	},
 	headerRight: {
-		width: 40,
+		width: scale(40),
 	},
 	content: {
 		flex: 1,
 		backgroundColor: colors.neutral.neutral6,
-		borderTopLeftRadius: 30,
-		borderTopRightRadius: 30,
+		borderTopLeftRadius: scale(30),
+		borderTopRightRadius: scale(30),
 	},
 	scrollContent: {
-		padding: 24,
-		paddingTop: 32,
-		paddingBottom: 40,
+		padding: spacing(24),
+		paddingTop: spacing(32),
+		paddingBottom: spacing(40),
 	},
 	iconContainer: {
 		alignItems: "center",
-		marginBottom: 24,
+		marginBottom: spacing(24),
 	},
 	iconGradient: {
-		width: 96,
-		height: 96,
-		borderRadius: 48,
+		width: scale(96),
+		height: scale(96),
+		borderRadius: scale(48),
 		justifyContent: "center",
 		alignItems: "center",
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 8 },
+		shadowOffset: { width: 0, height: scale(8) },
 		shadowOpacity: 0.3,
-		shadowRadius: 16,
+		shadowRadius: scale(16),
 		elevation: 8,
 	},
 	titleSection: {
 		alignItems: "center",
-		marginBottom: 32,
+		marginBottom: spacing(32),
 	},
 	formTitle: {
 		fontFamily: "Poppins",
-		fontSize: 24,
+		fontSize: fontSize(24),
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
-		marginBottom: 8,
+		marginBottom: spacing(8),
 		textAlign: "center",
 	},
 	formSubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 		textAlign: "center",
-		lineHeight: 20,
-		paddingHorizontal: 20,
+		lineHeight: fontSize(20),
+		paddingHorizontal: spacing(20),
 	},
 	formCard: {
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 20,
-		padding: 20,
-		marginBottom: 24,
+		borderRadius: scale(20),
+		padding: spacing(20),
+		marginBottom: spacing(24),
 		borderWidth: 1,
 		borderColor: colors.neutral.neutral5,
 		shadowColor: "rgba(54, 41, 183, 0.08)",
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 1,
-		shadowRadius: 20,
+		shadowRadius: scale(20),
 		elevation: 3,
 	},
 	row: {
 		flexDirection: "row",
-		gap: 12,
-		marginBottom: 20,
+		gap: spacing(12),
+		marginBottom: spacing(20),
 	},
 	halfWidth: {
 		flex: 1,
 	},
 	label: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
-		marginBottom: 8,
+		marginBottom: spacing(8),
 	},
 	inputWrapper: {
 		marginBottom: 0,
 	},
 	accountTypeContainer: {
-		gap: 12,
+		gap: spacing(12),
 		marginBottom: 0,
 	},
 	accountTypeOption: {
 		flexDirection: "row",
 		alignItems: "center",
-		padding: 16,
-		borderRadius: 12,
+		padding: spacing(16),
+		borderRadius: scale(12),
 		borderWidth: 2,
 		borderColor: colors.neutral.neutral4,
 		backgroundColor: colors.neutral.neutral6,
@@ -539,19 +540,19 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.primary.primary4,
 	},
 	radioButton: {
-		width: 20,
-		height: 20,
-		borderRadius: 10,
+		width: scale(20),
+		height: scale(20),
+		borderRadius: scale(10),
 		borderWidth: 2,
 		borderColor: colors.neutral.neutral3,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 12,
+		marginRight: spacing(12),
 	},
 	radioButtonSelected: {
-		width: 10,
-		height: 10,
-		borderRadius: 5,
+		width: scale(10),
+		height: scale(10),
+		borderRadius: scale(5),
 		backgroundColor: colors.primary.primary1,
 	},
 	accountTypeContent: {
@@ -559,19 +560,19 @@ const styles = StyleSheet.create({
 	},
 	accountTypeTitle: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
-		marginBottom: 2,
+		marginBottom: spacing(2),
 	},
 	accountTypeDescription: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 	},
 	buttonContainer: {
-		paddingHorizontal: 4,
+		paddingHorizontal: spacing(4),
 	},
 });
 

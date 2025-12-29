@@ -8,6 +8,8 @@ import Animated, {
 	LinearTransition,
 } from "react-native-reanimated";
 import { neutral, primary, semantic } from "@/constants";
+import { spacing, fontSize, scale } from "@/utils/responsive";
+import { spacingScale, typography, componentSizes } from "@/constants/responsive";
 import { useNotifications } from "@/contexts";
 
 const AnimatedTouchableOpacity =
@@ -21,7 +23,7 @@ const getIconByRouteName = (
 	color: string,
 	badgeCount?: number,
 ) => {
-	const iconSize = 20;
+	const iconSize = scale(20);
 
 	const renderIcon = () => {
 		switch (routeName) {
@@ -169,7 +171,7 @@ const CustomNavBar = ({
 					<View style={styles.qrIconContainer}>
 						<Ionicons
 							name="qr-code-outline"
-							size={28}
+							size={scale(28)}
 							color={PRIMARY_COLOR}
 						/>
 					</View>
@@ -184,10 +186,10 @@ const styles = StyleSheet.create({
 		position: "absolute",
 		width: "100%",
 		alignItems: "center",
-		bottom: 40,
+		bottom: spacingScale.xxxl,
 		flexDirection: "row",
 		justifyContent: "space-between",
-		paddingHorizontal: 20,
+		paddingHorizontal: spacingScale.xl * 0.83,
 	},
 	container: {
 		flexDirection: "row",
@@ -196,9 +198,9 @@ const styles = StyleSheet.create({
 		backgroundColor: PRIMARY_COLOR,
 		flex: 1,
 		maxWidth: "80%",
-		borderRadius: 40,
-		paddingHorizontal: 20,
-		paddingVertical: 15,
+		borderRadius: spacingScale.xxxl,
+		paddingHorizontal: spacingScale.xl * 0.83,
+		paddingVertical: spacing(15),
 		borderWidth: 1,
 		borderColor: SECONDARY_COLOR,
 		boxShadow: "0 10px 20px 0 rgba(47, 0, 255, 0.4)",
@@ -208,13 +210,13 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "center",
 		alignItems: "center",
-		height: 36,
-		paddingHorizontal: 10,
-		borderRadius: 30,
+		height: scale(36),
+		paddingHorizontal: spacing(10),
+		borderRadius: spacingScale.xxl,
 	},
 	text: {
 		color: PRIMARY_COLOR,
-		marginLeft: 8,
+		marginLeft: spacingScale.sm,
 		fontWeight: "500",
 	},
 	iconContainer: {
@@ -224,25 +226,25 @@ const styles = StyleSheet.create({
 	},
 	badge: {
 		position: "absolute",
-		top: -6,
-		right: -8,
-		minWidth: 16,
-		height: 16,
-		borderRadius: 8,
+		top: scale(-6),
+		right: scale(-8),
+		minWidth: scale(16),
+		height: scale(16),
+		borderRadius: scale(8),
 		backgroundColor: semantic.error,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingHorizontal: 4,
+		paddingHorizontal: spacing(4),
 	},
 	badgeText: {
-		fontSize: 9,
+		fontSize: typography.tiny,
 		fontFamily: "Poppins",
 		fontWeight: "700",
 		color: neutral.neutral6,
-		lineHeight: 12,
+		lineHeight: scale(12),
 	},
 	qrButtonWrapper: {
-		marginLeft: 15,
+		marginLeft: spacing(15),
 	},
 	qrButton: {
 		shadowColor: SECONDARY_COLOR,
@@ -255,9 +257,9 @@ const styles = StyleSheet.create({
 		elevation: 15,
 	},
 	qrIconContainer: {
-		width: 60,
-		height: 60,
-		borderRadius: 30,
+		width: componentSizes.tabBarHeight,
+		height: componentSizes.tabBarHeight,
+		borderRadius: componentSizes.tabBarHeight / 2,
 		backgroundColor: SECONDARY_COLOR,
 		justifyContent: "center",
 		alignItems: "center",

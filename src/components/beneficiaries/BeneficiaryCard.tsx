@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "rea
 import { User, Trash, PencilSimple } from "phosphor-react-native";
 import { Beneficiary } from "@/types/beneficiary";
 import colors from "@/constants/colors";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 interface BeneficiaryCardProps {
 	beneficiary: Beneficiary;
@@ -33,7 +34,7 @@ const BeneficiaryCard: React.FC<BeneficiaryCardProps> = ({
 			disabled={!onPress}>
 			<View style={styles.iconContainer}>
 				<User
-					size={24}
+					size={scale(24)}
 					color={colors.primary.primary1}
 					weight="regular"
 				/>
@@ -75,7 +76,7 @@ const BeneficiaryCard: React.FC<BeneficiaryCardProps> = ({
 							}}
 							disabled={isDeleting}>
 							<PencilSimple
-								size={20}
+								size={scale(20)}
 								color={isDeleting ? colors.neutral.neutral4 : colors.primary.primary1}
 								weight="regular"
 							/>
@@ -94,7 +95,7 @@ const BeneficiaryCard: React.FC<BeneficiaryCardProps> = ({
 								<ActivityIndicator size="small" color={colors.semantic.error} />
 							) : (
 								<Trash
-									size={20}
+									size={scale(20)}
 									color={colors.semantic.error}
 									weight="regular"
 								/>
@@ -112,25 +113,25 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 15,
-		padding: 16,
-		marginBottom: 12,
+		borderRadius: scale(15),
+		padding: spacing(16),
+		marginBottom: spacing(12),
 		borderWidth: 1,
 		borderColor: colors.neutral.neutral5,
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.05,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 2,
 	},
 	iconContainer: {
-		width: 48,
-		height: 48,
-		borderRadius: 24,
+		width: scale(48),
+		height: scale(48),
+		borderRadius: scale(24),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 12,
+		marginRight: spacing(12),
 	},
 	infoContainer: {
 		flex: 1,
@@ -138,44 +139,44 @@ const styles = StyleSheet.create({
 	topRow: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
-		marginBottom: 4,
+		gap: spacing(8),
+		marginBottom: spacing(4),
 	},
 	name: {
 		fontFamily: "Poppins",
-		fontSize: 15,
+		fontSize: fontSize(15),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
 		flex: 1,
 	},
 	accountName: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 	},
 	accountNumber: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "500",
 		color: colors.primary.primary1,
-		marginBottom: 2,
+		marginBottom: spacing(2),
 	},
 	bankName: {
 		fontFamily: "Poppins",
-		fontSize: 11,
+		fontSize: fontSize(11),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 	},
 	actionsContainer: {
 		flexDirection: "row",
-		gap: 8,
-		marginLeft: 8,
+		gap: spacing(8),
+		marginLeft: spacing(8),
 	},
 	actionButton: {
-		width: 36,
-		height: 36,
-		borderRadius: 18,
+		width: scale(36),
+		height: scale(36),
+		borderRadius: scale(18),
 		backgroundColor: colors.neutral.neutral5,
 		justifyContent: "center",
 		alignItems: "center",

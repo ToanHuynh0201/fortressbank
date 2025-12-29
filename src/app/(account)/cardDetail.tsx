@@ -36,6 +36,7 @@ import Animated, {
 	Easing,
 } from "react-native-reanimated";
 import colors from "@/constants/colors";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 import {
 	ScreenContainer,
 	CreditCardItem,
@@ -485,7 +486,7 @@ const CardDetail = () => {
 					onPress={() => router.back()}
 					style={styles.backButton}>
 					<CaretLeft
-						size={24}
+						size={scale(24)}
 						color={colors.neutral.neutral1}
 						weight="regular"
 					/>
@@ -548,7 +549,7 @@ const CardDetail = () => {
 					<View style={styles.infoRow}>
 						<View style={styles.infoLabelContainer}>
 							<User
-								size={16}
+								size={scale(16)}
 								color={colors.neutral.neutral2}
 								weight="regular"
 							/>
@@ -563,7 +564,7 @@ const CardDetail = () => {
 					<View style={styles.infoRow}>
 						<View style={styles.infoLabelContainer}>
 							<CreditCard
-								size={16}
+								size={scale(16)}
 								color={colors.neutral.neutral2}
 								weight="regular"
 							/>
@@ -589,7 +590,7 @@ const CardDetail = () => {
 					<View style={styles.infoRow}>
 						<View style={styles.infoLabelContainer}>
 							<Wallet
-								size={16}
+								size={scale(16)}
 								color={colors.neutral.neutral2}
 								weight="regular"
 							/>
@@ -605,7 +606,7 @@ const CardDetail = () => {
 						<View style={styles.infoRow}>
 							<View style={styles.infoLabelContainer}>
 								<Wallet
-									size={16}
+									size={scale(16)}
 									color={colors.neutral.neutral2}
 									weight="regular"
 								/>
@@ -625,13 +626,13 @@ const CardDetail = () => {
 										style={styles.eyeIconButton}>
 										{showAccountNumber ? (
 											<Eye
-												size={18}
+												size={scale(18)}
 												color={colors.primary.primary1}
 												weight="bold"
 											/>
 										) : (
 											<EyeSlash
-												size={18}
+												size={scale(18)}
 												color={colors.neutral.neutral3}
 												weight="bold"
 											/>
@@ -641,7 +642,7 @@ const CardDetail = () => {
 										onPress={handleCopyAccountNumber}
 										style={styles.copyButton}>
 										<Copy
-											size={18}
+											size={scale(18)}
 											color={colors.primary.primary1}
 											weight="regular"
 										/>
@@ -661,13 +662,13 @@ const CardDetail = () => {
 						onPress={handleToggleLockCard}>
 						{currentCard.status === "LOCKED" ? (
 							<LockOpen
-								size={20}
+								size={scale(20)}
 								color={colors.neutral.neutral6}
 								weight="bold"
 							/>
 						) : (
 							<Lock
-								size={20}
+								size={scale(20)}
 								color={colors.neutral.neutral6}
 								weight="bold"
 							/>
@@ -748,37 +749,37 @@ const styles = StyleSheet.create({
 	header: {
 		flexDirection: "row",
 		alignItems: "center",
-		paddingHorizontal: 24,
-		paddingVertical: 16,
-		height: 60,
+		paddingHorizontal: spacing(24),
+		paddingVertical: spacing(16),
+		height: scale(60),
 		backgroundColor: colors.neutral.neutral6,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
 	backButton: {
-		width: 40,
-		height: 40,
+		width: scale(40),
+		height: scale(40),
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 8,
+		marginRight: spacing(8),
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "600",
-		lineHeight: 28,
+		lineHeight: fontSize(28),
 		color: colors.neutral.neutral1,
 	},
 	scrollView: {
 		flex: 1,
 	},
 	scrollContent: {
-		paddingTop: 20,
-		paddingBottom: 120,
+		paddingTop: spacing(20),
+		paddingBottom: spacing(120),
 	},
 	flatList: {
-		marginBottom: 16,
-		height: 240,
+		marginBottom: spacing(16),
+		height: scale(240),
 		flexGrow: 0,
 	},
 	flatListContent: {
@@ -786,62 +787,62 @@ const styles = StyleSheet.create({
 	},
 	cardItemContainer: {
 		width: SCREEN_WIDTH,
-		height: 240,
-		paddingHorizontal: 24,
+		height: scale(240),
+		paddingHorizontal: spacing(24),
 		justifyContent: "center",
 	},
 	cardIndicators: {
 		flexDirection: "row",
 		justifyContent: "center",
 		alignItems: "center",
-		gap: 8,
-		marginBottom: 24,
-		paddingHorizontal: 24,
+		gap: spacing(8),
+		marginBottom: spacing(24),
+		paddingHorizontal: spacing(24),
 	},
 	indicatorDot: {
-		width: 8,
-		height: 8,
-		borderRadius: 4,
+		width: scale(8),
+		height: scale(8),
+		borderRadius: scale(4),
 		backgroundColor: colors.neutral.neutral4,
 	},
 	indicatorDotActive: {
-		width: 24,
+		width: scale(24),
 		backgroundColor: colors.primary.primary1,
 	},
 	accountInfoContainer: {
 		backgroundColor: colors.neutral.neutral6,
-		marginHorizontal: 24,
-		borderRadius: 16,
-		padding: 20,
+		marginHorizontal: spacing(24),
+		borderRadius: scale(16),
+		padding: spacing(20),
 		borderWidth: 1,
 		borderColor: colors.neutral.neutral5,
 		shadowColor: colors.primary.primary1,
 		shadowOffset: {
 			width: 0,
-			height: 4,
+			height: scale(4),
 		},
 		shadowOpacity: 0.08,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 3,
 	},
 	infoRow: {
-		marginBottom: 20,
+		marginBottom: spacing(20),
 	},
 	infoLabelContainer: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
-		marginBottom: 8,
+		gap: spacing(8),
+		marginBottom: spacing(8),
 	},
 	infoLabel: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "500",
 		color: colors.neutral.neutral2,
 	},
 	infoValue: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
 		letterSpacing: 0.5,
@@ -854,34 +855,34 @@ const styles = StyleSheet.create({
 	accountNumberActions: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
+		gap: spacing(8),
 	},
 	eyeIconButton: {
-		padding: 8,
+		padding: spacing(8),
 		backgroundColor: colors.neutral.neutral5,
-		borderRadius: 8,
+		borderRadius: scale(8),
 	},
 	copyButton: {
-		padding: 8,
+		padding: spacing(8),
 		backgroundColor: colors.primary.primary4,
-		borderRadius: 8,
+		borderRadius: scale(8),
 	},
 	lockButton: {
 		backgroundColor: "#EF4444",
-		borderRadius: 12,
-		paddingVertical: 14,
+		borderRadius: scale(12),
+		paddingVertical: spacing(14),
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		gap: 10,
-		marginTop: 8,
+		gap: spacing(10),
+		marginTop: spacing(8),
 		shadowColor: "#EF4444",
 		shadowOffset: {
 			width: 0,
-			height: 4,
+			height: scale(4),
 		},
 		shadowOpacity: 0.25,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 5,
 	},
 	unlockButton: {
@@ -890,7 +891,7 @@ const styles = StyleSheet.create({
 	},
 	lockButtonText: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: colors.neutral.neutral6,
 	},
@@ -899,29 +900,29 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		left: 0,
 		right: 0,
-		height: 34,
+		height: scale(34),
 		justifyContent: "center",
 		alignItems: "center",
 		backgroundColor: colors.neutral.neutral6,
 	},
 	indicator: {
-		width: 134,
-		height: 5,
-		borderRadius: 2.5,
+		width: scale(134),
+		height: scale(5),
+		borderRadius: scale(2.5),
 		backgroundColor: colors.neutral.neutral4,
 	},
 	loadingContainer: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingVertical: 60,
+		paddingVertical: spacing(60),
 	},
 	loadingText: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
-		marginTop: 12,
+		marginTop: spacing(12),
 	},
 });
 

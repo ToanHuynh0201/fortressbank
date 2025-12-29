@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { primary, neutral, commonStyles } from "@/constants";
+import { primary, neutral, commonStyles, typography, spacingScale, borderRadius } from "@/constants";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 import {
 	AppHeader,
 	PasswordInput,
@@ -238,51 +239,51 @@ const styles = StyleSheet.create({
 		backgroundColor: neutral.neutral6,
 	},
 	contentContainer: {
-		paddingHorizontal: 24,
-		paddingTop: 24,
-		paddingBottom: 40,
+		paddingHorizontal: spacingScale.xl,
+		paddingTop: spacingScale.xl,
+		paddingBottom: spacingScale.xxxl,
 	},
 	fieldContainer: {
-		marginBottom: 24,
+		marginBottom: spacingScale.xl,
 	},
 	label: {
-		fontSize: 12,
+		fontSize: typography.caption,
 		fontWeight: "600",
 		color: "#979797",
-		marginBottom: 8,
+		marginBottom: spacingScale.sm,
 	},
 	button: {
-		marginTop: 8,
+		marginTop: spacingScale.sm,
 	},
 	// Success Screen Styles
 	successContainer: {
-		paddingHorizontal: 24,
-		paddingTop: 24,
-		paddingBottom: 40,
+		paddingHorizontal: spacingScale.xl,
+		paddingTop: spacingScale.xl,
+		paddingBottom: spacingScale.xxxl,
 		alignItems: "center",
 	},
 	successIcon: {
-		fontSize: 80,
+		fontSize: fontSize(80),
 		fontWeight: "bold",
 		color: primary.primary1,
 	},
 	successTitle: {
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
 		color: primary.primary1,
-		marginBottom: 24,
-		marginTop: 32,
+		marginBottom: spacingScale.xl,
+		marginTop: spacingScale.xxl,
 		textAlign: "center",
 	},
 	successMessage: {
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "500",
-		lineHeight: 21,
+		lineHeight: fontSize(21),
 		color: neutral.neutral1,
 		textAlign: "center",
-		marginBottom: 32,
+		marginBottom: spacingScale.xxl,
 	},
 	okButton: {
-		width: 327,
+		width: scale(327),
 	},
 });

@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
 import { SafeAreaView, Edge } from "react-native-safe-area-context";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 interface ScreenContainerProps {
 	children: ReactNode;

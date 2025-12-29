@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { primary, neutral } from '@/constants/colors';
+import { typography } from '@/constants/responsive';
 
 interface InfoRowProps {
   label: string;
@@ -33,14 +34,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'Poppins',
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '500',
     lineHeight: 16,
     color: '#979797',
   },
   value: {
     fontFamily: 'Poppins',
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '600',
     lineHeight: 16,
     color: primary.primary1,

@@ -12,6 +12,8 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { neutral, primary } from "@/constants/colors";
 import { biometricService } from "@/services/biometricService";
 import AlertModal from "@/components/common/AlertModal";
+import { scale } from "@/utils/responsive";
+import { typography, spacingScale, borderRadius } from "@/constants/responsive";
 
 interface AccountCardItemProps {
 	accountName: string;
@@ -177,19 +179,19 @@ const AccountCardItem: React.FC<AccountCardItemProps> = ({
 
 const styles = StyleSheet.create({
 	cardWrapper: {
-		marginBottom: 16,
+		marginBottom: spacingScale.lg,
 	},
 	cardContainer: {
 		backgroundColor: neutral.neutral6,
-		borderRadius: 20,
-		padding: 20,
+		borderRadius: borderRadius.xl,
+		padding: spacingScale.lg,
 		shadowColor: primary.primary1,
 		shadowOffset: {
 			width: 0,
-			height: 8,
+			height: scale(8),
 		},
 		shadowOpacity: 0.12,
-		shadowRadius: 24,
+		shadowRadius: scale(24),
 		elevation: 8,
 		overflow: "hidden",
 		borderWidth: 1,
@@ -197,69 +199,69 @@ const styles = StyleSheet.create({
 	},
 	decorativeCircle1: {
 		position: "absolute",
-		width: 120,
-		height: 120,
-		borderRadius: 60,
+		width: scale(120),
+		height: scale(120),
+		borderRadius: scale(60),
 		backgroundColor: "rgba(74, 63, 219, 0.03)",
-		top: -40,
-		right: -30,
+		top: scale(-40),
+		right: scale(-30),
 	},
 	decorativeCircle2: {
 		position: "absolute",
-		width: 80,
-		height: 80,
-		borderRadius: 40,
+		width: scale(80),
+		height: scale(80),
+		borderRadius: scale(40),
 		backgroundColor: "rgba(74, 63, 219, 0.02)",
-		bottom: -20,
-		left: -20,
+		bottom: scale(-20),
+		left: scale(-20),
 	},
 	cardHeader: {
 		flexDirection: "row",
 		alignItems: "center",
-		marginBottom: 16,
+		marginBottom: spacingScale.lg,
 		zIndex: 1,
 	},
 	iconContainer: {
-		width: 48,
-		height: 48,
-		borderRadius: 12,
+		width: scale(48),
+		height: scale(48),
+		borderRadius: borderRadius.md,
 		backgroundColor: "rgba(74, 63, 219, 0.1)",
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 12,
+		marginRight: spacingScale.md,
 	},
 	headerContent: {
 		flex: 1,
 	},
 	visibilityButton: {
-		width: 36,
-		height: 36,
-		borderRadius: 18,
+		width: scale(36),
+		height: scale(36),
+		borderRadius: scale(18),
 		backgroundColor: "rgba(74, 63, 219, 0.08)",
 		justifyContent: "center",
 		alignItems: "center",
-		marginLeft: 8,
+		marginLeft: spacingScale.sm,
 	},
 	accountName: {
 		fontFamily: "Poppins",
-		fontSize: 18,
+		fontSize: typography.subtitle,
 		fontWeight: "700",
-		lineHeight: 24,
+		lineHeight: scale(24),
 		color: neutral.neutral1,
-		marginBottom: 2,
+		marginBottom: scale(2),
 	},
 	accountNumber: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "500",
-		lineHeight: 20,
+		lineHeight: scale(20),
 		color: primary.primary2,
 		letterSpacing: 0.5,
 	},
 	divider: {
 		height: 1,
 		backgroundColor: "rgba(74, 63, 219, 0.1)",
-		marginVertical: 16,
+		marginVertical: spacingScale.lg,
 		zIndex: 1,
 	},
 	balanceSection: {
@@ -267,19 +269,19 @@ const styles = StyleSheet.create({
 	},
 	balanceLabel: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: typography.caption,
 		fontWeight: "500",
-		lineHeight: 16,
+		lineHeight: scale(16),
 		color: "#979797",
-		marginBottom: 6,
+		marginBottom: spacingScale.xs,
 		textTransform: "uppercase",
 		letterSpacing: 0.5,
 	},
 	balanceValue: {
 		fontFamily: "Poppins",
-		fontSize: 28,
+		fontSize: typography.h1,
 		fontWeight: "700",
-		lineHeight: 36,
+		lineHeight: scale(36),
 		color: primary.primary1,
 	},
 	bottomAccent: {
@@ -287,10 +289,10 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		left: 0,
 		right: 0,
-		height: 4,
+		height: scale(4),
 		backgroundColor: primary.primary1,
-		borderBottomLeftRadius: 20,
-		borderBottomRightRadius: 20,
+		borderBottomLeftRadius: borderRadius.xl,
+		borderBottomRightRadius: borderRadius.xl,
 	},
 });
 

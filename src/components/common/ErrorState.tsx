@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { typography, spacingScale, borderRadius } from '@/constants/responsive';
+import { scale } from '@/utils/responsive';
 
 export type ErrorType = 'network' | 'server' | 'notFound' | 'generic' | 'timeout' | 'unauthorized';
 
@@ -131,50 +133,50 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: spacingScale.xl,
   },
   content: {
     alignItems: 'center',
-    maxWidth: 360,
+    maxWidth: scale(360),
     width: '100%',
   },
   iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: scale(120),
+    height: scale(120),
+    borderRadius: scale(60),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacingScale.xl,
   },
   illustration: {
-    width: 200,
-    height: 200,
-    marginBottom: 24,
+    width: scale(200),
+    height: scale(200),
+    marginBottom: spacingScale.xl,
     resizeMode: 'contain',
   },
   title: {
-    fontSize: 22,
+    fontSize: typography.h3,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    marginBottom: 12,
+    marginBottom: spacingScale.md,
     textAlign: 'center',
   },
   message: {
-    fontSize: 15,
+    fontSize: typography.body,
     color: '#666',
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 32,
+    marginBottom: spacingScale.xxl,
   },
   buttonContainer: {
     width: '100%',
-    gap: 12,
+    gap: spacingScale.md,
   },
   button: {
     flexDirection: 'row',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: spacingScale.md,
+    paddingHorizontal: spacingScale.xl,
+    borderRadius: borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -191,16 +193,16 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   buttonIcon: {
-    marginRight: 8,
+    marginRight: spacingScale.sm,
   },
   primaryButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: typography.subtitle,
     fontWeight: '600',
   },
   secondaryButtonText: {
     color: '#666',
-    fontSize: 16,
+    fontSize: typography.subtitle,
     fontWeight: '600',
   },
 });

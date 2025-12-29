@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { primary, neutral } from '@/constants/colors';
+import { scale, fontSize, spacing } from '@/utils/responsive';
+import { typography, spacingScale, borderRadius, componentSizes } from '@/constants/responsive';
 
 interface LinkTextProps {
   normalText: string;
@@ -36,12 +38,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   normalText: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '400',
     color: neutral.neutral1,
   },
   linkText: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '600',
     color: primary.primary1,
   },

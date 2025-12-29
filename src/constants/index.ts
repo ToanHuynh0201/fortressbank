@@ -11,8 +11,8 @@ const extra = expoConfig?.extra || {};
 
 // API Configuration
 export const API_CONFIG = {
-	BASE_URL: "http://10.0.2.2:8000",
-	// BASE_URL: "http://192.168.1.130:8000",
+	// BASE_URL: "http://10.0.2.2:8000",
+	BASE_URL: "http://192.168.1.154:8000",
 	TIMEOUT: 10000, // 10 seconds
 	RETRY_ATTEMPTS: 3,
 	RETRY_DELAY: 1000,
@@ -83,6 +83,14 @@ export type { PrimaryColor, NeutralColor, SemanticColor } from "./colors";
 
 // Re-export common styles
 export { commonStyles } from "./styles";
+
+// Re-export responsive constants
+export {
+	typography,
+	spacingScale,
+	componentSizes,
+	borderRadius,
+} from "./responsive";
 
 export default {
 	API_CONFIG,

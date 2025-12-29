@@ -12,6 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Bank, CreditCard, ArrowsLeftRight, ShieldCheck } from 'phosphor-react-native';
 import { primary, semantic, neutral } from '@/constants/colors';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 interface DecorativeIllustrationProps {
   size?: number;
@@ -104,7 +105,7 @@ const DecorativeIllustration: React.FC<DecorativeIllustrationProps> = ({
         >
           {/* Inner circle */}
           <View style={styles.innerCircle}>
-            {children || <Bank size={60} color={primary.primary1} weight="duotone" />}
+            {children || <Bank size={scale(60)} color={primary.primary1} weight="duotone" />}
           </View>
         </LinearGradient>
 
@@ -119,15 +120,15 @@ const DecorativeIllustration: React.FC<DecorativeIllustrationProps> = ({
         <>
           {/* Animated dots with icons */}
           <Animated.View style={[styles.iconDot, styles.dot1, pulseStyle1]}>
-            <CreditCard size={16} color={neutral.neutral6} weight="bold" />
+            <CreditCard size={scale(16)} color={neutral.neutral6} weight="bold" />
           </Animated.View>
 
           <Animated.View style={[styles.iconDot, styles.dot2, pulseStyle2]}>
-            <ArrowsLeftRight size={20} color={neutral.neutral6} weight="bold" />
+            <ArrowsLeftRight size={scale(20)} color={neutral.neutral6} weight="bold" />
           </Animated.View>
 
           <Animated.View style={[styles.iconDot, styles.dot3, pulseStyle1]}>
-            <ShieldCheck size={18} color={neutral.neutral6} weight="bold" />
+            <ShieldCheck size={scale(18)} color={neutral.neutral6} weight="bold" />
           </Animated.View>
 
           {/* Small decorative dots */}
@@ -153,14 +154,14 @@ const styles = StyleSheet.create({
   innerCircle: {
     width: '70%',
     height: '70%',
-    borderRadius: 1000,
+    borderRadius: scale(1000),
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: primary.primary1,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: scale(8),
     elevation: 8,
   },
   rotatingRing: {
@@ -174,8 +175,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '90%',
     height: '90%',
-    borderRadius: 1000,
-    borderWidth: 3,
+    borderRadius: scale(1000),
+    borderWidth: scale(3),
     borderColor: 'white',
     borderTopColor: 'transparent',
     borderRightColor: 'transparent',
@@ -185,8 +186,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '80%',
     height: '80%',
-    borderRadius: 1000,
-    borderWidth: 2,
+    borderRadius: scale(1000),
+    borderWidth: scale(2),
     borderColor: 'transparent',
     borderBottomColor: 'white',
     borderLeftColor: 'white',
@@ -194,49 +195,49 @@ const styles = StyleSheet.create({
   },
   iconDot: {
     position: 'absolute',
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: scale(48),
+    height: scale(48),
+    borderRadius: scale(24),
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: scale(2) },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowRadius: scale(4),
     elevation: 4,
   },
   dot1: {
-    top: 15,
-    right: 10,
+    top: spacing(15),
+    right: spacing(10),
   },
   dot2: {
-    bottom: 20,
-    left: 5,
+    bottom: spacing(20),
+    left: spacing(5),
   },
   dot3: {
-    top: 55,
+    top: spacing(55),
     left: 0,
   },
   smallDot: {
     position: 'absolute',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4),
     backgroundColor: 'white',
     opacity: 0.6,
   },
   smallDot1: {
-    top: 10,
-    left: 30,
+    top: spacing(10),
+    left: spacing(30),
   },
   smallDot2: {
-    bottom: 15,
-    right: 15,
+    bottom: spacing(15),
+    right: spacing(15),
   },
   smallDot3: {
-    top: 90,
-    right: 5,
+    top: spacing(90),
+    right: spacing(5),
   },
 });
 

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, ActivityIndicator, StyleSheet, ViewStyle } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import colors from "@/constants/colors";
+import { typography, spacingScale } from "@/constants/responsive";
 
 interface LoadingStateProps {
 	message?: string;
@@ -47,22 +48,22 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		alignItems: "center",
-		gap: 16,
+		gap: spacingScale.lg,
 	},
 	message: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: typography.subtitle,
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
 		textAlign: "center",
 	},
 	description: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: typography.caption,
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
 		textAlign: "center",
-		marginTop: 8,
+		marginTop: spacingScale.sm,
 	},
 });
 

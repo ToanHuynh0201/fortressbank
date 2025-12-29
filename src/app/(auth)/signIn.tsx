@@ -8,7 +8,8 @@ import Animated, {
 	Easing,
 } from "react-native-reanimated";
 import { Fingerprint } from "phosphor-react-native";
-import { primary, neutral } from "@/constants";
+import { primary, neutral, typography, spacingScale, borderRadius } from "@/constants";
+import { scale, fontSize, spacing } from "@/utils/responsive";
 import {
 	AuthLayout,
 	CustomInput,
@@ -389,54 +390,55 @@ export default SignIn;
 
 const styles = StyleSheet.create({
 	welcomeSection: {
-		marginBottom: 28,
+		marginBottom: spacingScale.lg,
 	},
 	title: {
 		fontFamily: "Poppins",
-		fontSize: 28,
+		fontSize: typography.h1,
 		fontWeight: "700",
 		color: primary.primary1,
-		marginBottom: 6,
-		lineHeight: 36,
+		marginBottom: spacing(4),
+		lineHeight: fontSize(36),
 	},
 	subtitle: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "400",
 		color: neutral.neutral2,
-		lineHeight: 20,
+		lineHeight: fontSize(20),
 	},
 	illustrationContainer: {
 		alignItems: "center",
-		marginBottom: 32,
+		marginBottom: spacingScale.md,
+		transform: [{ scale: 0.85 }],
 	},
 	inputContainer: {
-		marginBottom: 20,
+		marginBottom: spacingScale.lg,
 	},
 	input: {
-		marginBottom: 16,
+		marginBottom: spacingScale.md,
 	},
 	forgotPassword: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "600",
 		color: primary.primary1,
 		textAlign: "right",
-		marginTop: 4,
+		marginTop: spacing(2),
 	},
 	signInButton: {
-		marginBottom: 20,
+		marginBottom: spacingScale.lg,
 		shadowColor: primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.3,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 6,
 	},
 	dividerContainer: {
 		flexDirection: "row",
 		alignItems: "center",
-		marginBottom: 20,
-		gap: 12,
+		marginBottom: spacingScale.lg,
+		gap: spacingScale.md,
 	},
 	divider: {
 		flex: 1,
@@ -445,44 +447,44 @@ const styles = StyleSheet.create({
 	},
 	dividerText: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: typography.caption,
 		fontWeight: "500",
 		color: neutral.neutral3,
 	},
 	fingerprintContainer: {
 		alignItems: "center",
-		marginBottom: 28,
+		marginBottom: spacingScale.lg,
 	},
 	fingerprint: {
-		paddingVertical: 14,
-		paddingHorizontal: 24,
-		borderRadius: 16,
+		paddingVertical: spacing(12),
+		paddingHorizontal: spacingScale.xl,
+		borderRadius: borderRadius.md,
 		backgroundColor: primary.primary4,
 		borderWidth: 2,
 		borderColor: primary.primary3,
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 10,
+		gap: spacing(10),
 		shadowColor: primary.primary1,
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.1,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 3,
 	},
 	fingerprintDisabled: {
 		opacity: 0.6,
 	},
 	fingerprintIconContainer: {
-		width: 36,
-		height: 36,
-		borderRadius: 18,
+		width: scale(32),
+		height: scale(32),
+		borderRadius: scale(16),
 		backgroundColor: neutral.neutral6,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	fingerprintText: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "600",
 		color: primary.primary1,
 	},

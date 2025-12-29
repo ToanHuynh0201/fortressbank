@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { neutral } from '@/constants/colors';
 import CustomInput from './CustomInput';
 import PasswordInput from './PasswordInput';
+import { scale, fontSize, spacing } from '@/utils/responsive';
+import { typography, spacingScale, borderRadius, componentSizes } from '@/constants/responsive';
 
 interface FormFieldProps {
   label: string;
@@ -61,19 +63,19 @@ const FormField: React.FC<FormFieldProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: spacingScale.lg,
   },
   label: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '600',
     color: '#979797',
-    marginBottom: 8,
+    marginBottom: spacingScale.sm,
   },
   errorText: {
-    fontSize: 12,
+    fontSize: typography.caption,
     fontWeight: '500',
     color: '#FF3B30',
-    marginTop: 4,
+    marginTop: spacing(4),
   },
 });
 

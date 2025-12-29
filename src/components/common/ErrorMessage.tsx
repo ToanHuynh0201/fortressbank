@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { typography, spacingScale, borderRadius } from '@/constants/responsive';
 
 interface ErrorMessageProps {
   message: string;
@@ -85,9 +86,9 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
-    padding: 12,
-    marginVertical: 8,
+    borderRadius: borderRadius.md,
+    padding: spacingScale.md,
+    marginVertical: spacingScale.sm,
   },
   errorContainer: {
     backgroundColor: '#FEE2E2',
@@ -107,15 +108,15 @@ const styles = StyleSheet.create({
   contentRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: spacingScale.sm,
   },
   icon: {
-    marginRight: 8,
+    marginRight: spacingScale.sm,
     marginTop: 2,
   },
   message: {
     flex: 1,
-    fontSize: 14,
+    fontSize: typography.bodySmall,
     lineHeight: 20,
     fontFamily: 'Poppins',
   },
@@ -132,22 +133,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    gap: 12,
-    marginTop: 4,
+    gap: spacingScale.md,
+    marginTop: spacingScale.xs,
   },
   retryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    gap: 4,
+    paddingVertical: spacingScale.xs + 2,
+    paddingHorizontal: spacingScale.md,
+    gap: spacingScale.xs,
   },
   retryButtonText: {
-    fontSize: 13,
+    fontSize: typography.caption,
     fontWeight: '600',
     fontFamily: 'Poppins',
   },
   dismissButton: {
-    padding: 4,
+    padding: spacingScale.xs,
   },
 });

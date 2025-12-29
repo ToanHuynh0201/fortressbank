@@ -20,6 +20,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { CaretLeftIcon, Plus } from "phosphor-react-native";
 import colors from "@/constants/colors";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 import {
 	ScreenContainer,
 	UserAvatar,
@@ -277,7 +278,7 @@ const AccountCard = () => {
 					onPress={() => router.back()}
 					style={styles.backButton}>
 					<CaretLeftIcon
-						size={16}
+						size={scale(16)}
 						color="#000000"
 						weight="regular"
 					/>
@@ -323,7 +324,7 @@ const AccountCard = () => {
 			{/* User Avatar and Name */}
 			<Animated.View style={[styles.userSection, userAnimatedStyle]}>
 				<UserAvatar
-					size={100}
+					size={scale(100)}
 					backgroundColor={colors.primary.primary1}
 					textColor={colors.neutral.neutral6}
 				/>
@@ -377,7 +378,7 @@ const AccountCard = () => {
 				style={styles.fab}
 				onPress={() => router.push("/(account)/addAccount")}
 				activeOpacity={0.8}>
-				<Plus size={24} color={colors.neutral.neutral6} weight="bold" />
+				<Plus size={scale(24)} color={colors.neutral.neutral6} weight="bold" />
 			</TouchableOpacity>
 
 			{/* Bottom Indicator */}
@@ -392,39 +393,39 @@ const styles = StyleSheet.create({
 	header: {
 		flexDirection: "row",
 		alignItems: "center",
-		paddingHorizontal: 24,
-		paddingVertical: 16,
-		height: 53,
+		paddingHorizontal: spacing(24),
+		paddingVertical: spacing(16),
+		height: scale(53),
 	},
 	backButton: {
-		width: 16,
-		height: 16,
+		width: scale(16),
+		height: scale(16),
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 16,
+		marginRight: spacing(16),
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "600",
-		lineHeight: 28,
+		lineHeight: fontSize(28),
 		color: colors.neutral.neutral1,
 	},
 	tabsContainer: {
 		flexDirection: "row",
-		paddingHorizontal: 24,
-		marginTop: 8,
-		marginBottom: 24,
+		paddingHorizontal: spacing(24),
+		marginTop: spacing(8),
+		marginBottom: spacing(24),
 		backgroundColor: colors.primary.primary4,
-		borderRadius: 18,
-		padding: 4,
-		marginHorizontal: 24,
+		borderRadius: scale(18),
+		padding: spacing(4),
+		marginHorizontal: spacing(24),
 	},
 	tab: {
 		flex: 1,
-		height: 48,
+		height: scale(48),
 		backgroundColor: "transparent",
-		borderRadius: 14,
+		borderRadius: scale(14),
 		justifyContent: "center",
 		alignItems: "center",
 	},
@@ -433,17 +434,17 @@ const styles = StyleSheet.create({
 		shadowColor: colors.primary.primary1,
 		shadowOffset: {
 			width: 0,
-			height: 4,
+			height: scale(4),
 		},
 		shadowOpacity: 0.25,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 5,
 	},
 	tabText: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "600",
-		lineHeight: 24,
+		lineHeight: fontSize(24),
 		color: colors.primary.primary2,
 	},
 	tabTextActive: {
@@ -452,80 +453,80 @@ const styles = StyleSheet.create({
 	},
 	userSection: {
 		alignItems: "center",
-		marginBottom: 20,
-		paddingHorizontal: 24,
-		paddingVertical: 20,
+		marginBottom: spacing(20),
+		paddingHorizontal: spacing(24),
+		paddingVertical: spacing(20),
 		backgroundColor: "rgba(74, 63, 219, 0.03)",
-		marginHorizontal: 24,
-		borderRadius: 20,
+		marginHorizontal: spacing(24),
+		borderRadius: scale(20),
 	},
 	userName: {
 		fontFamily: "Poppins",
-		fontSize: 18,
+		fontSize: fontSize(18),
 		fontWeight: "700",
-		lineHeight: 26,
+		lineHeight: fontSize(26),
 		color: colors.primary.primary1,
-		marginTop: 16,
+		marginTop: spacing(16),
 		letterSpacing: 0.3,
 	},
 	scrollView: {
 		flex: 1,
 	},
 	scrollContent: {
-		paddingHorizontal: 24,
-		paddingBottom: 50,
+		paddingHorizontal: spacing(24),
+		paddingBottom: spacing(50),
 	},
 	bottomIndicator: {
 		position: "absolute",
 		bottom: 0,
 		left: 0,
 		right: 0,
-		height: 34,
+		height: scale(34),
 		justifyContent: "center",
 		alignItems: "center",
 		backgroundColor: colors.neutral.neutral6,
 	},
 	indicator: {
-		width: 134,
-		height: 5,
-		borderRadius: 2.5,
+		width: scale(134),
+		height: scale(5),
+		borderRadius: scale(2.5),
 		backgroundColor: colors.neutral.neutral4,
 	},
 	loadingContainer: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingVertical: 40,
+		paddingVertical: spacing(40),
 	},
 	loadingText: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
-		marginTop: 12,
+		marginTop: spacing(12),
 	},
 	emptyText: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
 		textAlign: "center",
-		marginTop: 20,
+		marginTop: spacing(20),
 	},
 	fab: {
 		position: "absolute",
-		bottom: 50,
-		right: 24,
-		width: 56,
-		height: 56,
-		borderRadius: 28,
+		bottom: spacing(50),
+		right: spacing(24),
+		width: scale(56),
+		height: scale(56),
+		borderRadius: scale(28),
 		backgroundColor: colors.primary.primary1,
 		justifyContent: "center",
 		alignItems: "center",
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.3,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 8,
 	},
 });

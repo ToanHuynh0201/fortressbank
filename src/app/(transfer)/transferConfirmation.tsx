@@ -27,6 +27,7 @@ import {
 import colors from "@/constants/colors";
 import { ScreenContainer, PrimaryButton, AlertModal } from "@/components";
 import { transferService, TransferRequest } from "@/services";
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const TransferConfirmation = () => {
 	const router = useRouter();
@@ -220,7 +221,7 @@ const TransferConfirmation = () => {
 					style={styles.backButton}>
 					<View style={styles.backButtonCircle}>
 						<CaretLeft
-							size={20}
+							size={scale(20)}
 							color={colors.neutral.neutral1}
 							weight="bold"
 						/>
@@ -243,7 +244,7 @@ const TransferConfirmation = () => {
 					style={[styles.iconContainer, iconAnimatedStyle]}>
 					<View style={styles.successIcon}>
 						<CheckCircle
-							size={48}
+							size={scale(48)}
 							color={colors.primary.primary1}
 							weight="fill"
 						/>
@@ -282,7 +283,7 @@ const TransferConfirmation = () => {
 					<View style={styles.detailSection}>
 						<View style={styles.detailHeader}>
 							<Bank
-								size={18}
+								size={scale(18)}
 								color={colors.primary.primary1}
 								weight="bold"
 							/>
@@ -299,7 +300,7 @@ const TransferConfirmation = () => {
 					{/* Arrow Divider */}
 					<View style={styles.arrowDivider}>
 						<ArrowRight
-							size={20}
+							size={scale(20)}
 							color={colors.primary.primary1}
 							weight="bold"
 						/>
@@ -309,7 +310,7 @@ const TransferConfirmation = () => {
 					<View style={styles.detailSection}>
 						<View style={styles.detailHeader}>
 							<User
-								size={18}
+								size={scale(18)}
 								color={colors.primary.primary1}
 								weight="bold"
 							/>
@@ -391,20 +392,20 @@ const styles = StyleSheet.create({
 	header: {
 		flexDirection: "row",
 		alignItems: "center",
-		paddingHorizontal: 24,
-		paddingTop: 16,
-		paddingBottom: 20,
+		paddingHorizontal: spacing(24),
+		paddingTop: spacing(16),
+		paddingBottom: spacing(20),
 		backgroundColor: colors.neutral.neutral6,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.neutral.neutral5,
 	},
 	backButton: {
-		marginRight: 16,
+		marginRight: spacing(16),
 	},
 	backButtonCircle: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
@@ -414,101 +415,101 @@ const styles = StyleSheet.create({
 	},
 	headerTitle: {
 		fontFamily: "Poppins",
-		fontSize: 22,
+		fontSize: fontSize(22),
 		fontWeight: "700",
-		lineHeight: 28,
+		lineHeight: fontSize(28),
 		color: colors.neutral.neutral1,
-		marginBottom: 2,
+		marginBottom: spacing(2),
 	},
 	headerSubtitle: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "400",
 		color: colors.neutral.neutral3,
-		lineHeight: 18,
+		lineHeight: fontSize(18),
 	},
 	content: {
 		flex: 1,
-		paddingHorizontal: 24,
-		paddingTop: 16,
-		paddingBottom: 20,
+		paddingHorizontal: spacing(24),
+		paddingTop: spacing(16),
+		paddingBottom: spacing(20),
 		justifyContent: "space-between",
 	},
 	iconContainer: {
 		alignItems: "center",
-		marginBottom: 12,
+		marginBottom: spacing(12),
 	},
 	successIcon: {
-		width: 60,
-		height: 60,
-		borderRadius: 30,
+		width: scale(60),
+		height: scale(60),
+		borderRadius: scale(30),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	titleContainer: {
 		alignItems: "center",
-		marginBottom: 16,
+		marginBottom: spacing(16),
 	},
 	title: {
 		fontFamily: "Poppins",
-		fontSize: 20,
+		fontSize: fontSize(20),
 		fontWeight: "700",
-		lineHeight: 28,
+		lineHeight: fontSize(28),
 		color: colors.neutral.neutral1,
 		textAlign: "center",
-		marginBottom: 4,
+		marginBottom: spacing(4),
 	},
 	subtitle: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "400",
-		lineHeight: 18,
+		lineHeight: fontSize(18),
 		color: colors.neutral.neutral3,
 		textAlign: "center",
 	},
 	amountCard: {
 		backgroundColor: colors.primary.primary4,
-		borderRadius: 20,
-		paddingVertical: 16,
-		paddingHorizontal: 20,
+		borderRadius: scale(20),
+		paddingVertical: spacing(16),
+		paddingHorizontal: spacing(20),
 		alignItems: "center",
-		marginBottom: 16,
+		marginBottom: spacing(16),
 		borderWidth: 2,
 		borderColor: colors.primary.primary3,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.12,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 5,
 	},
 	amountLabel: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "600",
 		color: colors.neutral.neutral2,
 		textTransform: "uppercase",
 		letterSpacing: 0.5,
-		marginBottom: 6,
+		marginBottom: spacing(6),
 	},
 	amountValue: {
 		fontFamily: "Poppins",
-		fontSize: 28,
+		fontSize: fontSize(28),
 		fontWeight: "700",
 		color: colors.primary.primary1,
-		lineHeight: 36,
+		lineHeight: fontSize(36),
 	},
 	detailsCard: {
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 20,
-		padding: 18,
-		marginBottom: 16,
+		borderRadius: scale(20),
+		padding: spacing(18),
+		marginBottom: spacing(16),
 		borderWidth: 1,
 		borderColor: colors.neutral.neutral5,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.06,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 3,
 		flexDirection: "row",
 		alignItems: "center",
@@ -520,12 +521,12 @@ const styles = StyleSheet.create({
 	detailHeader: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 8,
-		marginBottom: 8,
+		gap: spacing(8),
+		marginBottom: spacing(8),
 	},
 	detailTitle: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
 		textTransform: "uppercase",
@@ -533,98 +534,98 @@ const styles = StyleSheet.create({
 	},
 	detailValue: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: fontSize(14),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
-		lineHeight: 20,
-		marginBottom: 2,
+		lineHeight: fontSize(20),
+		marginBottom: spacing(2),
 	},
 	detailSubValue: {
 		fontFamily: "Poppins",
-		fontSize: 12,
+		fontSize: fontSize(12),
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
-		lineHeight: 16,
+		lineHeight: fontSize(16),
 	},
 	detailBankName: {
 		fontFamily: "Poppins",
-		fontSize: 11,
+		fontSize: fontSize(11),
 		fontWeight: "600",
 		color: colors.primary.primary1,
-		lineHeight: 16,
-		marginTop: 2,
+		lineHeight: fontSize(16),
+		marginTop: spacing(2),
 	},
 	arrowDivider: {
-		width: 32,
-		height: 32,
-		borderRadius: 16,
+		width: scale(32),
+		height: scale(32),
+		borderRadius: scale(16),
 		backgroundColor: colors.primary.primary4,
 		justifyContent: "center",
 		alignItems: "center",
-		marginHorizontal: 8,
+		marginHorizontal: spacing(8),
 	},
 	summaryCard: {
 		backgroundColor: colors.neutral.neutral6,
-		borderRadius: 20,
-		padding: 16,
-		marginBottom: 16,
+		borderRadius: scale(20),
+		padding: spacing(16),
+		marginBottom: spacing(16),
 		borderWidth: 2,
 		borderColor: colors.primary.primary4,
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.08,
-		shadowRadius: 12,
+		shadowRadius: scale(12),
 		elevation: 5,
 	},
 	summaryDivider: {
 		height: 1,
 		backgroundColor: colors.neutral.neutral5,
-		marginVertical: 8,
+		marginVertical: spacing(8),
 	},
 	summaryRow: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		paddingVertical: 4,
+		paddingVertical: spacing(4),
 	},
 	summaryLabel: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "500",
 		color: colors.neutral.neutral3,
 	},
 	summaryValue: {
 		fontFamily: "Poppins",
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "600",
 		color: colors.neutral.neutral1,
 	},
 	summaryTotalLabel: {
 		fontFamily: "Poppins",
-		fontSize: 16,
+		fontSize: fontSize(16),
 		fontWeight: "700",
 		color: colors.neutral.neutral1,
 	},
 	summaryTotalValue: {
 		fontFamily: "Poppins",
-		fontSize: 18,
+		fontSize: fontSize(18),
 		fontWeight: "700",
 		color: colors.primary.primary1,
 	},
 	buttonsContainer: {
-		gap: 12,
+		gap: spacing(12),
 	},
 	confirmButton: {
-		height: 52,
+		height: scale(52),
 		shadowColor: colors.primary.primary1,
-		shadowOffset: { width: 0, height: 4 },
+		shadowOffset: { width: 0, height: scale(4) },
 		shadowOpacity: 0.3,
-		shadowRadius: 8,
+		shadowRadius: scale(8),
 		elevation: 6,
 	},
 	cancelButton: {
-		height: 52,
-		borderRadius: 20,
+		height: scale(52),
+		borderRadius: scale(20),
 		justifyContent: "center",
 		alignItems: "center",
 		borderWidth: 2,
@@ -633,7 +634,7 @@ const styles = StyleSheet.create({
 	},
 	cancelButtonText: {
 		fontFamily: "Poppins",
-		fontSize: 15,
+		fontSize: fontSize(15),
 		fontWeight: "600",
 		color: colors.neutral.neutral2,
 	},

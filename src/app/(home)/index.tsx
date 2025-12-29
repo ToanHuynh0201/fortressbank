@@ -6,14 +6,21 @@ import {
 	Image,
 	TouchableOpacity,
 	FlatList,
-	Dimensions,
 	ViewToken,
 	ActivityIndicator,
+	useWindowDimensions,
 } from "react-native";
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { primary, neutral } from "@/constants";
+import { scale, fontSize, spacing } from "@/utils/responsive";
+import {
+	typography,
+	spacingScale,
+	borderRadius,
+	componentSizes,
+} from "@/constants/responsive";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import {
@@ -36,7 +43,6 @@ import Animated, {
 	SharedValue,
 } from "react-native-reanimated";
 import { Account, accountService } from "@/services/accountService";
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 // Account Item Component with animation
 const AccountItem = React.memo(
@@ -44,16 +50,18 @@ const AccountItem = React.memo(
 		item,
 		index,
 		scrollX,
+		screenWidth,
 	}: {
 		item: Account;
 		index: number;
 		scrollX: SharedValue<number>;
+		screenWidth: number;
 	}) => {
 		const accountAnimatedStyle = useAnimatedStyle(() => {
 			const inputRange = [
-				(index - 1) * SCREEN_WIDTH,
-				index * SCREEN_WIDTH,
-				(index + 1) * SCREEN_WIDTH,
+				(index - 1) * screenWidth,
+				index * screenWidth,
+				(index + 1) * screenWidth,
 			];
 
 			const scale = interpolate(
@@ -70,20 +78,30 @@ const AccountItem = React.memo(
 
 		return (
 			<Animated.View
-				style={[styles.accountItemContainer, accountAnimatedStyle]}>
-				<AccountCardItem
-					accountName={`Account`}
-					accountNumber={item.accountNumber}
-					balance={`$${item.balance.toFixed(2)}`}
-					branch={item.accountStatus}
-				/>
+				style={[
+					{
+						width: screenWidth,
+						height: scale(240),
+						justifyContent: "center",
+					},
+					accountAnimatedStyle,
+				]}>
+				<View style={styles.accountCardWrapper}>
+					<AccountCardItem
+						accountName={`Account`}
+						accountNumber={item.accountNumber}
+						balance={`$${item.balance.toFixed(2)}`}
+						branch={item.accountStatus}
+					/>
+				</View>
 			</Animated.View>
 		);
 	},
 	(prevProps, nextProps) => {
 		return (
 			prevProps.item.accountId === nextProps.item.accountId &&
-			prevProps.index === nextProps.index
+			prevProps.index === nextProps.index &&
+			prevProps.screenWidth === nextProps.screenWidth
 		);
 	},
 );
@@ -178,6 +196,7 @@ const Home = () => {
 		itemVisiblePercentThreshold: 50,
 	}).current;
 
+	const { width: screenWidth } = useWindowDimensions();
 	// Render each account item
 	const renderAccountItem = useCallback(
 		({ item, index }: { item: Account; index: number }) => {
@@ -186,10 +205,11 @@ const Home = () => {
 					item={item}
 					index={index}
 					scrollX={scrollX}
+					screenWidth={screenWidth}
 				/>
 			);
 		},
-		[],
+		[screenWidth],
 	);
 
 	// Key extractor
@@ -197,8 +217,8 @@ const Home = () => {
 
 	// Get item layout for optimization
 	const getItemLayout = (_: any, index: number) => ({
-		length: SCREEN_WIDTH,
-		offset: SCREEN_WIDTH * index,
+		length: screenWidth,
+		offset: screenWidth * index,
 		index,
 	});
 
@@ -234,7 +254,7 @@ const Home = () => {
 	];
 
 	const getIcon = (iconName: string, large?: boolean) => {
-		const size = large ? 48 : 28;
+		const size = large ? scale(48) : scale(28);
 
 		switch (iconName) {
 			case "wallet":
@@ -286,7 +306,7 @@ const Home = () => {
 				style={styles.headerGradient}>
 				<View style={styles.header}>
 					<View style={styles.headerLeft}>
-						<UserAvatar size={54} />
+						<UserAvatar size={scale(54)} />
 						<View style={styles.greetingContainer}>
 							<Text style={styles.greetingLabel}>
 								Welcome back,
@@ -306,7 +326,7 @@ const Home = () => {
 							onPress={handleLogoutPress}
 							activeOpacity={0.7}>
 							<SignOut
-								size={20}
+								size={scale(20)}
 								color={neutral.neutral6}
 								weight="bold"
 							/>
@@ -319,7 +339,11 @@ const Home = () => {
 				style={styles.content}
 				showsVerticalScrollIndicator={false}
 				bounces={false}
-				contentContainerStyle={{ flexGrow: 1 }}>
+				contentContainerStyle={{
+					flexGrow: 1,
+					paddingBottom:
+						componentSizes.tabBarHeight + spacingScale.md,
+				}}>
 				{/* Account Cards Carousel */}
 				{isLoadingAccounts ? (
 					<View style={styles.loadingContainer}>
@@ -449,9 +473,9 @@ const styles = StyleSheet.create({
 		backgroundColor: primary.primary1,
 	},
 	headerGradient: {
-		paddingHorizontal: 24,
-		paddingVertical: 20,
-		paddingBottom: 24,
+		paddingHorizontal: spacingScale.xl,
+		paddingVertical: spacingScale.xl * 0.83,
+		paddingBottom: spacingScale.xl,
 	},
 	header: {
 		flexDirection: "row",
@@ -461,36 +485,36 @@ const styles = StyleSheet.create({
 	headerLeft: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 16,
+		gap: spacingScale.lg,
 		flex: 1,
 	},
 	greetingContainer: {
 		flex: 1,
 	},
 	greetingLabel: {
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontFamily: "Poppins",
 		fontWeight: "400",
 		color: "rgba(255, 255, 255, 0.7)",
-		lineHeight: 18,
-		marginBottom: 2,
+		lineHeight: scale(18),
+		marginBottom: spacing(2),
 	},
 	greeting: {
-		fontSize: 18,
+		fontSize: typography.subtitle,
 		fontFamily: "Poppins",
 		fontWeight: "600",
 		color: neutral.neutral6,
-		lineHeight: 24,
+		lineHeight: scale(24),
 	},
 	headerRight: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 12,
+		gap: spacingScale.md,
 	},
 	logoutButton: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: scale(40),
+		height: scale(40),
+		borderRadius: scale(20),
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
 		justifyContent: "center",
 		alignItems: "center",
@@ -502,59 +526,56 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		backgroundColor: neutral.neutral6,
-		borderTopLeftRadius: 30,
-		borderTopRightRadius: 30,
-		paddingTop: 16,
-		paddingBottom: 20,
+		borderTopLeftRadius: borderRadius.xxl,
+		borderTopRightRadius: borderRadius.xxl,
+		paddingTop: spacingScale.sm,
 	},
 	flatList: {
-		height: 240,
-		flexGrow: 0,
+		height: scale(240),
 	},
 	flatListContent: {
 		paddingHorizontal: 0,
 	},
-	accountItemContainer: {
-		width: SCREEN_WIDTH,
-		height: 240,
-		paddingHorizontal: 24,
+	accountCardWrapper: {
+		paddingHorizontal: spacingScale.xl,
 		justifyContent: "center",
 	},
 	accountIndicators: {
 		flexDirection: "row",
 		justifyContent: "center",
 		alignItems: "center",
-		gap: 8,
-		marginBottom: 12,
-		paddingHorizontal: 24,
+		gap: spacingScale.sm,
+		marginBottom: spacingScale.md,
+		paddingHorizontal: spacingScale.xl,
 	},
 	indicatorDot: {
-		width: 8,
-		height: 8,
-		borderRadius: 4,
+		width: scale(8),
+		height: scale(8),
+		borderRadius: scale(4),
 		backgroundColor: neutral.neutral4,
 	},
 	indicatorDotActive: {
-		width: 24,
+		width: spacingScale.xl,
 		backgroundColor: primary.primary1,
 	},
 	cardContainer: {
-		marginBottom: 6,
+		marginBottom: spacing(6),
 	},
 	sectionTitle: {
-		fontSize: 20,
+		fontSize: typography.h3,
 		fontWeight: "700",
 		color: neutral.neutral1,
-		marginBottom: 6,
+		marginBottom: spacing(6),
 		fontFamily: "Poppins",
-		paddingHorizontal: 24,
+		paddingHorizontal: spacingScale.xl,
 	},
 	featuresContainer: {
-		gap: 10,
-		paddingHorizontal: 24,
+		gap: spacing(5),
+		paddingHorizontal: spacingScale.xl,
+		paddingBottom: componentSizes.tabBarHeight,
 	},
 	featureCard: {
-		borderRadius: 16,
+		borderRadius: borderRadius.lg,
 		overflow: "hidden",
 		shadowColor: primary.primary1,
 		shadowOffset: { width: 0, height: 4 },
@@ -563,50 +584,50 @@ const styles = StyleSheet.create({
 		elevation: 5,
 	},
 	featureCardLast: {
-		marginBottom: 20,
+		marginBottom: 0,
 	},
 	featureGradient: {
 		flexDirection: "row",
 		alignItems: "center",
-		padding: 14,
-		minHeight: 82,
+		padding: spacing(14),
+		minHeight: scale(82),
 	},
 	featureIconContainer: {
-		width: 56,
-		height: 56,
-		borderRadius: 14,
+		width: scale(56),
+		height: scale(56),
+		borderRadius: spacing(14),
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
 		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 14,
+		marginRight: spacing(14),
 	},
 	featureContent: {
 		flex: 1,
 	},
 	featureTitle: {
-		fontSize: 18,
+		fontSize: typography.subtitle,
 		fontWeight: "700",
 		color: neutral.neutral6,
-		marginBottom: 6,
+		marginBottom: spacing(6),
 		fontFamily: "Poppins",
 	},
 	featureDescription: {
-		fontSize: 13,
+		fontSize: fontSize(13),
 		fontWeight: "400",
 		color: "rgba(255, 255, 255, 0.85)",
-		lineHeight: 18,
+		lineHeight: scale(18),
 		fontFamily: "Poppins",
 	},
 	featureArrow: {
-		width: 32,
-		height: 32,
-		borderRadius: 16,
+		width: scale(32),
+		height: scale(32),
+		borderRadius: scale(16),
 		backgroundColor: "rgba(255, 255, 255, 0.2)",
 		justifyContent: "center",
 		alignItems: "center",
 	},
 	arrowIcon: {
-		fontSize: 20,
+		fontSize: scale(20),
 		color: neutral.neutral6,
 		fontWeight: "bold",
 	},
@@ -614,26 +635,26 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingVertical: 60,
-		minHeight: 240,
+		paddingVertical: componentSizes.tabBarHeight,
+		minHeight: scale(240),
 	},
 	loadingText: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "500",
 		color: neutral.neutral3,
-		marginTop: 12,
+		marginTop: spacingScale.md,
 	},
 	emptyContainer: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		paddingVertical: 60,
-		minHeight: 240,
+		paddingVertical: componentSizes.tabBarHeight,
+		minHeight: scale(240),
 	},
 	emptyText: {
 		fontFamily: "Poppins",
-		fontSize: 14,
+		fontSize: typography.bodySmall,
 		fontWeight: "500",
 		color: neutral.neutral3,
 		textAlign: "center",

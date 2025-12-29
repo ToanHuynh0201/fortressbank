@@ -3,6 +3,8 @@ import { View, Text, Pressable, StyleSheet, ViewStyle } from "react-native";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "phosphor-react-native";
 import { neutral, primary } from "@/constants/colors";
+import { typography, spacingScale, borderRadius } from "@/constants/responsive";
+import { scale } from "@/utils/responsive";
 
 interface AppHeaderProps {
 	title: string;
@@ -26,7 +28,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 	const handleBack = () => {
 		if (onBack) {
 			onBack();
-		} else {
+		} else if (router.canGoBack()) {
 			router.back();
 		}
 	};
@@ -40,11 +42,11 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 						onPress={handleBack}
 						android_ripple={{
 							color: "rgba(255, 255, 255, 0.1)",
-							radius: 24,
+							radius: scale(24),
 						}}>
 						<View style={styles.backButtonInner}>
 							<ArrowLeft
-								size={24}
+								size={scale(24)}
 								color={textColor}
 								weight="regular"
 							/>
@@ -68,13 +70,13 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 
 const styles = StyleSheet.create({
 	header: {
-		paddingTop: 20,
-		paddingHorizontal: 20,
-		paddingBottom: 20,
+		paddingTop: spacingScale.xl,
+		paddingHorizontal: spacingScale.xl,
+		paddingBottom: spacingScale.xl,
 		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 2 },
+		shadowOffset: { width: 0, height: scale(2) },
 		shadowOpacity: 0.1,
-		shadowRadius: 4,
+		shadowRadius: scale(4),
 		elevation: 3,
 	},
 	headerContent: {
@@ -83,37 +85,37 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	backButton: {
-		borderRadius: 12,
+		borderRadius: borderRadius.md,
 		overflow: "hidden",
 	},
 	backButtonInner: {
-		width: 44,
-		height: 44,
+		width: scale(44),
+		height: scale(44),
 		justifyContent: "center",
 		alignItems: "center",
 		backgroundColor: "rgba(255, 255, 255, 0.1)",
-		borderRadius: 12,
+		borderRadius: borderRadius.md,
 	},
 	backButtonPlaceholder: {
-		width: 44,
-		height: 44,
+		width: scale(44),
+		height: scale(44),
 	},
 	titleContainer: {
 		flex: 1,
 		alignItems: "center",
 		justifyContent: "center",
-		paddingHorizontal: 16,
+		paddingHorizontal: spacingScale.lg,
 	},
 	headerTitle: {
-		fontSize: 24,
+		fontSize: typography.title,
 		fontFamily: "Poppins",
 		fontWeight: "900",
-		lineHeight: 24,
+		lineHeight: scale(24),
 		textAlign: "center",
 	},
 	rightPlaceholder: {
-		width: 44,
-		height: 44,
+		width: scale(44),
+		height: scale(44),
 	},
 });
 

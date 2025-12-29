@@ -9,6 +9,8 @@ import {
 	ViewStyle,
 } from "react-native";
 import { neutral } from "@/constants/colors";
+import { componentSizes, typography, spacingScale, borderRadius } from "@/constants/responsive";
+import { spacing, fontSize, scale } from "@/utils/responsive";
 
 interface PasswordInputProps extends TextInputProps {
 	containerStyle?: ViewStyle;
@@ -58,13 +60,13 @@ const styles = StyleSheet.create({
 		position: "relative",
 	},
 	input: {
-		height: 44,
+		height: componentSizes.inputHeight,
 		borderWidth: 1,
 		borderColor: neutral.neutral4,
-		borderRadius: 15,
-		paddingHorizontal: 12,
-		paddingRight: 40,
-		fontSize: 14,
+		borderRadius: borderRadius.lg,
+		paddingHorizontal: spacingScale.md,
+		paddingRight: spacingScale.xxxl,
+		fontSize: typography.bodySmall,
 		fontWeight: "500",
 		color: neutral.neutral1,
 		backgroundColor: neutral.neutral6,
@@ -78,17 +80,17 @@ const styles = StyleSheet.create({
 	},
 	eyeIcon: {
 		position: "absolute",
-		right: 12,
-		top: 14,
+		right: spacingScale.md,
+		top: scale(14),
 	},
 	eyeIconText: {
-		fontSize: 16,
+		fontSize: fontSize(16),
 	},
 	errorText: {
-		fontSize: 12,
+		fontSize: typography.caption,
 		color: "#EF4444",
-		marginTop: 4,
-		marginLeft: 4,
+		marginTop: spacing(4),
+		marginLeft: spacing(4),
 		fontFamily: "Poppins",
 	},
 });

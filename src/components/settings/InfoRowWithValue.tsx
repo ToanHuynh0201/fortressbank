@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { CaretRight } from 'phosphor-react-native';
 import { neutral, primary } from '@/constants/colors';
+import { scale, fontSize, spacing } from '@/utils/responsive';
 
 interface InfoRowWithValueProps {
   title: string;
@@ -22,7 +23,7 @@ const InfoRowWithValue: React.FC<InfoRowWithValueProps> = ({
       <View style={styles.rightContent}>
         <Text style={styles.value}>{value}</Text>
         {showChevron && (
-          <CaretRight size={16} color={neutral.neutral2} weight="regular" />
+          <CaretRight size={scale(16)} color={neutral.neutral2} weight="regular" />
         )}
       </View>
     </View>
@@ -51,17 +52,17 @@ const InfoRowWithValue: React.FC<InfoRowWithValueProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing(24),
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 36,
+    height: scale(36),
   },
   title: {
     fontFamily: 'Poppins',
-    fontSize: 16,
+    fontSize: fontSize(16),
     fontWeight: '500',
     lineHeight: 24,
     color: neutral.neutral1,
@@ -69,11 +70,11 @@ const styles = StyleSheet.create({
   rightContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing(8),
   },
   value: {
     fontFamily: 'Poppins',
-    fontSize: 16,
+    fontSize: fontSize(16),
     fontWeight: '600',
     lineHeight: 24,
     color: primary.primary1,
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: '#ECECEC',
-    marginTop: 12,
+    marginTop: spacing(12),
   },
 });
 
