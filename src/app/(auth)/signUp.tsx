@@ -105,6 +105,7 @@ const SignUp = () => {
 
 	// Face ID registration state
 	const [userId, setUserId] = useState<string | null>(null);
+	const [isAccountCreated, setIsAccountCreated] = useState(false);
 	const [capturedPhotos, setCapturedPhotos] = useState<CapturedPhotos>({
 		left: null,
 		right: null,
@@ -463,40 +464,49 @@ const SignUp = () => {
 		setIsLoading(true);
 
 		try {
-			// Prepare registration data
-			const accountNumberType =
-				values.accountNumberOption === "auto"
-					? "AUTO_GENERATE"
-					: "PHONE_NUMBER";
+			let currentUserId = userId;
 
-			const [day, month, year] = values.dateOfBirth.split("/");
-			const formattedDob = `${year}-${month}-${day}`;
+			// STEP 1: Register user account (only if not already created)
+			if (!isAccountCreated) {
+				// Prepare registration data
+				const accountNumberType =
+					values.accountNumberOption === "auto"
+						? "AUTO_GENERATE"
+						: "PHONE_NUMBER";
 
-			// STEP 1: Register user account
-			const registerResult = await authService.register({
-				username: values.username,
-				email: values.email,
-				password: values.password,
-				fullName: values.fullname,
-				phoneNumber: values.phoneNumber,
-				dob: formattedDob,
-				citizenId: values.citizenId,
-				accountNumberType: accountNumberType,
-				pin: values.pin,
-			});
+				const [day, month, year] = values.dateOfBirth.split("/");
+				const formattedDob = `${year}-${month}-${day}`;
 
-			if (registerResult.code !== 1000 || !registerResult.data) {
-				throw new Error(
-					registerResult.message || "Registration failed",
-				);
+				const registerResult = await authService.register({
+					username: values.username,
+					email: values.email,
+					password: values.password,
+					fullName: values.fullname,
+					phoneNumber: values.phoneNumber,
+					dob: formattedDob,
+					citizenId: values.citizenId,
+					accountNumberType: accountNumberType,
+					pin: values.pin,
+				});
+
+				if (registerResult.code !== 1000 || !registerResult.data) {
+					throw new Error(
+						registerResult.message || "Registration failed",
+					);
+				}
+
+				currentUserId = registerResult.data.id;
+				setUserId(currentUserId);
+				setIsAccountCreated(true);
 			}
 
-			const newUserId = registerResult.data.id;
-			setUserId(newUserId);
-
 			// STEP 2: Register Face ID with the userId
+			if (!currentUserId) {
+				throw new Error("User ID is missing");
+			}
+
 			const faceResult = await authService.registerFaceID(
-				newUserId,
+				currentUserId,
 				capturedPhotos,
 			);
 
@@ -505,8 +515,9 @@ const SignUp = () => {
 				setAlertModal({
 					visible: true,
 					title: "Face ID Registration Failed",
-					message:
-						"Your account was created, but Face ID setup failed. Please try capturing your photos again.",
+					message: isAccountCreated
+						? "Face ID setup failed. Please try capturing your photos again."
+						: "Your account was created, but Face ID setup failed. Please try capturing your photos again.",
 					variant: "warning",
 				});
 				// Stay on preview screen, allow retry
@@ -545,6 +556,7 @@ const SignUp = () => {
 			normal: null,
 		});
 		setFaceIDSubStep("camera");
+		// Don't reset isAccountCreated - account is still valid
 	};
 
 	const handleGoToSignIn = () => {
