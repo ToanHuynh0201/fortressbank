@@ -1,6 +1,4 @@
 import api from "@/lib/api";
-import { API_CONFIG, STORAGE_KEYS } from "@/constants";
-import { getStorageItem } from "@/utils/storage";
 
 export interface NotificationData {
 	notificationId: string;
@@ -26,17 +24,8 @@ class NotificationService {
 	 */
 	async getNotifications(): Promise<NotificationResponse> {
 		try {
-			const token = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
-
-			const response = await fetch(`${API_CONFIG.BASE_URL}/notifications`, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			const result = await response.json();
+			const response = await api.get("/notifications");
+			const result = response.data;
 
 			if (result.code === 1000) {
 				return result;
@@ -56,21 +45,11 @@ class NotificationService {
 	 */
 	async markAsRead(notificationId: string): Promise<any> {
 		try {
-			const token = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
-
-			const response = await fetch(
-				`${API_CONFIG.BASE_URL}/notifications/${notificationId}/read`,
-				{
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-				}
+			const response = await api.put(
+				`/notifications/${notificationId}/read`,
+				{},
 			);
-
-			const result = await response.json();
-			return result;
+			return response.data;
 		} catch (error) {
 			console.error("Mark as read error:", error);
 			throw error;
@@ -83,21 +62,8 @@ class NotificationService {
 	 */
 	async markAllAsRead(): Promise<any> {
 		try {
-			const token = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
-
-			const response = await fetch(
-				`${API_CONFIG.BASE_URL}/notifications/read-all`,
-				{
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
-
-			const result = await response.json();
-			return result;
+			const response = await api.put("/notifications/read-all", {});
+			return response.data;
 		} catch (error) {
 			console.error("Mark all as read error:", error);
 			throw error;
@@ -111,21 +77,10 @@ class NotificationService {
 	 */
 	async deleteNotification(notificationId: string): Promise<any> {
 		try {
-			const token = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
-
-			const response = await fetch(
-				`${API_CONFIG.BASE_URL}/notifications/${notificationId}`,
-				{
-					method: "DELETE",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-				}
+			const response = await api.delete(
+				`/notifications/${notificationId}`,
 			);
-
-			const result = await response.json();
-			return result;
+			return response.data;
 		} catch (error) {
 			console.error("Delete notification error:", error);
 			throw error;
