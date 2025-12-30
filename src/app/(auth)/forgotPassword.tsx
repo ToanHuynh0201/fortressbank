@@ -16,6 +16,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useForm } from "@/hooks";
+import { validationRules } from "@/utils/validation";
 
 type Step = "enter-phone" | "confirm-phone" | "enter-code" | "change-password";
 
@@ -55,6 +56,19 @@ const ForgotPassword = () => {
 			});
 			return;
 		}
+
+		// Validate phone number
+		const phoneError = validationRules.phoneNumber(values.phoneNumber);
+		if (phoneError) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: phoneError,
+				variant: "error",
+			});
+			return;
+		}
+
 		// TODO: Call API to send verification code
 		console.log("Sending code to:", values.phoneNumber);
 		setStep("confirm-phone");
@@ -107,6 +121,19 @@ const ForgotPassword = () => {
 			});
 			return;
 		}
+
+		// Validate new password
+		const passwordError = validationRules.password(values.newPassword);
+		if (passwordError) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: passwordError,
+				variant: "error",
+			});
+			return;
+		}
+
 		if (values.newPassword !== values.confirmPassword) {
 			setAlertModal({
 				visible: true,

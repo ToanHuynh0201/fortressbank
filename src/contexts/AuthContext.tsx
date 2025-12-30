@@ -204,6 +204,19 @@ export const AuthProvider = ({ children }: any) => {
 			// Check if response code is 1000 (success)
 			if (response.code === 1000 && user) {
 				const userData = user;
+
+				// Check if user switched accounts - clear old biometric credentials
+				try {
+					const storedCredentials = await biometricService.getCredentials();
+					if (storedCredentials && storedCredentials.username !== username) {
+						console.log("Account switch detected - clearing old biometric credentials");
+						await biometricService.removeCredentials();
+						setBiometricEnabled(false);
+					}
+				} catch (error) {
+					console.error("Error checking stored biometric credentials:", error);
+				}
+
 				dispatch({
 					type: AUTH_ACTIONS.LOGIN_SUCCESS,
 					payload: { user: userData },

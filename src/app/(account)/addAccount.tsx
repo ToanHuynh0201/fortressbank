@@ -31,6 +31,7 @@ import {
 import AlertModal from "@/components/common/AlertModal";
 import { useForm, useAuth } from "@/hooks";
 import { accountService, Account } from "@/services/accountService";
+import { validationRules } from "@/utils/validation";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -100,20 +101,16 @@ const AddAccount = () => {
 		let isValid = true;
 
 		// Validate PIN
-		if (!values.pin.trim()) {
-			setFieldError("pin", "PIN is required");
-			isValid = false;
-		} else if (values.pin.length !== 6) {
-			setFieldError("pin", "PIN must be 6 digits");
+		const pinError = validationRules.pin(values.pin);
+		if (pinError) {
+			setFieldError("pin", pinError);
 			isValid = false;
 		}
 
 		// Validate confirm PIN
-		if (!values.confirmPin.trim()) {
-			setFieldError("confirmPin", "Confirm PIN is required");
-			isValid = false;
-		} else if (values.pin !== values.confirmPin) {
-			setFieldError("confirmPin", "PINs do not match");
+		const confirmPinError = validationRules.confirmPIN(values.pin)(values.confirmPin);
+		if (confirmPinError) {
+			setFieldError("confirmPin", confirmPinError);
 			isValid = false;
 		}
 

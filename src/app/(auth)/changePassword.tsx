@@ -16,6 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useForm } from "@/hooks";
 import { useAuth } from "@/hooks";
+import { validationRules } from "@/utils/validation";
 
 const ChangePassword = () => {
 	const router = useRouter();
@@ -56,6 +57,18 @@ const ChangePassword = () => {
 				visible: true,
 				title: "Error",
 				message: "New passwords do not match",
+				variant: "error",
+			});
+			return;
+		}
+
+		// Validate new password
+		const passwordError = validationRules.password(values.newPassword);
+		if (passwordError) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: passwordError,
 				variant: "error",
 			});
 			return;

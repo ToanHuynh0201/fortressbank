@@ -18,6 +18,7 @@ import { useForm } from "@/hooks";
 import { accountService } from "@/services";
 import type { Account } from "@/services/accountService";
 import { CaretDown } from "phosphor-react-native";
+import { validationRules } from "@/utils/validation";
 
 const ChangePIN = () => {
 	const router = useRouter();
@@ -90,21 +91,37 @@ const ChangePIN = () => {
 			return;
 		}
 
-		if (!isFormValid) {
+		// Validate old PIN
+		const oldPinError = validationRules.pin(values.oldPIN);
+		if (oldPinError) {
 			setAlertModal({
 				visible: true,
 				title: "Error",
-				message: "Please fill in all PIN fields (6 digits each)",
+				message: oldPinError,
 				variant: "error",
 			});
 			return;
 		}
 
-		if (values.newPIN !== values.confirmPIN) {
+		// Validate new PIN
+		const newPinError = validationRules.pin(values.newPIN);
+		if (newPinError) {
 			setAlertModal({
 				visible: true,
 				title: "Error",
-				message: "New PINs do not match",
+				message: newPinError,
+				variant: "error",
+			});
+			return;
+		}
+
+		// Validate confirm PIN
+		const confirmPinError = validationRules.confirmPIN(values.newPIN)(values.confirmPIN);
+		if (confirmPinError) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: confirmPinError,
 				variant: "error",
 			});
 			return;
@@ -115,18 +132,6 @@ const ChangePIN = () => {
 				visible: true,
 				title: "Error",
 				message: "New PIN must be different from old PIN",
-				variant: "error",
-			});
-			return;
-		}
-
-		// Validate PIN format (only numbers)
-		const pinRegex = /^\d{6}$/;
-		if (!pinRegex.test(values.newPIN)) {
-			setAlertModal({
-				visible: true,
-				title: "Error",
-				message: "PIN must be 6 digits",
 				variant: "error",
 			});
 			return;

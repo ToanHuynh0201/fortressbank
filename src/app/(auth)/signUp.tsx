@@ -191,11 +191,9 @@ const SignUp = () => {
 		let isValid = true;
 
 		// Validate citizen ID (12 digits)
-		if (!values.citizenId.trim()) {
-			setFieldError("citizenId", "Citizen ID is required");
-			isValid = false;
-		} else if (!/^\d{12}$/.test(values.citizenId)) {
-			setFieldError("citizenId", "Citizen ID must have 12 digits");
+		const citizenIdError = validationRules.citizenId(values.citizenId);
+		if (citizenIdError) {
+			setFieldError("citizenId", citizenIdError);
 			isValid = false;
 		}
 
@@ -226,11 +224,9 @@ const SignUp = () => {
 		let isValid = true;
 
 		// Validate username
-		if (!values.username.trim()) {
-			setFieldError("username", "Username is required");
-			isValid = false;
-		} else if (values.username.length < 4) {
-			setFieldError("username", "Username must be at least 4 characters");
+		const usernameError = validationRules.username(values.username);
+		if (usernameError) {
+			setFieldError("username", usernameError);
 			isValid = false;
 		}
 
@@ -248,8 +244,9 @@ const SignUp = () => {
 		}
 
 		// Validate fullname
-		if (!values.fullname.trim()) {
-			setFieldError("fullname", "Full name is required");
+		const fullNameError = validationRules.fullName(values.fullname);
+		if (fullNameError) {
+			setFieldError("fullname", fullNameError);
 			isValid = false;
 		}
 
@@ -411,17 +408,16 @@ const SignUp = () => {
 		let isValid = true;
 
 		// Validate PIN
-		if (!values.pin.trim()) {
-			setFieldError("pin", "PIN is required");
-			isValid = false;
-		} else if (!/^\d{6}$/.test(values.pin)) {
-			setFieldError("pin", "PIN must be 6 digits");
+		const pinError = validationRules.pin(values.pin);
+		if (pinError) {
+			setFieldError("pin", pinError);
 			isValid = false;
 		}
 
 		// Validate confirm PIN
-		if (values.pin !== values.confirmPin) {
-			setFieldError("confirmPin", "PINs do not match");
+		const confirmPinError = validationRules.confirmPIN(values.pin)(values.confirmPin);
+		if (confirmPinError) {
+			setFieldError("confirmPin", confirmPinError);
 			isValid = false;
 		}
 
