@@ -46,9 +46,11 @@ class NotificationService {
 	async markAsRead(notificationId: string): Promise<any> {
 		try {
 			const response = await api.put(
-				`/notifications/${notificationId}/read`,
+				`/notifications/${notificationId}`,
 				{},
 			);
+			console.log(response.data);
+
 			return response.data;
 		} catch (error) {
 			console.error("Mark as read error:", error);
@@ -62,8 +64,28 @@ class NotificationService {
 	 */
 	async markAllAsRead(): Promise<any> {
 		try {
-			const response = await api.put("/notifications/read-all", {});
-			return response.data;
+			// Get all notifications first
+			const notificationsResponse = await this.getNotifications();
+
+			// Filter unread notifications
+			const unreadNotifications = notificationsResponse.data.filter(
+				(notification) => !notification.read,
+			);
+
+			// Mark each unread notification as read
+			const markReadPromises = unreadNotifications.map((notification) =>
+				api.put(`/notifications/${notification.notificationId}`, {}),
+			);
+
+			// Execute all requests in parallel
+			await Promise.all(markReadPromises);
+			console.log(unreadNotifications.length);
+
+			return {
+				code: 1000,
+				message: "All notifications marked as read",
+				count: unreadNotifications.length,
+			};
 		} catch (error) {
 			console.error("Mark all as read error:", error);
 			throw error;

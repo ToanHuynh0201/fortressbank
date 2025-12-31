@@ -27,7 +27,7 @@ import {
 import colors from "@/constants/colors";
 import { ScreenContainer, PrimaryButton, AlertModal } from "@/components";
 import { transferService, TransferRequest } from "@/services";
-import { scale, fontSize, spacing } from '@/utils/responsive';
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 const TransferConfirmation = () => {
 	const router = useRouter();
@@ -170,20 +170,37 @@ const TransferConfirmation = () => {
 			console.log("Sending transfer request:", transferData);
 			// Call API to create transfer
 			const response = await transferService.createTransfer(transferData);
+			console.log(response);
 
 			if (response.code === 1000 && response.data.transactionId) {
-				// Navigate to PIN verification with transactionId and fromAccountId
 				console.log(
 					"Transaction created:",
 					response.data.transactionId,
 				);
-				router.push({
-					pathname: "(transfer)/pinVerification",
-					params: {
-						transactionId: response.data.transactionId,
-						fromAccountId: transferData.senderAccountId,
-					},
-				});
+				console.log(
+					"Require Auth Face:",
+					response.data.requireFaceAuth,
+				);
+
+				// Check if Face ID verification is required
+				if (response.data.requireFaceAuth === true) {
+					// Navigate to Face ID verification
+					router.push({
+						pathname: "(transfer)/faceVerification",
+						params: {
+							transactionId: response.data.transactionId,
+						},
+					});
+				} else {
+					// Navigate to PIN verification (existing flow)
+					router.push({
+						pathname: "(transfer)/pinVerification",
+						params: {
+							transactionId: response.data.transactionId,
+							fromAccountId: transferData.senderAccountId,
+						},
+					});
+				}
 			} else {
 				setAlertModal({
 					visible: true,
