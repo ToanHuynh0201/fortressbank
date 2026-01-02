@@ -44,7 +44,7 @@ import { parseCurrency } from "@/utils/currency";
 import { Beneficiary } from "@/types/beneficiary";
 import { Account, accountService } from "@/services/accountService";
 import type { AccountLookupData } from "@/services/transferService";
-import { scale, fontSize, spacing } from '@/utils/responsive';
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -78,7 +78,8 @@ const Transfer = () => {
 	const [showAccountDropdown, setShowAccountDropdown] = useState(false);
 	const [showAccountNumbers, setShowAccountNumbers] = useState(false);
 	const [beneficiaryName, setBeneficiaryName] = useState<string>("");
-	const [beneficiaryAccountData, setBeneficiaryAccountData] = useState<AccountLookupData | null>(null);
+	const [beneficiaryAccountData, setBeneficiaryAccountData] =
+		useState<AccountLookupData | null>(null);
 	const [showBeneficiarySelector, setShowBeneficiarySelector] =
 		useState(false);
 	const [selectedBank, setSelectedBank] = useState<string>("");
@@ -111,22 +112,22 @@ const Transfer = () => {
 
 	// Handle QR scan params - auto-fill form when QR code is scanned
 	useEffect(() => {
-		if (params.accountNumber && typeof params.accountNumber === 'string') {
+		if (params.accountNumber && typeof params.accountNumber === "string") {
 			// Set account number
 			setFieldValue("accountNumber", params.accountNumber);
 
 			// Set beneficiary name
-			if (params.accountName && typeof params.accountName === 'string') {
+			if (params.accountName && typeof params.accountName === "string") {
 				setBeneficiaryName(params.accountName);
 			}
 
 			// Set amount if provided
-			if (params.amount && typeof params.amount === 'string') {
+			if (params.amount && typeof params.amount === "string") {
 				setFieldValue("amount", params.amount);
 			}
 
 			// Set message if provided
-			if (params.message && typeof params.message === 'string') {
+			if (params.message && typeof params.message === "string") {
 				setFieldValue("content", params.message);
 			}
 
@@ -137,7 +138,13 @@ const Transfer = () => {
 				setSelectedBank(bank.id);
 			}
 		}
-	}, [params.accountNumber, params.accountName, params.amount, params.message, params.bankCode]);
+	}, [
+		params.accountNumber,
+		params.accountName,
+		params.amount,
+		params.message,
+		params.bankCode,
+	]);
 
 	const fetchAccounts = async () => {
 		setIsLoadingAccounts(true);
@@ -173,7 +180,9 @@ const Transfer = () => {
 	});
 
 	// Get selected account balance
-	const selectedAccountData = accounts.find((a) => a.accountId === selectedAccount);
+	const selectedAccountData = accounts.find(
+		(a) => a.accountId === selectedAccount,
+	);
 	const availableBalance = selectedAccountData?.balance || 0;
 
 	// Parse amount for validation
@@ -208,6 +217,12 @@ const Transfer = () => {
 		setBeneficiaryName(beneficiary.accountName);
 		// Note: Beneficiary data doesn't have accountId, so API lookup will still occur
 		setBeneficiaryAccountData(null);
+
+		// Auto-select bank based on beneficiary's bankName
+		const bank = BANKS.find((b) => b.name === beneficiary.bankName);
+		if (bank) {
+			setSelectedBank(bank.id);
+		}
 	};
 
 	return (
@@ -257,15 +272,24 @@ const Transfer = () => {
 							<TouchableOpacity
 								style={styles.accountSelector}
 								onPress={() =>
-									!isLoadingAccounts && setShowAccountDropdown(!showAccountDropdown)
+									!isLoadingAccounts &&
+									setShowAccountDropdown(!showAccountDropdown)
 								}
 								disabled={isLoadingAccounts}>
 								<View style={styles.accountSelectorContent}>
 									<View style={styles.accountIconContainer}>
 										<Bank
 											size={scale(24)}
-											color={isLoadingAccounts ? colors.neutral.neutral3 : colors.primary.primary1}
-											weight={isLoadingAccounts ? "regular" : "duotone"}
+											color={
+												isLoadingAccounts
+													? colors.neutral.neutral3
+													: colors.primary.primary1
+											}
+											weight={
+												isLoadingAccounts
+													? "regular"
+													: "duotone"
+											}
 										/>
 									</View>
 									<View style={styles.accountTextContainer}>
@@ -273,7 +297,9 @@ const Transfer = () => {
 											<LoadingSpinner
 												size="small"
 												text="Loading accounts..."
-												containerStyle={{ alignItems: 'flex-start' }}
+												containerStyle={{
+													alignItems: "flex-start",
+												}}
 											/>
 										) : selectedAccount ? (
 											<>
@@ -281,13 +307,18 @@ const Transfer = () => {
 													style={
 														styles.accountLabelSelected
 													}>
-													Account {selectedAccountData?.accountNumber}
+													Account{" "}
+													{
+														selectedAccountData?.accountNumber
+													}
 												</Text>
 												<Text
 													style={
 														styles.accountNumber
 													}>
-													{selectedAccountData?.accountNumber}
+													{
+														selectedAccountData?.accountNumber
+													}
 												</Text>
 												<View
 													style={
@@ -304,7 +335,9 @@ const Transfer = () => {
 															styles.balanceAmount
 														}>
 														$
-														{selectedAccountData?.balance.toFixed(2)}
+														{selectedAccountData?.balance.toFixed(
+															2,
+														)}
 													</Text>
 												</View>
 											</>
@@ -384,11 +417,14 @@ const Transfer = () => {
 										key={account.accountId}
 										style={[
 											styles.dropdownItem,
-											selectedAccount === account.accountId &&
+											selectedAccount ===
+												account.accountId &&
 												styles.dropdownItemSelected,
 										]}
 										onPress={() => {
-											setSelectedAccount(account.accountId);
+											setSelectedAccount(
+												account.accountId,
+											);
 											setShowAccountDropdown(false);
 										}}>
 										<View
@@ -405,7 +441,8 @@ const Transfer = () => {
 													style={
 														styles.dropdownItemLabel
 													}>
-													Account {account.accountNumber}
+													Account{" "}
+													{account.accountNumber}
 												</Text>
 												<Text
 													style={
@@ -415,7 +452,8 @@ const Transfer = () => {
 													{account.balance.toFixed(2)}
 												</Text>
 											</View>
-											{selectedAccount === account.accountId && (
+											{selectedAccount ===
+												account.accountId && (
 												<View style={styles.checkIcon}>
 													<Text
 														style={
@@ -450,15 +488,17 @@ const Transfer = () => {
 							<TouchableOpacity
 								style={[
 									styles.beneficiaryButton,
-									!selectedAccount && styles.disabledButton
+									!selectedAccount && styles.disabledButton,
 								]}
-								onPress={() =>
-									setShowBeneficiarySelector(true)
-								}
+								onPress={() => setShowBeneficiarySelector(true)}
 								disabled={!selectedAccount}>
 								<UserList
 									size={scale(22)}
-									color={selectedAccount ? colors.primary.primary1 : colors.neutral.neutral3}
+									color={
+										selectedAccount
+											? colors.primary.primary1
+											: colors.neutral.neutral3
+									}
 									weight="bold"
 								/>
 							</TouchableOpacity>
@@ -469,13 +509,19 @@ const Transfer = () => {
 							<View style={styles.inputLabelRow}>
 								<Bank
 									size={scale(18)}
-									color={selectedAccount ? colors.primary.primary1 : colors.neutral.neutral3}
+									color={
+										selectedAccount
+											? colors.primary.primary1
+											: colors.neutral.neutral3
+									}
 									weight="bold"
 								/>
-								<Text style={[
-									styles.inputLabel,
-									!selectedAccount && styles.disabledLabel
-								]}>
+								<Text
+									style={[
+										styles.inputLabel,
+										!selectedAccount &&
+											styles.disabledLabel,
+									]}>
 									Select Bank
 								</Text>
 							</View>
@@ -483,7 +529,8 @@ const Transfer = () => {
 								<TouchableOpacity
 									style={[
 										styles.bankSelector,
-										!selectedAccount && styles.disabledSelector
+										!selectedAccount &&
+											styles.disabledSelector,
 									]}
 									onPress={() =>
 										setShowBankDropdown(!showBankDropdown)
@@ -492,37 +539,62 @@ const Transfer = () => {
 									<View style={styles.bankSelectorContent}>
 										{selectedBank ? (
 											<>
-												<View style={styles.bankIconContainer}>
-													<Text style={styles.bankLogo}>
+												<View
+													style={
+														styles.bankIconContainer
+													}>
+													<Text
+														style={styles.bankLogo}>
 														{selectedBankData?.logo}
 													</Text>
 												</View>
-												<View style={styles.bankTextContainer}>
-													<Text style={styles.bankNameSelected}>
+												<View
+													style={
+														styles.bankTextContainer
+													}>
+													<Text
+														style={
+															styles.bankNameSelected
+														}>
 														{selectedBankData?.name}
 													</Text>
-													<Text style={styles.bankCode}>
-														Code: {selectedBankData?.code}
+													<Text
+														style={styles.bankCode}>
+														Code:{" "}
+														{selectedBankData?.code}
 													</Text>
 												</View>
 											</>
 										) : (
 											<>
-												<View style={styles.bankIconContainer}>
+												<View
+													style={
+														styles.bankIconContainer
+													}>
 													<Bank
 														size={scale(24)}
-														color={colors.neutral.neutral3}
+														color={
+															colors.neutral
+																.neutral3
+														}
 														weight="regular"
 													/>
 												</View>
-												<View style={styles.bankTextContainer}>
-													<Text style={styles.bankPlaceholder}>
+												<View
+													style={
+														styles.bankTextContainer
+													}>
+													<Text
+														style={
+															styles.bankPlaceholder
+														}>
 														Choose recipient's bank
 													</Text>
 												</View>
 											</>
 										)}
-										<View style={styles.dropdownIconWrapper}>
+										<View
+											style={styles.dropdownIconWrapper}>
 											<CaretLeft
 												size={scale(16)}
 												color={colors.neutral.neutral3}
@@ -552,29 +624,56 @@ const Transfer = () => {
 													key={bank.id}
 													style={[
 														styles.bankDropdownItem,
-														selectedBank === bank.id &&
+														selectedBank ===
+															bank.id &&
 															styles.bankDropdownItemSelected,
 													]}
 													onPress={() => {
-														setSelectedBank(bank.id);
-														setShowBankDropdown(false);
+														setSelectedBank(
+															bank.id,
+														);
+														setShowBankDropdown(
+															false,
+														);
 													}}>
-													<View style={styles.bankIconContainer}>
-														<Text style={styles.bankLogo}>
+													<View
+														style={
+															styles.bankIconContainer
+														}>
+														<Text
+															style={
+																styles.bankLogo
+															}>
 															{bank.logo}
 														</Text>
 													</View>
-													<View style={styles.bankDropdownItemInfo}>
-														<Text style={styles.bankDropdownItemName}>
+													<View
+														style={
+															styles.bankDropdownItemInfo
+														}>
+														<Text
+															style={
+																styles.bankDropdownItemName
+															}>
 															{bank.name}
 														</Text>
-														<Text style={styles.bankDropdownItemCode}>
+														<Text
+															style={
+																styles.bankDropdownItemCode
+															}>
 															Code: {bank.code}
 														</Text>
 													</View>
-													{selectedBank === bank.id && (
-														<View style={styles.checkIcon}>
-															<Text style={styles.checkIconText}>
+													{selectedBank ===
+														bank.id && (
+														<View
+															style={
+																styles.checkIcon
+															}>
+															<Text
+																style={
+																	styles.checkIconText
+																}>
 																✓
 															</Text>
 														</View>
@@ -588,20 +687,29 @@ const Transfer = () => {
 						</View>
 
 						{/* Recipient Account Section */}
-						<View style={[
-							styles.inputSection,
-							!selectedBank && { opacity: 0.5, pointerEvents: 'none' }
-						]}>
+						<View
+							style={[
+								styles.inputSection,
+								!selectedBank && {
+									opacity: 0.5,
+									pointerEvents: "none",
+								},
+							]}>
 							<View style={styles.inputLabelRow}>
 								<User
 									size={scale(18)}
-									color={selectedBank ? colors.primary.primary1 : colors.neutral.neutral3}
+									color={
+										selectedBank
+											? colors.primary.primary1
+											: colors.neutral.neutral3
+									}
 									weight="bold"
 								/>
-								<Text style={[
-									styles.inputLabel,
-									!selectedBank && styles.disabledLabel
-								]}>
+								<Text
+									style={[
+										styles.inputLabel,
+										!selectedBank && styles.disabledLabel,
+									]}>
 									Recipient Account
 								</Text>
 							</View>
@@ -613,25 +721,40 @@ const Transfer = () => {
 								onAccountFound={handleAccountFound}
 								onAccountNotFound={handleAccountNotFound}
 								placeholder="Enter account number"
-								bankName={selectedBankData?.code === "STRIPE" ? "Stripe" : undefined}
+								bankName={
+									selectedBankData?.code === "STRIPE"
+										? "Stripe"
+										: undefined
+								}
 							/>
 						</View>
 
 						{/* Amount Section */}
-						<View style={[
-							styles.inputSection,
-							(!values.accountNumber || !beneficiaryName) && { opacity: 0.5, pointerEvents: 'none' }
-						]}>
+						<View
+							style={[
+								styles.inputSection,
+								(!values.accountNumber || !beneficiaryName) && {
+									opacity: 0.5,
+									pointerEvents: "none",
+								},
+							]}>
 							<View style={styles.inputLabelRow}>
 								<CurrencyDollar
 									size={scale(18)}
-									color={values.accountNumber && beneficiaryName ? colors.primary.primary1 : colors.neutral.neutral3}
+									color={
+										values.accountNumber && beneficiaryName
+											? colors.primary.primary1
+											: colors.neutral.neutral3
+									}
 									weight="bold"
 								/>
-								<Text style={[
-									styles.inputLabel,
-									(!values.accountNumber || !beneficiaryName) && styles.disabledLabel
-								]}>
+								<Text
+									style={[
+										styles.inputLabel,
+										(!values.accountNumber ||
+											!beneficiaryName) &&
+											styles.disabledLabel,
+									]}>
 									Transfer Amount
 								</Text>
 							</View>
@@ -649,20 +772,31 @@ const Transfer = () => {
 						</View>
 
 						{/* Transfer Content Section */}
-						<View style={[
-							styles.inputSection,
-							(!values.amount || numericAmount <= 0) && { opacity: 0.5, pointerEvents: 'none' }
-						]}>
+						<View
+							style={[
+								styles.inputSection,
+								(!values.amount || numericAmount <= 0) && {
+									opacity: 0.5,
+									pointerEvents: "none",
+								},
+							]}>
 							<View style={styles.inputLabelRow}>
 								<FileText
 									size={scale(18)}
-									color={values.amount && numericAmount > 0 ? colors.primary.primary1 : colors.neutral.neutral3}
+									color={
+										values.amount && numericAmount > 0
+											? colors.primary.primary1
+											: colors.neutral.neutral3
+									}
 									weight="bold"
 								/>
-								<Text style={[
-									styles.inputLabel,
-									(!values.amount || numericAmount <= 0) && styles.disabledLabel
-								]}>
+								<Text
+									style={[
+										styles.inputLabel,
+										(!values.amount ||
+											numericAmount <= 0) &&
+											styles.disabledLabel,
+									]}>
 									Message (Optional)
 								</Text>
 							</View>
@@ -685,19 +819,24 @@ const Transfer = () => {
 							title="Continue to Confirmation"
 							onPress={() => {
 								// Determine transaction type based on selected bank
-								const transactionType = selectedBankData?.code === "FORTRESS"
-									? "INTERNAL_TRANSFER"
-									: "EXTERNAL_TRANSFER";
+								const transactionType =
+									selectedBankData?.code === "FORTRESS"
+										? "INTERNAL_TRANSFER"
+										: "EXTERNAL_TRANSFER";
 
 								// Prepare transfer data
 								const transferParams = {
 									senderAccountId: selectedAccount,
-									senderAccountNumber: selectedAccountData?.accountNumber || "",
-									senderAccountLabel: selectedAccountData?.accountNumber
-										? `Account ${selectedAccountData.accountNumber}`
-										: "Account",
+									senderAccountNumber:
+										selectedAccountData?.accountNumber ||
+										"",
+									senderAccountLabel:
+										selectedAccountData?.accountNumber
+											? `Account ${selectedAccountData.accountNumber}`
+											: "Account",
 									receiverAccountNumber: values.accountNumber,
-									receiverAccountId: beneficiaryAccountData?.accountId || "",
+									receiverAccountId:
+										beneficiaryAccountData?.accountId || "",
 									recipientName: beneficiaryName || "Unknown",
 									amount: values.amount,
 									transactionType: transactionType,

@@ -95,11 +95,15 @@ const SignIn = () => {
 			const result = await login(values.username, values.password);
 
 			if (result.code === 1000) {
-				// Check if biometric is available but not enabled
-				if (biometricAvailable && !biometricEnabled) {
-					// Prompt user to enable biometric
+				// Check if account was switched and biometric was cleared
+				if (result.accountSwitched && biometricAvailable) {
+					// Account switched - ask user if they want to enable biometric for new account
+					setEnableBiometricModal({ visible: true });
+				} else if (biometricAvailable && !biometricEnabled) {
+					// First time login or biometric not enabled - ask to enable
 					setEnableBiometricModal({ visible: true });
 				} else {
+					// Biometric already enabled or not available - proceed to home
 					router.replace("/(home)");
 				}
 			} else {

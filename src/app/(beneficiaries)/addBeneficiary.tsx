@@ -26,6 +26,29 @@ import {
 	Bank,
 	IdentificationCard,
 } from "phosphor-react-native";
+
+interface BankOption {
+	id: string;
+	name: string;
+	code: string;
+	logo: string;
+}
+
+// Move banks outside component to avoid re-creating on every render
+const BANKS: BankOption[] = [
+	{
+		id: "0",
+		name: "FortressBank",
+		code: "FORTRESS",
+		logo: "🏰",
+	},
+	{
+		id: "1",
+		name: "Stripe",
+		code: "STRIPE",
+		logo: "💳",
+	},
+];
 import colors from "@/constants/colors";
 import { PrimaryButton, CustomInput, AccountNumberInput } from "@/components";
 import AlertModal from "@/components/common/AlertModal";
@@ -33,7 +56,7 @@ import { useForm } from "@/hooks";
 import { BeneficiaryFormData } from "@/types/beneficiary";
 import beneficiaryService from "@/services/beneficiaryService";
 import type { AccountLookupData } from "@/services/transferService";
-import { scale, fontSize, spacing } from '@/utils/responsive';
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -45,13 +68,16 @@ const AddBeneficiary = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const [beneficiaryName, setBeneficiaryName] = useState<string>("");
-	const [beneficiaryAccountData, setBeneficiaryAccountData] = useState<AccountLookupData | null>(null);
+	const [beneficiaryAccountData, setBeneficiaryAccountData] =
+		useState<AccountLookupData | null>(null);
 	const [isEditing, setIsEditing] = useState(false);
+	const [selectedBank, setSelectedBank] = useState<string>("0");
+	const [showBankDropdown, setShowBankDropdown] = useState(false);
 	const [alertModal, setAlertModal] = useState({
 		visible: false,
-		title: '',
-		message: '',
-		variant: 'info' as 'info' | 'success' | 'error' | 'warning',
+		title: "",
+		message: "",
+		variant: "info" as "info" | "success" | "error" | "warning",
 	});
 
 	const headerOpacity = useSharedValue(0);
@@ -61,7 +87,7 @@ const AddBeneficiary = () => {
 	const { values, handleChange, setFieldValue, resetForm } =
 		useForm<BeneficiaryFormData>({
 			accountNumber: "",
-			bankName: "FortressBank",
+			bankName: "",
 			nickName: "",
 		});
 
@@ -103,14 +129,22 @@ const AddBeneficiary = () => {
 				setFieldValue("bankName", bankName || "FortressBank");
 				setFieldValue("nickName", nickName || "");
 				setBeneficiaryName(accountName);
+
+				// Set selected bank based on bankName
+				const bank = BANKS.find(
+					(b) => b.name === (bankName || "FortressBank"),
+				);
+				if (bank) {
+					setSelectedBank(bank.id);
+				}
 			}
 		} catch (error) {
 			console.error("Error loading beneficiary:", error);
 			setAlertModal({
 				visible: true,
-				title: 'Error',
-				message: 'Failed to load beneficiary data',
-				variant: 'error',
+				title: "Error",
+				message: "Failed to load beneficiary data",
+				variant: "error",
 			});
 			router.back();
 		} finally {
@@ -137,8 +171,10 @@ const AddBeneficiary = () => {
 		setBeneficiaryAccountData(null);
 	};
 
-	const isFormValid =
-		values.accountNumber && beneficiaryName && values.bankName;
+	// Get selected bank data
+	const selectedBankData = BANKS.find((b) => b.id === selectedBank);
+
+	const isFormValid = values.accountNumber && beneficiaryName && selectedBank;
 
 	const handleSave = async () => {
 		if (!isFormValid) return;
@@ -147,27 +183,30 @@ const AddBeneficiary = () => {
 		try {
 			if (isEditing && beneficiaryId) {
 				// Update existing beneficiary (only nickname can be updated)
-				await beneficiaryService.updateBeneficiary(parseInt(beneficiaryId), {
-					nickName: values.nickName,
-				});
+				await beneficiaryService.updateBeneficiary(
+					parseInt(beneficiaryId),
+					{
+						nickName: values.nickName,
+					},
+				);
 				setAlertModal({
 					visible: true,
-					title: 'Success',
-					message: 'Beneficiary updated successfully',
-					variant: 'success',
+					title: "Success",
+					message: "Beneficiary updated successfully",
+					variant: "success",
 				});
 			} else {
 				// Add new beneficiary
 				await beneficiaryService.addBeneficiary({
 					accountNumber: values.accountNumber,
-					bankName: values.bankName,
+					bankName: selectedBankData?.name || "FortressBank",
 					nickName: values.nickName,
 				});
 				setAlertModal({
 					visible: true,
-					title: 'Success',
-					message: 'Beneficiary added successfully',
-					variant: 'success',
+					title: "Success",
+					message: "Beneficiary added successfully",
+					variant: "success",
 				});
 			}
 			router.back();
@@ -175,11 +214,11 @@ const AddBeneficiary = () => {
 			console.error("Error saving beneficiary:", error);
 			setAlertModal({
 				visible: true,
-				title: 'Error',
+				title: "Error",
 				message: isEditing
 					? "Failed to update beneficiary"
 					: "Failed to add beneficiary",
-				variant: 'error',
+				variant: "error",
 			});
 		} finally {
 			setIsSaving(false);
@@ -299,14 +338,118 @@ const AddBeneficiary = () => {
 								/>
 								<Text style={styles.inputLabel}>Bank Name</Text>
 							</View>
-							<CustomInput
-								placeholder="Bank name"
-								value={values.bankName}
-								onChangeText={(text) =>
-									handleChange("bankName", text)
-								}
-								containerStyle={styles.input}
-							/>
+							<View style={styles.bankSelectorWrapper}>
+								<TouchableOpacity
+									style={styles.bankSelector}
+									onPress={() =>
+										setShowBankDropdown(!showBankDropdown)
+									}>
+									<View style={styles.bankSelectorContent}>
+										<View style={styles.bankIconContainer}>
+											<Text style={styles.bankLogo}>
+												{selectedBankData?.logo}
+											</Text>
+										</View>
+										<View style={styles.bankTextContainer}>
+											<Text
+												style={styles.bankNameSelected}>
+												{selectedBankData?.name}
+											</Text>
+											<Text style={styles.bankCode}>
+												Code: {selectedBankData?.code}
+											</Text>
+										</View>
+										<View
+											style={styles.dropdownIconWrapper}>
+											<CaretLeft
+												size={scale(16)}
+												color={colors.neutral.neutral3}
+												weight="bold"
+												style={{
+													transform: [
+														{
+															rotate: showBankDropdown
+																? "-90deg"
+																: "90deg",
+														},
+													],
+												}}
+											/>
+										</View>
+									</View>
+								</TouchableOpacity>
+
+								{/* Bank Dropdown Menu */}
+								{showBankDropdown && (
+									<View style={styles.bankDropdownMenu}>
+										<ScrollView
+											style={styles.bankDropdownScroll}
+											nestedScrollEnabled={true}>
+											{BANKS.map((bank) => (
+												<TouchableOpacity
+													key={bank.id}
+													style={[
+														styles.bankDropdownItem,
+														selectedBank ===
+															bank.id &&
+															styles.bankDropdownItemSelected,
+													]}
+													onPress={() => {
+														setSelectedBank(
+															bank.id,
+														);
+														setShowBankDropdown(
+															false,
+														);
+													}}>
+													<View
+														style={
+															styles.bankIconContainer
+														}>
+														<Text
+															style={
+																styles.bankLogo
+															}>
+															{bank.logo}
+														</Text>
+													</View>
+													<View
+														style={
+															styles.bankDropdownItemInfo
+														}>
+														<Text
+															style={
+																styles.bankDropdownItemName
+															}>
+															{bank.name}
+														</Text>
+														<Text
+															style={
+																styles.bankDropdownItemCode
+															}>
+															Code: {bank.code}
+														</Text>
+													</View>
+													{selectedBank ===
+														bank.id && (
+														<View
+															style={
+																styles.checkIcon
+															}>
+															<Text
+																style={
+																	styles.checkIconText
+																}>
+																✓
+															</Text>
+														</View>
+													)}
+												</TouchableOpacity>
+											))}
+										</ScrollView>
+									</View>
+								)}
+							</View>
 						</View>
 						{/* Nickname */}
 						<View style={styles.inputGroup}>
@@ -346,7 +489,9 @@ const AddBeneficiary = () => {
 							}
 							onPress={handleSave}
 							loading={isSaving}
-							loadingText={isEditing ? "Updating..." : "Saving..."}
+							loadingText={
+								isEditing ? "Updating..." : "Saving..."
+							}
 							disabled={!isFormValid}
 						/>
 					</Animated.View>
@@ -487,6 +632,127 @@ const styles = StyleSheet.create({
 	},
 	buttonContainer: {
 		paddingHorizontal: spacing(4),
+	},
+	bankSelectorWrapper: {
+		position: "relative",
+	},
+	bankSelector: {
+		minHeight: scale(60),
+		borderWidth: 1.5,
+		borderColor: colors.primary.primary4,
+		borderRadius: scale(14),
+		paddingHorizontal: spacing(14),
+		paddingVertical: spacing(10),
+		backgroundColor: colors.neutral.neutral6,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: scale(2) },
+		shadowOpacity: 0.04,
+		shadowRadius: scale(6),
+		elevation: 2,
+	},
+	bankSelectorContent: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+	},
+	bankIconContainer: {
+		width: scale(38),
+		height: scale(38),
+		borderRadius: scale(19),
+		backgroundColor: colors.primary.primary4,
+		justifyContent: "center",
+		alignItems: "center",
+		marginRight: spacing(10),
+	},
+	bankLogo: {
+		fontSize: fontSize(20),
+	},
+	bankTextContainer: {
+		flex: 1,
+		marginRight: spacing(10),
+	},
+	bankNameSelected: {
+		fontFamily: "Poppins",
+		fontSize: fontSize(14),
+		fontWeight: "600",
+		color: colors.neutral.neutral1,
+		marginBottom: spacing(3),
+	},
+	bankCode: {
+		fontFamily: "Poppins",
+		fontSize: fontSize(11),
+		fontWeight: "500",
+		color: colors.neutral.neutral3,
+	},
+	dropdownIconWrapper: {
+		width: scale(24),
+		height: scale(24),
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	bankDropdownMenu: {
+		marginTop: spacing(8),
+		backgroundColor: colors.neutral.neutral6,
+		borderRadius: scale(14),
+		borderWidth: 1.5,
+		borderColor: colors.primary.primary4,
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: scale(3) },
+		shadowOpacity: 0.08,
+		shadowRadius: scale(10),
+		elevation: 4,
+		maxHeight: scale(240),
+		overflow: "hidden",
+	},
+	bankDropdownScroll: {
+		maxHeight: scale(240),
+	},
+	bankDropdownItem: {
+		flexDirection: "row",
+		alignItems: "center",
+		paddingVertical: spacing(10),
+		paddingHorizontal: spacing(14),
+		borderBottomWidth: 1,
+		borderBottomColor: colors.neutral.neutral5,
+	},
+	bankDropdownItemSelected: {
+		backgroundColor: colors.primary.primary4,
+		borderLeftWidth: 4,
+		borderLeftColor: colors.primary.primary1,
+	},
+	bankDropdownItemInfo: {
+		flex: 1,
+	},
+	bankDropdownItemName: {
+		fontFamily: "Poppins",
+		fontSize: fontSize(14),
+		fontWeight: "600",
+		color: colors.neutral.neutral1,
+		marginBottom: spacing(4),
+	},
+	bankDropdownItemCode: {
+		fontFamily: "Poppins",
+		fontSize: fontSize(12),
+		fontWeight: "400",
+		color: colors.neutral.neutral3,
+	},
+	checkIcon: {
+		width: scale(28),
+		height: scale(28),
+		borderRadius: scale(14),
+		backgroundColor: colors.primary.primary1,
+		justifyContent: "center",
+		alignItems: "center",
+		shadowColor: colors.primary.primary1,
+		shadowOffset: { width: 0, height: scale(2) },
+		shadowOpacity: 0.3,
+		shadowRadius: scale(4),
+		elevation: 3,
+	},
+	checkIconText: {
+		fontSize: fontSize(18),
+		color: colors.neutral.neutral6,
+		fontWeight: "bold",
 	},
 });
 

@@ -204,17 +204,28 @@ export const AuthProvider = ({ children }: any) => {
 			// Check if response code is 1000 (success)
 			if (response.code === 1000 && user) {
 				const userData = user;
+				let accountSwitched = false;
 
 				// Check if user switched accounts - clear old biometric credentials
 				try {
-					const storedCredentials = await biometricService.getCredentials();
-					if (storedCredentials && storedCredentials.username !== username) {
-						console.log("Account switch detected - clearing old biometric credentials");
+					const storedCredentials =
+						await biometricService.getCredentials();
+					if (
+						storedCredentials &&
+						storedCredentials.username !== username
+					) {
+						console.log(
+							"Account switch detected - clearing old biometric credentials",
+						);
 						await biometricService.removeCredentials();
 						setBiometricEnabled(false);
+						accountSwitched = true;
 					}
 				} catch (error) {
-					console.error("Error checking stored biometric credentials:", error);
+					console.error(
+						"Error checking stored biometric credentials:",
+						error,
+					);
 				}
 
 				dispatch({
@@ -233,7 +244,8 @@ export const AuthProvider = ({ children }: any) => {
 					},
 				);
 
-				return response;
+				// Return response with accountSwitched flag
+				return { ...response, accountSwitched };
 			} else {
 				const errorMsg =
 					response.message || "Failed to fetch user profile";
