@@ -21,11 +21,18 @@ import { CaretLeft, ShieldCheck } from "phosphor-react-native";
 import colors from "@/constants/colors";
 import { PrimaryButton, OTPInput, AlertModal } from "@/components";
 import { transferService } from "@/services";
-import { scale, fontSize, spacing } from '@/utils/responsive';
+import { scale, fontSize, spacing } from "@/utils/responsive";
+import { useAuth } from "@/hooks";
 
 const OTPVerification = () => {
 	const router = useRouter();
-	const params = useLocalSearchParams<{ transactionId: string }>();
+	const { user } = useAuth();
+	const params = useLocalSearchParams<{
+		transactionId: string;
+		recipientName?: string;
+		amount?: string;
+		bankName?: string;
+	}>();
 	const transactionId = params.transactionId;
 
 	const [otp, setOtp] = useState("");
@@ -43,6 +50,22 @@ const OTPVerification = () => {
 	const contentOpacity = useSharedValue(0);
 	const contentTranslateY = useSharedValue(15);
 
+	// Mask phone number from user data
+	const maskPhoneNumber = (phone: string) => {
+		if (!phone) return "+84 *** *** **90";
+
+		// Remove any non-digit characters
+		const digits = phone.replace(/\D/g, "");
+
+		if (digits.length < 5) return phone;
+
+		// Format: +84 *** *** **XX (show last 2 digits)
+		const lastTwo = digits.slice(-2);
+		return `+84 *** *** **${lastTwo}`;
+	};
+
+	const maskedPhone = maskPhoneNumber(user?.phoneNumber || "");
+
 	useEffect(() => {
 		headerOpacity.value = withTiming(1, {
 			duration: 400,
@@ -57,7 +80,6 @@ const OTPVerification = () => {
 			damping: 20,
 			stiffness: 90,
 		});
-		console.log("OTP confirm:", transactionId);
 	}, []);
 
 	// Timer countdown
@@ -138,6 +160,7 @@ const OTPVerification = () => {
 				transactionId: transactionId,
 				otpCode: otp,
 			});
+
 			console.log("OTP verification response:", response);
 			console.log("Response code:", response.code);
 			console.log("Transaction status:", response.data?.status);
@@ -150,14 +173,37 @@ const OTPVerification = () => {
 			if (isCompleted || isSuccessCode) {
 				// Navigate to success screen with transaction details
 				console.log("Transaction completed:", response.data);
-				router.push("(transfer)/transferSuccess");
+				router.push({
+					pathname: "(transfer)/transferSuccess",
+					params: {
+						transactionId: response.data.transactionId,
+						amount: response.data.amount.toString(),
+						receiverAccountNumber:
+							response.data.receiverAccountNumber,
+						senderAccountNumber: response.data.senderAccountNumber,
+						transactionType: response.data.transactionType,
+						createdAt:
+							response.data.createdAt || new Date().toISOString(),
+						status: response.data.status,
+						feeAmount: response.data.feeAmount?.toString() || "0",
+						description: response.data.description || "",
+						recipientName: params.recipientName || "",
+						bankName: params.bankName || "",
+					},
+				});
 			} else {
 				// Log detailed error info
-				console.error("Verification failed - Code:", response.code, "Status:", response.data?.status);
+				console.error(
+					"Verification failed - Code:",
+					response.code,
+					"Status:",
+					response.data?.status,
+				);
 				setAlertModal({
 					visible: true,
 					title: "Error",
-					message: response.message || "Transaction verification failed",
+					message:
+						response.message || "Transaction verification failed",
 					variant: "error",
 				});
 			}
@@ -249,7 +295,7 @@ const OTPVerification = () => {
 						We've sent a 6-digit code to your registered phone
 						number
 					</Text>
-					<Text style={styles.phoneNumber}>+84 *** *** **90</Text>
+					<Text style={styles.phoneNumber}>{maskedPhone}</Text>
 				</Animated.View>
 
 				{/* OTP Input */}

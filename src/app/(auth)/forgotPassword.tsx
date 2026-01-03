@@ -396,7 +396,7 @@ const ForgotPassword = () => {
 										handleChange("code", text)
 									}
 									keyboardType="number-pad"
-									maxLength={4}
+									maxLength={6}
 									containerStyle={styles.codeInput}
 								/>
 								<Pressable

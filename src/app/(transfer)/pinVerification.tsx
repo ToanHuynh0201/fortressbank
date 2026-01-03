@@ -33,6 +33,9 @@ const PINVerification = () => {
 	const params = useLocalSearchParams<{
 		transactionId: string;
 		fromAccountId: string;
+		recipientName?: string;
+		amount?: string;
+		bankName?: string;
 	}>();
 	const transactionId = params.transactionId;
 	const fromAccountId = params.fromAccountId;
@@ -135,7 +138,12 @@ const PINVerification = () => {
 				// Navigate to OTP verification screen
 				router.push({
 					pathname: "(transfer)/otpVerification",
-					params: { transactionId: transactionId },
+					params: {
+						transactionId: transactionId,
+						recipientName: params.recipientName || "",
+						amount: params.amount || "",
+						bankName: params.bankName || "",
+					},
 				});
 			} else {
 				setAttempts(attempts + 1);

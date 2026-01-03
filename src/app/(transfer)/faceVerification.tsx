@@ -21,7 +21,10 @@ const FaceVerification = () => {
 	const router = useRouter();
 	const params = useLocalSearchParams<{
 		transactionId: string;
-		fromAccountId: string;
+		fromAccountId?: string;
+		recipientName?: string;
+		amount?: string;
+		bankName?: string;
 	}>();
 
 	const [attemptNumber, setAttemptNumber] = useState(1);
@@ -65,7 +68,12 @@ const FaceVerification = () => {
 				// PIN step is skipped when Face ID is used
 				router.push({
 					pathname: "(transfer)/otpVerification",
-					params: { transactionId: params.transactionId },
+					params: {
+						transactionId: params.transactionId,
+						recipientName: params.recipientName || "",
+						amount: params.amount || "",
+						bankName: params.bankName || "",
+					},
 				});
 			} else {
 				// Verification failed

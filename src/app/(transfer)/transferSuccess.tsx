@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StatusBar,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -24,6 +24,19 @@ import { scale, fontSize, spacing } from '@/utils/responsive';
 
 const TransferSuccess = () => {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    transactionId: string;
+    amount: string;
+    receiverAccountNumber: string;
+    senderAccountNumber: string;
+    transactionType: string;
+    createdAt: string;
+    status: string;
+    feeAmount: string;
+    description?: string;
+    recipientName?: string;
+    bankName?: string;
+  }>();
 
   // Animation values
   const iconScale = useSharedValue(0);
@@ -60,12 +73,62 @@ const TransferSuccess = () => {
     transform: [{ scale: checkmarkScale.value }],
   }));
 
+  // Format date from ISO string
+  const formatDate = (isoString: string) => {
+    try {
+      const date = new Date(isoString);
+      return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
+  // Format amount with proper currency
+  const formatAmount = (amount: string | number) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return `$${numAmount.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  // Shorten transaction ID for display
+  const shortenTransactionId = (txId: string) => {
+    if (!txId || txId.length <= 20) return txId;
+    const start = txId.substring(0, 8);
+    const end = txId.substring(txId.length - 8);
+    return `${start}...${end}`;
+  };
+
+  // Build transfer info array dynamically
   const transferInfo = [
-    { label: 'Transaction ID', value: 'TXN123456789' },
-    { label: 'Date', value: 'Nov 3, 2025 10:30 AM' },
-    { label: 'Amount', value: '$1,000' },
-    { label: 'Beneficiary', value: 'Capi Creative Design' },
+    { label: 'Transaction ID', value: shortenTransactionId(params.transactionId || 'N/A') },
+    { label: 'Date', value: formatDate(params.createdAt || new Date().toISOString()) },
+    { label: 'Amount', value: formatAmount(params.amount || '0') },
+    { label: 'Beneficiary', value: params.recipientName || 'N/A' },
+    { label: 'Account Number', value: params.receiverAccountNumber || 'N/A' },
+    {
+      label: 'Transfer Type',
+      value: params.transactionType === 'INTERNAL_TRANSFER' ? 'Internal Transfer' : 'External Transfer'
+    },
   ];
+
+  // Add bank name if it's external transfer
+  if (params.bankName && params.transactionType === 'EXTERNAL_TRANSFER') {
+    transferInfo.push({ label: 'Bank', value: params.bankName });
+  }
+
+  // Add description if present
+  if (params.description && params.description.trim()) {
+    transferInfo.push({ label: 'Message', value: params.description });
+  }
 
   return (
     <ScreenContainer backgroundColor={colors.neutral.neutral6}>

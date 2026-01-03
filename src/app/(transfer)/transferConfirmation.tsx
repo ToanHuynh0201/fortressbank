@@ -189,6 +189,9 @@ const TransferConfirmation = () => {
 						pathname: "(transfer)/faceVerification",
 						params: {
 							transactionId: response.data.transactionId,
+							recipientName: recipientInfo.name,
+							amount: numericAmount.toString(),
+							bankName: recipientInfo.bankName,
 						},
 					});
 				} else {
@@ -198,6 +201,9 @@ const TransferConfirmation = () => {
 						params: {
 							transactionId: response.data.transactionId,
 							fromAccountId: transferData.senderAccountId,
+							recipientName: recipientInfo.name,
+							amount: numericAmount.toString(),
+							bankName: recipientInfo.bankName,
 						},
 					});
 				}
