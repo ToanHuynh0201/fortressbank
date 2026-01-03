@@ -5,6 +5,7 @@ import {
 	setStorageItem,
 	clearStorageItems,
 } from "@/utils/storage";
+import { convertPhoneToInternational } from "@/utils/string";
 import { biometricService } from "./biometricService";
 import type {
 	LoginRequest,
@@ -402,6 +403,12 @@ class AuthService {
 		request: ValidateAndSendOtpRequest,
 	): Promise<ValidateAndSendOtpResponse> {
 		try {
+			// Convert phone number to international format (+84...)
+			const formattedRequest = {
+				...request,
+				phoneNumber: convertPhoneToInternational(request.phoneNumber),
+			};
+
 			const response = await fetch(
 				`${API_CONFIG.BASE_URL}/auth/validate-and-send-otp`,
 				{
@@ -409,7 +416,7 @@ class AuthService {
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify(request),
+					body: JSON.stringify(formattedRequest),
 				},
 			);
 
@@ -432,11 +439,17 @@ class AuthService {
 
 	/**
 	 * Verify OTP code
-	 * @param {VerifyOtpRequest} request - Request with email and OTP code
+	 * @param {VerifyOtpRequest} request - Request with phoneNumber and OTP code
 	 * @returns {Promise<VerifyOtpResponse>} API response
 	 */
 	async verifyOtp(request: VerifyOtpRequest): Promise<VerifyOtpResponse> {
 		try {
+			// Convert phone number to international format (+84...)
+			const formattedRequest = {
+				...request,
+				phoneNumber: convertPhoneToInternational(request.phoneNumber),
+			};
+
 			const response = await fetch(
 				`${API_CONFIG.BASE_URL}/auth/verify-otp`,
 				{
@@ -444,7 +457,7 @@ class AuthService {
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify(request),
+					body: JSON.stringify(formattedRequest),
 				},
 			);
 
@@ -472,6 +485,12 @@ class AuthService {
 	 */
 	async register(request: RegisterRequest): Promise<RegisterResponse> {
 		try {
+			// Convert phone number to international format (+84...)
+			const formattedRequest = {
+				...request,
+				phoneNumber: convertPhoneToInternational(request.phoneNumber),
+			};
+
 			const response = await fetch(
 				`${API_CONFIG.BASE_URL}/auth/register`,
 				{
@@ -479,7 +498,7 @@ class AuthService {
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify(request),
+					body: JSON.stringify(formattedRequest),
 				},
 			);
 

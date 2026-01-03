@@ -90,3 +90,33 @@ export const generateRandomString = (
     }
     return result;
 };
+
+/**
+ * Convert Vietnamese phone number from 0... format to +84... format
+ * @param {string} phoneNumber - Phone number in 0... format (e.g., "0912345678")
+ * @returns {string} Phone number in +84... format (e.g., "+84912345678")
+ */
+export const convertPhoneToInternational = (phoneNumber: string): string => {
+    if (!phoneNumber || typeof phoneNumber !== "string") return "";
+
+    // Remove all spaces and special characters
+    const cleaned = phoneNumber.replace(/[\s\-\(\)]/g, "");
+
+    // If already in +84 format, return as is
+    if (cleaned.startsWith("+84")) {
+        return cleaned;
+    }
+
+    // If starts with 0, replace with +84
+    if (cleaned.startsWith("0")) {
+        return "+84" + cleaned.substring(1);
+    }
+
+    // If starts with 84, add +
+    if (cleaned.startsWith("84")) {
+        return "+" + cleaned;
+    }
+
+    // Otherwise, assume it's missing the leading 0 and add +84
+    return "+84" + cleaned;
+};

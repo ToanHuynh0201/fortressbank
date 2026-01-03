@@ -83,7 +83,7 @@ export interface ValidateAndSendOtpResponse {
 }
 
 export interface VerifyOtpRequest {
-	email: string;
+	phoneNumber: string;
 	otp: string;
 }
 

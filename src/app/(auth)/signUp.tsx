@@ -359,7 +359,7 @@ const SignUp = () => {
 		setIsLoading(true);
 		try {
 			const result = await authService.verifyOtp({
-				email: values.email,
+				phoneNumber: values.phoneNumber,
 				otp: values.otp,
 			});
 

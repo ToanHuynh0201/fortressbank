@@ -30,7 +30,7 @@ export interface TransferResponse {
 		feeAmount: number;
 		transactionType: "INTERNAL_TRANSFER" | "EXTERNAL_TRANSFER";
 		status: "PENDING_OTP" | "PENDING_FACE_AUTH";
-		requireFaceAuth ?: boolean;
+		requireFaceAuth?: boolean;
 		description: string;
 		createdAt: string | null;
 		updatedAt: string | null;
@@ -63,7 +63,7 @@ export interface Transaction {
 	failureReason: string | null;
 }
 
-export interface VerifyOTPResponse {ư
+export interface VerifyOTPResponse {
 	code: number;
 	message: string;
 	data: Transaction;
@@ -369,7 +369,10 @@ class TransferService {
 					} = refreshData.data;
 
 					// Save new tokens
-					await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, newAccessToken);
+					await setStorageItem(
+						STORAGE_KEYS.AUTH_TOKEN,
+						newAccessToken,
+					);
 					if (newRefreshToken) {
 						await setStorageItem(
 							STORAGE_KEYS.SESSION_DATA,
@@ -377,7 +380,9 @@ class TransferService {
 						);
 					}
 
-					console.log("Token refreshed successfully, retrying request");
+					console.log(
+						"Token refreshed successfully, retrying request",
+					);
 
 					// Retry the original request with new token
 					return this._verifyTransactionWithFaceRetry(
