@@ -15,6 +15,12 @@ import type {
 	VerifyOtpResponse,
 	RegisterRequest,
 	RegisterResponse,
+	ForgotPasswordSendOtpRequest,
+	ForgotPasswordSendOtpResponse,
+	ForgotPasswordVerifyOtpRequest,
+	ForgotPasswordVerifyOtpResponse,
+	ForgotPasswordResetRequest,
+	ForgotPasswordResetResponse,
 } from "@/types/auth";
 
 class AuthService {
@@ -479,6 +485,136 @@ class AuthService {
 	}
 
 	/**
+	 * Send OTP for forgot password flow
+	 * @param {ForgotPasswordSendOtpRequest} request - Request with phoneNumber
+	 * @returns {Promise<ForgotPasswordSendOtpResponse>} API response
+	 */
+	async sendForgotPasswordOtp(
+		request: ForgotPasswordSendOtpRequest,
+	): Promise<ForgotPasswordSendOtpResponse> {
+		try {
+			// Convert phone number to international format (+84...)
+			const formattedRequest = {
+				...request,
+				phoneNumber: convertPhoneToInternational(request.phoneNumber),
+			};
+			const response = await fetch(
+				`${API_CONFIG.BASE_URL}/auth/forgot-password/send-otp`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(formattedRequest),
+				},
+			);
+
+			console.log("Response status:", response.status);
+
+			const data: ForgotPasswordSendOtpResponse = await response.json();
+
+			// Return the response regardless of success or error
+			return data;
+		} catch (error) {
+			console.error("Send forgot password OTP error:", error);
+			// Return error response in the same format
+			return {
+				code: -1,
+				message:
+					error instanceof Error
+						? error.message
+						: "Network error occurred",
+			};
+		}
+	}
+
+	/**
+	 * Verify OTP for forgot password flow
+	 * @param {ForgotPasswordVerifyOtpRequest} request - Request with phoneNumber and otp
+	 * @returns {Promise<ForgotPasswordVerifyOtpResponse>} API response with verificationToken
+	 */
+	async verifyForgotPasswordOtp(
+		request: ForgotPasswordVerifyOtpRequest,
+	): Promise<ForgotPasswordVerifyOtpResponse> {
+		try {
+			// Convert phone number to international format (+84...)
+			const formattedRequest = {
+				...request,
+				phoneNumber: convertPhoneToInternational(request.phoneNumber),
+			};
+
+			const response = await fetch(
+				`${API_CONFIG.BASE_URL}/auth/forgot-password/verify-otp`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(formattedRequest),
+				},
+			);
+
+			const data: ForgotPasswordVerifyOtpResponse = await response.json();
+
+			// Return the response regardless of success or error
+			return data;
+		} catch (error) {
+			console.error("Verify forgot password OTP error:", error);
+			// Return error response in the same format
+			return {
+				code: -1,
+				message:
+					error instanceof Error
+						? error.message
+						: "Network error occurred",
+			};
+		}
+	}
+
+	/**
+	 * Reset password with verification token
+	 * @param {ForgotPasswordResetRequest} request - Request with phoneNumber, verificationToken, and newPassword
+	 * @returns {Promise<ForgotPasswordResetResponse>} API response
+	 */
+	async resetPassword(
+		request: ForgotPasswordResetRequest,
+	): Promise<ForgotPasswordResetResponse> {
+		try {
+			// Convert phone number to international format (+84...)
+			const formattedRequest = {
+				...request,
+				phoneNumber: convertPhoneToInternational(request.phoneNumber),
+			};
+
+			const response = await fetch(
+				`${API_CONFIG.BASE_URL}/auth/forgot-password/reset`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(formattedRequest),
+				},
+			);
+
+			const data: ForgotPasswordResetResponse = await response.json();
+
+			// Return the response regardless of success or error
+			return data;
+		} catch (error) {
+			console.error("Reset password error:", error);
+			// Return error response in the same format
+			return {
+				code: -1,
+				message:
+					error instanceof Error
+						? error.message
+						: "Network error occurred",
+			};
+		}
+	}
+
+	/**
 	 * Register new user account
 	 * @param {RegisterRequest} request - Registration data
 	 * @returns {Promise<RegisterResponse>} API response
@@ -585,7 +721,10 @@ class AuthService {
 				},
 			);
 
-			console.log("✅ Register Face ID response status:", response.status);
+			console.log(
+				"✅ Register Face ID response status:",
+				response.status,
+			);
 
 			// Check if response has content before parsing
 			const responseText = await response.text();
@@ -595,7 +734,10 @@ class AuthService {
 			try {
 				data = responseText ? JSON.parse(responseText) : {};
 			} catch (parseError) {
-				console.error("❌ Failed to parse response as JSON:", parseError);
+				console.error(
+					"❌ Failed to parse response as JSON:",
+					parseError,
+				);
 				console.error("Raw response:", responseText);
 				throw new Error(`Invalid JSON response: ${responseText}`);
 			}
@@ -722,7 +864,10 @@ class AuthService {
 			try {
 				data = responseText ? JSON.parse(responseText) : {};
 			} catch (parseError) {
-				console.error("❌ Failed to parse response as JSON:", parseError);
+				console.error(
+					"❌ Failed to parse response as JSON:",
+					parseError,
+				);
 				console.error("Raw response:", responseText);
 				throw new Error(`Invalid JSON response: ${responseText}`);
 			}
@@ -767,7 +912,10 @@ class AuthService {
 					} = refreshData.data;
 
 					// Save new tokens
-					await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, newAccessToken);
+					await setStorageItem(
+						STORAGE_KEYS.AUTH_TOKEN,
+						newAccessToken,
+					);
 					if (newRefreshToken) {
 						await setStorageItem(
 							STORAGE_KEYS.SESSION_DATA,
@@ -775,7 +923,9 @@ class AuthService {
 						);
 					}
 
-					console.log("Token refreshed successfully, retrying request");
+					console.log(
+						"Token refreshed successfully, retrying request",
+					);
 
 					// Retry the original request with new token
 					return this._updateFaceIDWithRetry(photos, true);

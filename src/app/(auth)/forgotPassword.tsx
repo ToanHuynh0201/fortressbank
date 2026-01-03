@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import { useRouter } from "expo-router";
-import { neutral, primary, commonStyles, typography, spacingScale, borderRadius } from "@/constants";
+import {
+	neutral,
+	primary,
+	commonStyles,
+	typography,
+	spacingScale,
+	borderRadius,
+} from "@/constants";
 import { scale, fontSize, spacing } from "@/utils/responsive";
 import {
 	AppHeader,
@@ -17,6 +24,7 @@ import { StatusBar } from "expo-status-bar";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useForm } from "@/hooks";
 import { validationRules } from "@/utils/validation";
+import { authService } from "@/services";
 
 type Step = "enter-phone" | "confirm-phone" | "enter-code" | "change-password";
 
@@ -44,9 +52,10 @@ const ForgotPassword = () => {
 		code: "",
 		newPassword: "",
 		confirmPassword: "",
+		verificationToken: "",
 	});
 
-	const handleSendCode = () => {
+	const handleSendCode = async () => {
 		if (!values.phoneNumber.trim()) {
 			setAlertModal({
 				visible: true,
@@ -69,34 +78,109 @@ const ForgotPassword = () => {
 			return;
 		}
 
-		// TODO: Call API to send verification code
-		console.log("Sending code to:", values.phoneNumber);
-		setStep("confirm-phone");
+		setIsSendingCode(true);
+		try {
+			const response = await authService.sendForgotPasswordOtp({
+				phoneNumber: values.phoneNumber,
+			});
+			console.log(response);
+
+			if (response.code === 1000) {
+				setStep("confirm-phone");
+			} else {
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message:
+						response.message || "Failed to send verification code",
+					variant: "error",
+				});
+			}
+		} catch (error) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "An unexpected error occurred. Please try again.",
+				variant: "error",
+			});
+		} finally {
+			setIsSendingCode(false);
+		}
 	};
 
-	const handleVerifyPhone = () => {
-		// TODO: Call API to verify phone and send code
-		console.log("Verifying phone:", values.phoneNumber);
-		setStep("enter-code");
+	const handleVerifyPhone = async () => {
+		setIsVerifyingPhone(true);
+		try {
+			const response = await authService.sendForgotPasswordOtp({
+				phoneNumber: values.phoneNumber,
+			});
+
+			if (response.code === 1000) {
+				setStep("enter-code");
+				setAlertModal({
+					visible: true,
+					title: "Success",
+					message: `Verification code sent to your phone. Code expires in ${
+						response.data?.expirySeconds || 300
+					} seconds.`,
+					variant: "success",
+				});
+			} else {
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message:
+						response.message || "Failed to send verification code",
+					variant: "error",
+				});
+			}
+		} catch (error) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "An unexpected error occurred. Please try again.",
+				variant: "error",
+			});
+		} finally {
+			setIsVerifyingPhone(false);
+		}
 	};
 
 	const handleResendCode = async () => {
 		setIsResendingCode(true);
 		try {
-			// TODO: Call API to resend code
-			console.log("Resending code to:", values.phoneNumber);
+			const response = await authService.sendForgotPasswordOtp({
+				phoneNumber: values.phoneNumber,
+			});
+
+			if (response.code === 1000) {
+				setAlertModal({
+					visible: true,
+					title: "Success",
+					message: "Code has been resent to your phone",
+					variant: "success",
+				});
+			} else {
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: response.message || "Failed to resend code",
+					variant: "error",
+				});
+			}
+		} catch (error) {
 			setAlertModal({
 				visible: true,
-				title: "Success",
-				message: "Code has been resent to your phone",
-				variant: "success",
+				title: "Error",
+				message: "An unexpected error occurred. Please try again.",
+				variant: "error",
 			});
 		} finally {
 			setIsResendingCode(false);
 		}
 	};
 
-	const handleVerifyCode = () => {
+	const handleVerifyCode = async () => {
 		if (values.code.length < 4) {
 			setAlertModal({
 				visible: true,
@@ -106,12 +190,42 @@ const ForgotPassword = () => {
 			});
 			return;
 		}
-		// TODO: Call API to verify code
-		console.log("Verifying code:", values.code);
-		setStep("change-password");
+
+		setIsVerifyingCode(true);
+		try {
+			const response = await authService.verifyForgotPasswordOtp({
+				phoneNumber: values.phoneNumber,
+				otp: values.code,
+			});
+
+			if (response.code === 1000 && response.data?.verified) {
+				// Store verification token for password reset
+				handleChange(
+					"verificationToken",
+					response.data.verificationToken,
+				);
+				setStep("change-password");
+			} else {
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: response.message || "Invalid verification code",
+					variant: "error",
+				});
+			}
+		} catch (error) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "An unexpected error occurred. Please try again.",
+				variant: "error",
+			});
+		} finally {
+			setIsVerifyingCode(false);
+		}
 	};
 
-	const handleChangePassword = () => {
+	const handleChangePassword = async () => {
 		if (!values.newPassword.trim() || !values.confirmPassword.trim()) {
 			setAlertModal({
 				visible: true,
@@ -143,21 +257,61 @@ const ForgotPassword = () => {
 			});
 			return;
 		}
-		// TODO: Call API to change password
-		console.log("Changing password with code:", values.code);
-		setConfirmModal({
-			visible: true,
-			onConfirm: () => {
-				setConfirmModal({ ...confirmModal, visible: false });
-				router.replace("/signIn");
-			},
-		});
+
+		// Verify we have the verification token
+		if (!values.verificationToken) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message:
+					"Verification token missing. Please verify your code again.",
+				variant: "error",
+			});
+			setStep("enter-code");
+			return;
+		}
+
+		setIsChangingPassword(true);
+		try {
+			const response = await authService.resetPassword({
+				phoneNumber: values.phoneNumber,
+				verificationToken: values.verificationToken,
+				newPassword: values.newPassword,
+			});
+
+			if (response.code === 1000 && response.data?.success) {
+				setConfirmModal({
+					visible: true,
+					onConfirm: () => {
+						setConfirmModal({ ...confirmModal, visible: false });
+						router.replace("/signIn");
+					},
+				});
+			} else {
+				setAlertModal({
+					visible: true,
+					title: "Error",
+					message: response.message || "Failed to reset password",
+					variant: "error",
+				});
+			}
+		} catch (error) {
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: "An unexpected error occurred. Please try again.",
+				variant: "error",
+			});
+		} finally {
+			setIsChangingPassword(false);
+		}
 	};
 
 	const handleChangePhoneNumber = () => {
 		setStep("enter-phone");
 		handleChange("phoneNumber", "");
 		handleChange("code", "");
+		handleChange("verificationToken", "");
 	};
 
 	const renderStep = () => {
@@ -170,12 +324,16 @@ const ForgotPassword = () => {
 								Type your phone number
 							</Text>
 							<CustomInput
-								placeholder="(+84)"
+								placeholder="Enter phone number"
 								value={values.phoneNumber}
 								onChangeText={(text) =>
-									handleChange("phoneNumber", text)
+									handleChange(
+										"phoneNumber",
+										text.replace(/\D/g, ""),
+									)
 								}
 								keyboardType="phone-pad"
+								isActive={!!values.phoneNumber}
 								containerStyle={styles.inputWrapper}
 							/>
 							<Text style={styles.infoText}>
@@ -200,12 +358,16 @@ const ForgotPassword = () => {
 								Type your phone number
 							</Text>
 							<CustomInput
+								placeholder="Enter phone number"
 								value={values.phoneNumber}
 								onChangeText={(text) =>
-									handleChange("phoneNumber", text)
+									handleChange(
+										"phoneNumber",
+										text.replace(/\D/g, ""),
+									)
 								}
 								keyboardType="phone-pad"
-								isActive={true}
+								isActive={!!values.phoneNumber}
 								containerStyle={styles.inputWrapper}
 							/>
 							<Text style={styles.infoText}>

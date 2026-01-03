@@ -93,6 +93,53 @@ export interface VerifyOtpResponse {
 	data?: any;
 }
 
+// Forgot Password - Send OTP
+export interface ForgotPasswordSendOtpRequest {
+	phoneNumber: string;
+}
+
+export interface ForgotPasswordSendOtpResponse {
+	code: number;
+	message: string;
+	data?: {
+		sent: boolean;
+		message: string;
+		expirySeconds: number;
+	};
+}
+
+// Forgot Password - Verify OTP
+export interface ForgotPasswordVerifyOtpRequest {
+	phoneNumber: string;
+	otp: string;
+}
+
+export interface ForgotPasswordVerifyOtpResponse {
+	code: number;
+	message: string;
+	data?: {
+		verified: boolean;
+		message: string;
+		verificationToken: string;
+	};
+}
+
+// Forgot Password - Reset Password
+export interface ForgotPasswordResetRequest {
+	phoneNumber: string;
+	verificationToken: string;
+	newPassword: string;
+}
+
+export interface ForgotPasswordResetResponse {
+	code: number;
+	message: string;
+	data?: {
+		success: boolean;
+		message: string;
+	};
+}
+
 export interface AuthContextState {
 	user: User | null;
 	isAuthenticated: boolean;

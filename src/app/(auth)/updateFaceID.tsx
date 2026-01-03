@@ -8,7 +8,13 @@ import {
 	Image,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { primary, neutral, typography, spacingScale, borderRadius } from "@/constants";
+import {
+	primary,
+	neutral,
+	typography,
+	spacingScale,
+	borderRadius,
+} from "@/constants";
 import { scale, fontSize, spacing } from "@/utils/responsive";
 import { AppHeader, PrimaryButton, AlertModal } from "@/components/common";
 import { DecorativeIllustration } from "@/components/decorative";
@@ -87,7 +93,8 @@ const UpdateFaceID = () => {
 			console.log("📤 Uploading photos:", {
 				left: capturedPhotos.left?.substring(0, 50) + "...",
 				right: capturedPhotos.right?.substring(0, 50) + "...",
-				closed_eyes: capturedPhotos.closed_eyes?.substring(0, 50) + "...",
+				closed_eyes:
+					capturedPhotos.closed_eyes?.substring(0, 50) + "...",
 				normal: capturedPhotos.normal?.substring(0, 50) + "...",
 			});
 
@@ -114,7 +121,8 @@ const UpdateFaceID = () => {
 				setAlertModal({
 					visible: true,
 					title: "Error",
-					message: error.message || "Failed to process Face ID photos",
+					message:
+						error.message || "Failed to process Face ID photos",
 					variant: "error",
 				});
 			}
@@ -190,7 +198,7 @@ const UpdateFaceID = () => {
 					style={styles.content}
 					contentContainerStyle={styles.contentContainer}
 					showsVerticalScrollIndicator={false}>
-					<CardContainer>
+					<View style={styles.previewHeader}>
 						<Text style={styles.instructionTitle}>
 							Review Your Photos
 						</Text>
@@ -198,28 +206,67 @@ const UpdateFaceID = () => {
 							Please review all photos. Make sure your face is
 							clearly visible in each pose.
 						</Text>
+					</View>
 
-						{/* Photo Grid */}
-						<View style={styles.photoGrid}>
-							{POSE_ORDER.map((pose) => (
-								<View
-									key={pose}
-									style={styles.photoItem}>
-									<Text style={styles.photoLabel}>
-										{POSE_INSTRUCTIONS[pose].title}
-									</Text>
+					{/* Photo Grid */}
+					<View style={styles.photoGrid}>
+						{POSE_ORDER.map((pose) => (
+							<View
+								key={pose}
+								style={styles.photoItem}>
+								<View style={styles.photoCard}>
+									{/* Badge Label */}
+									<View style={styles.photoBadge}>
+										<Text style={styles.badgeIcon}>
+											{POSE_INSTRUCTIONS[pose].icon}
+										</Text>
+										<Text style={styles.badgeText}>
+											{POSE_INSTRUCTIONS[pose].title}
+										</Text>
+									</View>
+
+									{/* Photo Preview */}
 									<View style={styles.photoWrapper}>
 										{capturedPhotos[pose] ? (
-											<Image
-												source={{
-													uri: capturedPhotos[pose]!,
-												}}
-												style={styles.photoThumbnail}
-												resizeMode="cover"
-											/>
+											<>
+												<Image
+													source={{
+														uri: capturedPhotos[
+															pose
+														]!,
+													}}
+													style={
+														styles.photoThumbnail
+													}
+													resizeMode="cover"
+												/>
+												{/* Checkmark overlay */}
+												<View
+													style={
+														styles.checkmarkOverlay
+													}>
+													<View
+														style={
+															styles.checkmarkCircle
+														}>
+														<Text
+															style={
+																styles.checkmarkIcon
+															}>
+															✓
+														</Text>
+													</View>
+												</View>
+											</>
 										) : (
 											<View
 												style={styles.photoPlaceholder}>
+												<Text
+													style={
+														styles.photoPlaceholderIcon
+													}>
+													📷
+												</Text>
 												<Text
 													style={
 														styles.photoPlaceholderText
@@ -229,24 +276,20 @@ const UpdateFaceID = () => {
 											</View>
 										)}
 									</View>
-									<Text style={styles.photoIcon}>
-										{POSE_INSTRUCTIONS[pose].icon}
-									</Text>
 								</View>
-							))}
-						</View>
+							</View>
+						))}
+					</View>
 
+					<View style={styles.buttonContainer}>
 						<View style={styles.buttonRow}>
-							<Pressable
-								style={({ pressed }) => [
-									styles.secondaryButton,
-									pressed && styles.buttonPressed,
-								]}
-								onPress={handleRetake}>
-								<Text style={styles.secondaryButtonText}>
-									Retake All
-								</Text>
-							</Pressable>
+							<PrimaryButton
+								title="Retake"
+								onPress={handleRetake}
+								loading={isLoading}
+								loadingText="Retake"
+								style={styles.confirmButton}
+							/>
 
 							<PrimaryButton
 								title="Confirm"
@@ -256,7 +299,7 @@ const UpdateFaceID = () => {
 								style={styles.confirmButton}
 							/>
 						</View>
-					</CardContainer>
+					</View>
 				</ScrollView>
 
 				<AlertModal
@@ -317,54 +360,103 @@ const styles = StyleSheet.create({
 		backgroundColor: neutral.neutral6,
 	},
 	contentContainer: {
-		paddingHorizontal: spacingScale.xl,
 		paddingTop: spacingScale.xl,
 		paddingBottom: spacingScale.xxxl,
 	},
+	// Preview Header
+	previewHeader: {
+		paddingHorizontal: spacingScale.xl,
+		marginBottom: spacingScale.xl,
+	},
 	instructionTitle: {
-		fontSize: typography.subtitle,
+		fontSize: fontSize(22),
 		fontWeight: "700",
 		color: neutral.neutral1,
-		marginBottom: spacingScale.md,
+		marginBottom: spacingScale.sm,
 		textAlign: "center",
 	},
 	instructionText: {
 		fontSize: typography.bodySmall,
 		fontWeight: "500",
-		lineHeight: fontSize(21),
+		lineHeight: fontSize(20),
 		color: neutral.neutral3,
 		textAlign: "center",
-		marginBottom: spacingScale.xl,
 	},
 	// Photo Grid Styles
 	photoGrid: {
+		paddingHorizontal: spacingScale.md,
 		flexDirection: "row",
 		flexWrap: "wrap",
+		justifyContent: "space-between",
 		gap: spacingScale.md,
-		marginBottom: spacingScale.xl,
+		marginBottom: spacingScale.md,
 	},
 	photoItem: {
 		width: "48%",
-		alignItems: "center",
 	},
-	photoLabel: {
+	photoCard: {
+		backgroundColor: neutral.neutral6,
+		borderRadius: borderRadius.lg,
+		overflow: "hidden",
+		shadowColor: neutral.neutral1,
+		shadowOffset: { width: 0, height: scale(2) },
+		shadowOpacity: 0.08,
+		shadowRadius: scale(8),
+		elevation: 3,
+	},
+	photoBadge: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: spacingScale.xs,
+		paddingVertical: spacingScale.sm,
+		paddingHorizontal: spacingScale.md,
+		backgroundColor: primary.primary4,
+		borderBottomWidth: 1,
+		borderBottomColor: primary.primary4,
+	},
+	badgeIcon: {
+		fontSize: fontSize(16),
+	},
+	badgeText: {
 		fontSize: typography.caption,
-		fontWeight: "600",
-		color: neutral.neutral1,
-		marginBottom: spacingScale.sm,
-		textAlign: "center",
+		fontWeight: "700",
+		color: primary.primary1,
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
 	},
 	photoWrapper: {
 		width: "100%",
 		aspectRatio: 3 / 4,
-		borderRadius: borderRadius.md,
-		overflow: "hidden",
+		position: "relative",
 		backgroundColor: neutral.neutral5,
-		marginBottom: spacingScale.sm,
 	},
 	photoThumbnail: {
 		width: "100%",
 		height: "100%",
+	},
+	checkmarkOverlay: {
+		position: "absolute",
+		top: spacingScale.sm,
+		right: spacingScale.sm,
+	},
+	checkmarkCircle: {
+		width: scale(32),
+		height: scale(32),
+		borderRadius: scale(16),
+		backgroundColor: primary.primary1,
+		justifyContent: "center",
+		alignItems: "center",
+		shadowColor: neutral.neutral1,
+		shadowOffset: { width: 0, height: scale(2) },
+		shadowOpacity: 0.25,
+		shadowRadius: scale(3),
+		elevation: 4,
+	},
+	checkmarkIcon: {
+		fontSize: fontSize(18),
+		fontWeight: "bold",
+		color: neutral.neutral6,
 	},
 	photoPlaceholder: {
 		width: "100%",
@@ -373,49 +465,27 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		backgroundColor: neutral.neutral5,
 	},
+	photoPlaceholderIcon: {
+		fontSize: fontSize(32),
+		marginBottom: spacingScale.sm,
+		opacity: 0.5,
+	},
 	photoPlaceholderText: {
 		fontSize: typography.caption,
-		fontWeight: "500",
+		fontWeight: "600",
 		color: neutral.neutral3,
 	},
-	photoIcon: {
-		fontSize: fontSize(24),
-		textAlign: "center",
-		color: primary.primary1,
-	},
-	previewContainer: {
-		marginBottom: spacingScale.xl,
-	},
-	previewImageWrapper: {
-		width: "100%",
-		aspectRatio: 3 / 4,
-		borderRadius: borderRadius.xl,
-		overflow: "hidden",
-		backgroundColor: neutral.neutral5,
-	},
-	previewImage: {
-		width: "100%",
-		height: "100%",
+	// Button Styles
+	buttonContainer: {
+		paddingHorizontal: spacingScale.xl,
+		paddingTop: spacingScale.md,
 	},
 	buttonRow: {
 		flexDirection: "row",
 		gap: spacingScale.md,
 	},
-	secondaryButton: {
-		flex: 1,
-		height: scale(56),
-		borderRadius: borderRadius.xl,
-		backgroundColor: neutral.neutral5,
-		justifyContent: "center",
-		alignItems: "center",
-		borderWidth: 1,
-		borderColor: neutral.neutral4,
-	},
-	buttonPressed: {
-		opacity: 0.7,
-	},
 	secondaryButtonText: {
-		fontSize: fontSize(16),
+		fontSize: fontSize(15),
 		fontWeight: "700",
 		color: neutral.neutral1,
 	},

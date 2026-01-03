@@ -28,7 +28,14 @@ import {
 	CaretLeft,
 } from "phosphor-react-native";
 import { FaceDetectionCamera } from "@/components/camera";
-import { primary, neutral, semantic, typography, spacingScale, borderRadius } from "@/constants";
+import {
+	primary,
+	neutral,
+	semantic,
+	typography,
+	spacingScale,
+	borderRadius,
+} from "@/constants";
 import { scale, fontSize, spacing } from "@/utils/responsive";
 import {
 	CustomInput,
@@ -415,7 +422,9 @@ const SignUp = () => {
 		}
 
 		// Validate confirm PIN
-		const confirmPinError = validationRules.confirmPIN(values.pin)(values.confirmPin);
+		const confirmPinError = validationRules.confirmPIN(values.pin)(
+			values.confirmPin,
+		);
 		if (confirmPinError) {
 			setFieldError("confirmPin", confirmPinError);
 			isValid = false;
@@ -1400,7 +1409,7 @@ const SignUp = () => {
 				title="Cancel Registration?"
 				message="Your registration information will not be saved. Are you sure you want to exit?"
 				confirmText="Exit"
-				cancelText="Continue Registration"
+				cancelText="Continue"
 				onConfirm={handleConfirmExit}
 				onCancel={handleCancelExit}
 			/>

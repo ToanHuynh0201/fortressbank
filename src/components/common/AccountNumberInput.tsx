@@ -11,8 +11,13 @@ import CustomInput from "./CustomInput";
 import colors from "@/constants/colors";
 import { transferService } from "@/services";
 import type { AccountLookupData } from "@/services/transferService";
-import { scale, fontSize, spacing } from '@/utils/responsive';
-import { typography, spacingScale, borderRadius, componentSizes } from '@/constants/responsive';
+import { scale, fontSize, spacing } from "@/utils/responsive";
+import {
+	typography,
+	spacingScale,
+	borderRadius,
+	componentSizes,
+} from "@/constants/responsive";
 
 interface AccountNumberInputProps {
 	value: string;

@@ -325,6 +325,11 @@ const AddBeneficiary = () => {
 								onAccountFound={handleAccountFound}
 								onAccountNotFound={handleAccountNotFound}
 								placeholder="Enter account number"
+								bankName={
+									selectedBankData?.code === "STRIPE"
+										? "Stripe"
+										: undefined
+								}
 								containerStyle={styles.customInputContainer}
 							/>
 						</View>
