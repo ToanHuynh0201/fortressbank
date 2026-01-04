@@ -26,13 +26,12 @@ import { useForm } from "@/hooks";
 import { validationRules } from "@/utils/validation";
 import { authService } from "@/services";
 
-type Step = "enter-phone" | "confirm-phone" | "enter-code" | "change-password";
+type Step = "enter-phone" | "enter-code" | "change-password";
 
 const ForgotPassword = () => {
 	const router = useRouter();
 	const [step, setStep] = useState<Step>("enter-phone");
 	const [isSendingCode, setIsSendingCode] = useState(false);
-	const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
 	const [isResendingCode, setIsResendingCode] = useState(false);
 	const [isVerifyingCode, setIsVerifyingCode] = useState(false);
 	const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -86,36 +85,6 @@ const ForgotPassword = () => {
 			console.log(response);
 
 			if (response.code === 1000) {
-				setStep("confirm-phone");
-			} else {
-				setAlertModal({
-					visible: true,
-					title: "Error",
-					message:
-						response.message || "Failed to send verification code",
-					variant: "error",
-				});
-			}
-		} catch (error) {
-			setAlertModal({
-				visible: true,
-				title: "Error",
-				message: "An unexpected error occurred. Please try again.",
-				variant: "error",
-			});
-		} finally {
-			setIsSendingCode(false);
-		}
-	};
-
-	const handleVerifyPhone = async () => {
-		setIsVerifyingPhone(true);
-		try {
-			const response = await authService.sendForgotPasswordOtp({
-				phoneNumber: values.phoneNumber,
-			});
-
-			if (response.code === 1000) {
 				setStep("enter-code");
 				setAlertModal({
 					visible: true,
@@ -142,7 +111,7 @@ const ForgotPassword = () => {
 				variant: "error",
 			});
 		} finally {
-			setIsVerifyingPhone(false);
+			setIsSendingCode(false);
 		}
 	};
 
@@ -337,7 +306,7 @@ const ForgotPassword = () => {
 								containerStyle={styles.inputWrapper}
 							/>
 							<Text style={styles.infoText}>
-								We texted you a code to verify your phone number
+								We will text you a code to verify your phone number
 							</Text>
 							<PrimaryButton
 								title="Send"
@@ -345,39 +314,6 @@ const ForgotPassword = () => {
 								loading={isSendingCode}
 								loadingText="Sending..."
 								disabled={!values.phoneNumber.trim()}
-							/>
-						</CardContainer>
-					</>
-				);
-
-			case "confirm-phone":
-				return (
-					<>
-						<CardContainer>
-							<Text style={styles.label}>
-								Type your phone number
-							</Text>
-							<CustomInput
-								placeholder="Enter phone number"
-								value={values.phoneNumber}
-								onChangeText={(text) =>
-									handleChange(
-										"phoneNumber",
-										text.replace(/\D/g, ""),
-									)
-								}
-								keyboardType="phone-pad"
-								isActive={!!values.phoneNumber}
-								containerStyle={styles.inputWrapper}
-							/>
-							<Text style={styles.infoText}>
-								We texted you a code to verify your phone number
-							</Text>
-							<PrimaryButton
-								title="Send"
-								onPress={handleVerifyPhone}
-								loading={isVerifyingPhone}
-								loadingText="Verifying..."
 							/>
 						</CardContainer>
 					</>
