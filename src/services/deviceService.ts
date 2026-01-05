@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from "expo-local-authentication";
+import { Platform } from "react-native";
 import forge from "node-forge";
 import apiService from "@/lib/api";
 
@@ -164,13 +165,13 @@ class DeviceService {
 				throw new Error("Failed to initialize device keys");
 			}
 
-			// Determine device type (simplified - in production use Platform.OS)
-			const deviceType: "ANDROID" | "IOS" = "ANDROID"; // TODO: Use Platform.OS
+			// Determine device type from platform
+			const deviceType: "ANDROID" | "IOS" = Platform.OS === "ios" ? "IOS" : "ANDROID";
 
 			const request: DeviceRegistrationRequest = {
 				deviceId: keys.deviceId,
 				publicKey: keys.publicKeyPem,
-				deviceName: deviceName || `FortressBank Mobile`,
+				deviceName: deviceName || `FortressBank ${Platform.OS === "ios" ? "iPhone" : "Android"}`,
 				deviceType,
 			};
 
@@ -277,6 +278,133 @@ class DeviceService {
 			return null;
 		}
 	}
+
+	/**
+	 * Unregister this device from the backend.
+	 * Call this before clearing local keys to properly clean up.
+	 */
+	async unregisterDevice(): Promise<boolean> {
+		try {
+			const deviceId = await this.getDeviceId();
+			if (!deviceId) {
+				console.log("No device ID found, nothing to unregister");
+				return true;
+			}
+
+			const response = await apiService.delete(`/devices/${deviceId}`);
+			
+			if (response.data.code === 1000) {
+				// Clear local keys after successful unregistration
+				await this.clearDeviceKeys();
+				console.log("Device unregistered successfully");
+				return true;
+			}
+
+			console.error("Device unregistration failed:", response.data.message);
+			return false;
+		} catch (error) {
+			console.error("Error unregistering device:", error);
+			// Still clear local keys even if server call fails
+			await this.clearDeviceKeys();
+			return false;
+		}
+	}
+
+	/**
+	 * Get list of all registered devices for the current user.
+	 */
+	async getRegisteredDevices(): Promise<RegisteredDevice[]> {
+		try {
+			const response = await apiService.get("/devices");
+			
+			if (response.data.code === 1000 && Array.isArray(response.data.data)) {
+				return response.data.data;
+			}
+
+			return [];
+		} catch (error) {
+			console.error("Error fetching registered devices:", error);
+			return [];
+		}
+	}
+
+	/**
+	 * Check if biometric hardware is available on this device.
+	 */
+	async isBiometricAvailable(): Promise<{
+		available: boolean;
+		biometricType: string;
+	}> {
+		try {
+			const compatible = await LocalAuthentication.hasHardwareAsync();
+			const enrolled = await LocalAuthentication.isEnrolledAsync();
+			const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
+
+			let biometricType = "None";
+			if (types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
+				biometricType = "Face ID";
+			} else if (types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)) {
+				biometricType = "Fingerprint";
+			} else if (types.includes(LocalAuthentication.AuthenticationType.IRIS)) {
+				biometricType = "Iris";
+			}
+
+			return {
+				available: compatible && enrolled,
+				biometricType,
+			};
+		} catch (error) {
+			console.error("Error checking biometric availability:", error);
+			return { available: false, biometricType: "Unknown" };
+		}
+	}
+
+	/**
+	 * Get device info for display in settings.
+	 */
+	async getDeviceInfo(): Promise<DeviceInfo | null> {
+		try {
+			const deviceId = await this.getDeviceId();
+			const isRegistered = await this.isDeviceRegistered();
+			const biometric = await this.isBiometricAvailable();
+			const publicKey = await this.getPublicKey();
+
+			if (!deviceId) {
+				return null;
+			}
+
+			return {
+				deviceId,
+				isRegistered,
+				biometricAvailable: biometric.available,
+				biometricType: biometric.biometricType,
+				platform: Platform.OS === "ios" ? "iOS" : "Android",
+				hasPublicKey: !!publicKey,
+			};
+		} catch (error) {
+			console.error("Error getting device info:", error);
+			return null;
+		}
+	}
+}
+
+// Additional interfaces for device management
+export interface RegisteredDevice {
+	deviceId: string;
+	deviceName: string;
+	deviceType: "ANDROID" | "IOS";
+	registeredAt: string;
+	lastUsedAt?: string;
+	isCurrent?: boolean;
+}
+
+export interface DeviceInfo {
+	deviceId: string;
+	isRegistered: boolean;
+	biometricAvailable: boolean;
+	biometricType: string;
+	platform: string;
+	hasPublicKey: boolean;
 }
 
 export const deviceService = new DeviceService();

@@ -53,3 +53,12 @@ export type {
 	NotificationData,
 	NotificationResponse,
 } from "./notificationService";
+
+export type {
+	DeviceKeyPair,
+	DeviceRegistrationRequest,
+	DeviceRegistrationResponse,
+	SignatureResult,
+	RegisteredDevice,
+	DeviceInfo,
+} from "./deviceService";

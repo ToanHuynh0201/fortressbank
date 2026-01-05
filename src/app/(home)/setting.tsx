@@ -27,6 +27,7 @@ import {
 	PencilSimple,
 	LockKey,
 	User,
+	DeviceMobile,
 } from "phosphor-react-native";
 import { AppHeader, ConfirmationModal, AlertModal, LoadingOverlay } from "@/components/common";
 import { SettingRow, BiometricSettings } from "@/components/settings";
@@ -205,6 +206,18 @@ const Setting = () => {
 							/>
 						}
 						onPress={handleFaceIDPress}
+					/>
+					<SettingRow
+						title="Trusted Devices"
+						subtitle="Manage Smart OTP devices"
+						icon={
+							<DeviceMobile
+								size={scale(20)}
+								color={primary.primary1}
+								weight="bold"
+							/>
+						}
+						onPress={() => router.push("/(home)/trustedDevices")}
 					/>
 				</View>
 
