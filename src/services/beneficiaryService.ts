@@ -41,7 +41,7 @@ class BeneficiaryService {
 	/**
 	 * Add new beneficiary
 	 * POST /beneficiaries
-	 * Request: { accountNumber, bankName, nickName }
+	 * Request: { accountNumber, accountName, bankName, nickName }
 	 * Response: { code, message, data: Beneficiary }
 	 */
 	async addBeneficiary(

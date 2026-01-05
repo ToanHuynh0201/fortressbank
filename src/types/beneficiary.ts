@@ -13,6 +13,7 @@ export interface Beneficiary {
 
 export interface BeneficiaryFormData {
 	accountNumber: string;
+	accountName?: string;
 	bankName: string;
 	nickName: string;
 }

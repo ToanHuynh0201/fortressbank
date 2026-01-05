@@ -87,6 +87,7 @@ const AddBeneficiary = () => {
 	const { values, handleChange, setFieldValue, resetForm } =
 		useForm<BeneficiaryFormData>({
 			accountNumber: "",
+			accountName: "",
 			bankName: "",
 			nickName: "",
 		});
@@ -199,6 +200,7 @@ const AddBeneficiary = () => {
 				// Add new beneficiary
 				await beneficiaryService.addBeneficiary({
 					accountNumber: values.accountNumber,
+					accountName: beneficiaryName,
 					bankName: selectedBankData?.name || "FortressBank",
 					nickName: values.nickName,
 				});
