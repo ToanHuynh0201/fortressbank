@@ -10,9 +10,15 @@ const expoConfig = Constants.expoConfig;
 const extra = expoConfig?.extra || {};
 
 // API Configuration
+// For Android Emulator: use 10.0.2.2 (special alias for host machine)
+// For iOS Simulator: use localhost
+// For Physical Device: use your computer's local IP (e.g., 192.168.x.x)
+// For Web: use localhost
 export const API_CONFIG = {
-	// BASE_URL: "http://10.0.2.2:8000",
-	BASE_URL: "http://192.168.0.154:8000",
+	// Uncomment the appropriate line for your setup:
+	// BASE_URL: "http://10.0.2.2:8000",        // Android Emulator
+	// BASE_URL: "http://localhost:8000",        // iOS Simulator / Web
+	BASE_URL: "http://192.168.1.168:8000",       // Physical Device (your current IP)
 	TIMEOUT: 10000, // 10 seconds
 	RETRY_ATTEMPTS: 3,
 	RETRY_DELAY: 1000,
