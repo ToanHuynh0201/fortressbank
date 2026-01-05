@@ -18,6 +18,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import { transferService, type Transaction } from "@/services/transferService";
 import { primary, neutral, semantic } from "@/constants/colors";
 import { scale, fontSize, spacing } from "@/utils/responsive";
+import { convertToGMT7 } from "@/utils/date";
 
 interface TransactionDetailModalProps {
 	visible: boolean;
@@ -140,7 +141,8 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
-		return date.toLocaleString("en-US", {
+		const gmt7Date = convertToGMT7(date);
+		return gmt7Date.toLocaleString("en-US", {
 			year: "numeric",
 			month: "short",
 			day: "numeric",

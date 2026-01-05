@@ -639,10 +639,13 @@ const SignUp = () => {
 					<View style={styles.formContainer}>
 						{/* Photo Grid */}
 						<View style={styles.photoGrid}>
-							{POSE_ORDER.map((pose) => (
+							{POSE_ORDER.map((pose, index) => (
 								<View
 									key={pose}
-									style={styles.photoItem}>
+									style={[
+										styles.photoItem,
+										(index + 1) % 2 === 0 && styles.photoItemEven,
+									]}>
 									<View style={styles.photoCard}>
 										{/* Badge Label */}
 										<View style={styles.photoBadge}>
@@ -660,26 +663,48 @@ const SignUp = () => {
 												<>
 													<Image
 														source={{
-															uri: capturedPhotos[pose]!,
+															uri: capturedPhotos[
+																pose
+															]!,
 														}}
-														style={styles.photoThumbnail}
+														style={
+															styles.photoThumbnail
+														}
 														resizeMode="cover"
 													/>
 													{/* Checkmark overlay */}
-													<View style={styles.checkmarkOverlay}>
-														<View style={styles.checkmarkCircle}>
-															<Text style={styles.checkmarkIcon}>
+													<View
+														style={
+															styles.checkmarkOverlay
+														}>
+														<View
+															style={
+																styles.checkmarkCircle
+															}>
+															<Text
+																style={
+																	styles.checkmarkIcon
+																}>
 																✓
 															</Text>
 														</View>
 													</View>
 												</>
 											) : (
-												<View style={styles.photoPlaceholder}>
-													<Text style={styles.photoPlaceholderIcon}>
+												<View
+													style={
+														styles.photoPlaceholder
+													}>
+													<Text
+														style={
+															styles.photoPlaceholderIcon
+														}>
 														📷
 													</Text>
-													<Text style={styles.photoPlaceholderText}>
+													<Text
+														style={
+															styles.photoPlaceholderText
+														}>
 														No photo
 													</Text>
 												</View>
@@ -700,7 +725,7 @@ const SignUp = () => {
 							</Pressable>
 
 							<PrimaryButton
-								title="Complete Registration"
+								title="Complete"
 								onPress={handleFaceIDConfirm}
 								loading={isLoading}
 								loadingText="Creating Account..."
@@ -1922,12 +1947,15 @@ const styles = StyleSheet.create({
 	photoGrid: {
 		flexDirection: "row",
 		flexWrap: "wrap",
-		justifyContent: "space-between",
-		gap: spacingScale.md,
-		marginBottom: spacingScale.xl,
+		marginBottom: spacingScale.xl - spacingScale.md, // Reduce bottom margin since items have their own
 	},
 	photoItem: {
 		width: "48%",
+		marginBottom: spacingScale.md,
+		marginRight: "4%",
+	},
+	photoItemEven: {
+		marginRight: 0, // Remove right margin for even items (2nd column)
 	},
 	photoCard: {
 		backgroundColor: neutral.neutral6,

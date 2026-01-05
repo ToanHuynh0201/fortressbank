@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { notificationService, type NotificationData } from '@/services/notificationService';
+import { convertToGMT7 } from '@/utils/date';
 
 interface Notification {
   id: string;
@@ -33,11 +34,12 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Helper function to format relative time
+  // Helper function to format relative time (with GMT+7 conversion)
   const getRelativeTime = (dateString: string): string => {
     const now = new Date();
     const sentDate = new Date(dateString);
-    const diffMs = now.getTime() - sentDate.getTime();
+    const gmt7Date = convertToGMT7(sentDate);
+    const diffMs = now.getTime() - gmt7Date.getTime();
     const diffMinutes = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -47,7 +49,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
-    return sentDate.toLocaleDateString();
+    return gmt7Date.toLocaleDateString();
   };
 
   // Helper function to determine notification type from content
