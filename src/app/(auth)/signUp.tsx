@@ -643,33 +643,49 @@ const SignUp = () => {
 								<View
 									key={pose}
 									style={styles.photoItem}>
-									<Text style={styles.photoLabel}>
-										{POSE_INSTRUCTIONS[pose].title}
-									</Text>
-									<View style={styles.photoWrapper}>
-										{capturedPhotos[pose] ? (
-											<Image
-												source={{
-													uri: capturedPhotos[pose]!,
-												}}
-												style={styles.photoThumbnail}
-												resizeMode="cover"
-											/>
-										) : (
-											<View
-												style={styles.photoPlaceholder}>
-												<Text
-													style={
-														styles.photoPlaceholderText
-													}>
-													No photo
-												</Text>
-											</View>
-										)}
+									<View style={styles.photoCard}>
+										{/* Badge Label */}
+										<View style={styles.photoBadge}>
+											<Text style={styles.badgeIcon}>
+												{POSE_INSTRUCTIONS[pose].icon}
+											</Text>
+											<Text style={styles.badgeText}>
+												{POSE_INSTRUCTIONS[pose].title}
+											</Text>
+										</View>
+
+										{/* Photo Preview */}
+										<View style={styles.photoWrapper}>
+											{capturedPhotos[pose] ? (
+												<>
+													<Image
+														source={{
+															uri: capturedPhotos[pose]!,
+														}}
+														style={styles.photoThumbnail}
+														resizeMode="cover"
+													/>
+													{/* Checkmark overlay */}
+													<View style={styles.checkmarkOverlay}>
+														<View style={styles.checkmarkCircle}>
+															<Text style={styles.checkmarkIcon}>
+																✓
+															</Text>
+														</View>
+													</View>
+												</>
+											) : (
+												<View style={styles.photoPlaceholder}>
+													<Text style={styles.photoPlaceholderIcon}>
+														📷
+													</Text>
+													<Text style={styles.photoPlaceholderText}>
+														No photo
+													</Text>
+												</View>
+											)}
+										</View>
 									</View>
-									<Text style={styles.photoIcon}>
-										{POSE_INSTRUCTIONS[pose].icon}
-									</Text>
 								</View>
 							))}
 						</View>
@@ -1906,31 +1922,76 @@ const styles = StyleSheet.create({
 	photoGrid: {
 		flexDirection: "row",
 		flexWrap: "wrap",
+		justifyContent: "space-between",
 		gap: spacingScale.md,
 		marginBottom: spacingScale.xl,
 	},
 	photoItem: {
 		width: "48%",
-		alignItems: "center",
 	},
-	photoLabel: {
+	photoCard: {
+		backgroundColor: neutral.neutral6,
+		borderRadius: borderRadius.lg,
+		overflow: "hidden",
+		shadowColor: neutral.neutral1,
+		shadowOffset: { width: 0, height: scale(2) },
+		shadowOpacity: 0.08,
+		shadowRadius: scale(8),
+		elevation: 3,
+	},
+	photoBadge: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: spacingScale.xs,
+		paddingVertical: spacingScale.sm,
+		paddingHorizontal: spacingScale.md,
+		backgroundColor: primary.primary4,
+		borderBottomWidth: 1,
+		borderBottomColor: primary.primary4,
+	},
+	badgeIcon: {
+		fontSize: fontSize(16),
+	},
+	badgeText: {
 		fontSize: typography.caption,
-		fontWeight: "600",
-		color: neutral.neutral1,
-		marginBottom: spacingScale.sm,
-		textAlign: "center",
+		fontWeight: "700",
+		color: primary.primary1,
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
 	},
 	photoWrapper: {
 		width: "100%",
 		aspectRatio: 3 / 4,
-		borderRadius: borderRadius.md,
-		overflow: "hidden",
+		position: "relative",
 		backgroundColor: neutral.neutral5,
-		marginBottom: spacingScale.sm,
 	},
 	photoThumbnail: {
 		width: "100%",
 		height: "100%",
+	},
+	checkmarkOverlay: {
+		position: "absolute",
+		top: spacingScale.sm,
+		right: spacingScale.sm,
+	},
+	checkmarkCircle: {
+		width: scale(32),
+		height: scale(32),
+		borderRadius: scale(16),
+		backgroundColor: primary.primary1,
+		justifyContent: "center",
+		alignItems: "center",
+		shadowColor: neutral.neutral1,
+		shadowOffset: { width: 0, height: scale(2) },
+		shadowOpacity: 0.25,
+		shadowRadius: scale(3),
+		elevation: 4,
+	},
+	checkmarkIcon: {
+		fontSize: fontSize(18),
+		fontWeight: "bold",
+		color: neutral.neutral6,
 	},
 	photoPlaceholder: {
 		width: "100%",
@@ -1939,15 +2000,15 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		backgroundColor: neutral.neutral5,
 	},
+	photoPlaceholderIcon: {
+		fontSize: fontSize(32),
+		marginBottom: spacingScale.sm,
+		opacity: 0.5,
+	},
 	photoPlaceholderText: {
 		fontSize: typography.caption,
-		fontWeight: "500",
+		fontWeight: "600",
 		color: neutral.neutral3,
-	},
-	photoIcon: {
-		fontSize: fontSize(24),
-		textAlign: "center",
-		color: primary.primary1,
 	},
 	buttonRow: {
 		flexDirection: "row",

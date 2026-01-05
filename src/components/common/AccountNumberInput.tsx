@@ -117,7 +117,7 @@ const AccountNumberInput: React.FC<AccountNumberInputProps> = ({
 					placeholder={placeholder}
 					value={value}
 					onChangeText={onChangeText}
-					keyboardType={bankName ? "default" : "numeric"}
+					keyboardType="default"
 					maxLength={24}
 				/>
 
