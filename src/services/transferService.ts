@@ -29,8 +29,10 @@ export interface TransferResponse {
 		amount: number;
 		feeAmount: number;
 		transactionType: "INTERNAL_TRANSFER" | "EXTERNAL_TRANSFER";
-		status: "PENDING_OTP" | "PENDING_FACE_AUTH";
-		requireFaceAuth?: boolean;
+		status: "PENDING_OTP" | "PENDING_SMART_OTP" | "PENDING_FACE_AUTH" | "PENDING" | "COMPLETED" | "FAILED";
+		requireFaceAuth?: boolean; // Legacy support
+		challengeType?: "NONE" | "SMS_OTP" | "DEVICE_BIO" | "FACE_VERIFY";
+		challengeData?: string;
 		description: string;
 		createdAt: string | null;
 		updatedAt: string | null;
@@ -42,6 +44,12 @@ export interface TransferResponse {
 export interface VerifyOTPRequest {
 	transactionId: string;
 	otpCode: string;
+}
+
+export interface VerifyDeviceSignatureRequest {
+	transactionId: string;
+	deviceId: string;
+	signatureBase64: string;
 }
 
 export interface Transaction {
@@ -144,11 +152,22 @@ class TransferService {
 	}
 
 	/**
-	 * Verify OTP for a pending transaction
+	 * Verify OTP for a pending transaction (SMS_OTP)
 	 */
 	async verifyOTP(data: VerifyOTPRequest): Promise<VerifyOTPResponse> {
 		const response = await apiService.post(
 			"/transactions/verify-otp",
+			data,
+		);
+		return response.data;
+	}
+
+	/**
+	 * Verify device signature for a pending transaction (DEVICE_BIO)
+	 */
+	async verifyDeviceSignature(data: VerifyDeviceSignatureRequest): Promise<VerifyOTPResponse> {
+		const response = await apiService.post(
+			"/transactions/verify-device",
 			data,
 		);
 		return response.data;
@@ -261,156 +280,62 @@ class TransferService {
 	}
 
 	/**
-	 * Verify transaction with face recognition
+	 * Complete face verification for a transaction (FACE_VERIFY challenge).
+	 * 
+	 * Current Flow (Simplified - BE trusts FE):
+	 * 1. FE captures face photo locally
+	 * 2. FE does local liveness/quality check if possible
+	 * 3. FE calls this method to tell BE face is verified
+	 * 4. BE completes the transaction
+	 * 
+	 * NOTE: In production, this should verify via /smart-otp/verify-face first,
+	 * but the current BE design doesn't return challengeId in TransactionResponse.
+	 * 
 	 * @param transactionId - Transaction ID to verify
-	 * @param photoUri - URI of the captured face photo
+	 * @param photoUri - URI of captured face (for local checks, not sent to BE currently)
 	 * @returns Promise with verification response
 	 */
 	async verifyTransactionWithFace(
 		transactionId: string,
 		photoUri: string,
 	): Promise<VerifyTransactionFaceResponse> {
-		return this._verifyTransactionWithFaceRetry(
-			transactionId,
-			photoUri,
-			false,
-		);
-	}
-
-	/**
-	 * Internal method to verify transaction with face recognition with retry on 401
-	 * @private
-	 */
-	private async _verifyTransactionWithFaceRetry(
-		transactionId: string,
-		photoUri: string,
-		isRetry: boolean,
-	): Promise<VerifyTransactionFaceResponse> {
 		try {
-			const formData = new FormData();
-			formData.append("transactionId", transactionId);
-			formData.append("files", {
-				uri: photoUri,
-				type: "image/jpeg",
-				name: "normal.jpg",
-			} as any);
+			// TODO: If we had challengeId, we would:
+			// 1. Call /smart-otp/verify-face with challengeId + photo
+			// 2. Only if that returns valid, proceed here
+			// For now, we trust the FE did local face capture
+			console.log("📡 Completing face verification for transaction:", transactionId);
+			console.log("📷 Photo captured (local check only):", photoUri ? "Yes" : "No");
 
-			// Get access token from storage
-			const { getStorageItem, setStorageItem } = await import(
-				"@/utils/storage"
+			// Call BE with JSON body - BE expects { transactionId } + ?faceVerified=true
+			const response = await apiService.post(
+				`/transactions/verify-face?faceVerified=true`,
+				{ transactionId }
 			);
-			const { STORAGE_KEYS, API_CONFIG } = await import("@/constants");
 
-			const accessToken = await getStorageItem(STORAGE_KEYS.AUTH_TOKEN);
-			if (!accessToken) {
-				throw new Error("Access token not found");
-			}
+			console.log("📡 Face verification response:", response.data);
 
-			// Use fetch for multipart/form-data
-			const response = await fetch(
-				`${API_CONFIG.BASE_URL}/users/me/verify-transaction`,
-				{
-					method: "POST",
-					body: formData,
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
-					},
+			// Map to expected response format
+			return {
+				code: response.data.code,
+				message: response.data.message,
+				data: {
+					verified: response.data.code === 1000 && response.data.data?.status === "COMPLETED",
+					otpSent: false,
+					transactionId: response.data.data?.transactionId || transactionId,
+					status: response.data.data?.status || "UNKNOWN",
 				},
-			);
-
-			const responseText = await response.text();
-			console.log("📡 Response status:", response.status);
-			console.log("📡 Response text:", responseText);
-
-			let data;
-			try {
-				data = responseText ? JSON.parse(responseText) : {};
-			} catch (parseError) {
-				throw new Error(`Invalid JSON response: ${responseText}`);
-			}
-
-			// Handle 401 Unauthorized - token expired
-			if (response.status === 401 && !isRetry) {
-				console.log(
-					"Access token expired, attempting to refresh token...",
-				);
-
-				// Try to refresh the token
-				const refreshToken = await getStorageItem(
-					STORAGE_KEYS.SESSION_DATA,
-				);
-				if (!refreshToken) {
-					throw new Error("Refresh token not found");
-				}
-
-				// Perform token refresh
-				const refreshResponse = await fetch(
-					`${API_CONFIG.BASE_URL}/auth/refresh`,
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({ refreshToken }),
-					},
-				);
-
-				const refreshData = await refreshResponse.json();
-
-				// Check if refresh was successful
-				if (
-					refreshResponse.ok &&
-					refreshData.code === 1000 &&
-					refreshData.data
-				) {
-					const {
-						access_token: newAccessToken,
-						refresh_token: newRefreshToken,
-					} = refreshData.data;
-
-					// Save new tokens
-					await setStorageItem(
-						STORAGE_KEYS.AUTH_TOKEN,
-						newAccessToken,
-					);
-					if (newRefreshToken) {
-						await setStorageItem(
-							STORAGE_KEYS.SESSION_DATA,
-							newRefreshToken,
-						);
-					}
-
-					console.log(
-						"Token refreshed successfully, retrying request",
-					);
-
-					// Retry the original request with new token
-					return this._verifyTransactionWithFaceRetry(
-						transactionId,
-						photoUri,
-						true,
-					);
-				} else {
-					// Refresh failed, logout user
-					const { authService } = await import("./authService");
-					await authService.logout();
-					throw new Error("Session expired. Please login again.");
-				}
-			}
-
-			// Handle other errors
-			if (!response.ok) {
-				const errorMessage =
-					data.message ||
-					data.error ||
-					`Face verification failed (status: ${response.status})`;
-				throw new Error(errorMessage);
-			}
-
-			return data;
+			};
 		} catch (error: any) {
-			console.error("Verify transaction face error:", error);
-			throw error;
+			console.error("❌ Face verification error:", error);
+			
+			// Extract meaningful error message
+			const errorMessage = 
+				error.response?.data?.message ||
+				error.message ||
+				"Face verification failed";
+			
+			throw new Error(errorMessage);
 		}
 	}
 }

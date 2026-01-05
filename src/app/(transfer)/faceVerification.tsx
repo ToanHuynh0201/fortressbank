@@ -51,28 +51,28 @@ const FaceVerification = () => {
 				params.transactionId,
 			);
 
-			// Call API to verify face
+			// Call API to verify face - this completes the transaction
 			const response = await transferService.verifyTransactionWithFace(
 				params.transactionId,
 				photoUri,
 			);
 
 			if (response.code === 1000 && response.data.verified) {
-				// Face verified successfully
+				// Face verified successfully - transaction is COMPLETED
 				console.log(
-					"✅ Face verification successful, OTP sent:",
-					response.data.otpSent,
+					"✅ Face verification successful, transaction status:",
+					response.data.status,
 				);
 
-				// Navigate to OTP verification
-				// PIN step is skipped when Face ID is used
+				// Navigate to success screen (transaction is complete)
 				router.push({
-					pathname: "(transfer)/otpVerification",
+					pathname: "(transfer)/transferSuccess",
 					params: {
 						transactionId: params.transactionId,
 						recipientName: params.recipientName || "",
 						amount: params.amount || "",
 						bankName: params.bankName || "",
+						status: response.data.status,
 					},
 				});
 			} else {

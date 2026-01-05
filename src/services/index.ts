@@ -16,6 +16,7 @@ export { cardService, default as CardService } from "./cardService";
 export { userPreferenceService } from "./userPreferenceService";
 export { firebaseMessagingService } from "./firebaseMessagingService";
 export { notificationService, default as NotificationService } from "./notificationService";
+export { deviceService, default as DeviceService } from "./deviceService";
 
 export type {
 	TransferRequest,

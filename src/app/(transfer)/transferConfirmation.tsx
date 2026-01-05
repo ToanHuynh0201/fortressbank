@@ -177,35 +177,57 @@ const TransferConfirmation = () => {
 					"Transaction created:",
 					response.data.transactionId,
 				);
-				console.log(
-					"Require Auth Face:",
-					response.data.requireFaceAuth,
-				);
+				console.log("Challenge Type:", response.data.challengeType);
+				console.log("Challenge Data:", response.data.challengeData);
 
-				// Check if Face ID verification is required
-				if (response.data.requireFaceAuth === true) {
-					// Navigate to Face ID verification
-					router.push({
-						pathname: "(transfer)/faceVerification",
-						params: {
-							transactionId: response.data.transactionId,
-							recipientName: recipientInfo.name,
-							amount: numericAmount.toString(),
-							bankName: recipientInfo.bankName,
-						},
-					});
-				} else {
-					// Navigate to PIN verification (existing flow)
-					router.push({
-						pathname: "(transfer)/pinVerification",
-						params: {
-							transactionId: response.data.transactionId,
-							fromAccountId: transferData.senderAccountId,
-							recipientName: recipientInfo.name,
-							amount: numericAmount.toString(),
-							bankName: recipientInfo.bankName,
-						},
-					});
+				// Route based on challengeType (Smart OTP / Vietnamese e-banking style)
+				const challengeType = response.data.challengeType || "SMS_OTP";
+				const baseParams = {
+					transactionId: response.data.transactionId,
+					recipientName: recipientInfo.name,
+					amount: numericAmount.toString(),
+					bankName: recipientInfo.bankName,
+				};
+
+				switch (challengeType) {
+					case "NONE":
+						// Low risk - transaction completed immediately
+						router.push({
+							pathname: "(transfer)/transferSuccess",
+							params: baseParams,
+						});
+						break;
+
+					case "DEVICE_BIO":
+						// Medium risk - requires device biometric signature
+						router.push({
+							pathname: "(transfer)/deviceBioVerification",
+							params: {
+								...baseParams,
+								challengeData: response.data.challengeData || "",
+							},
+						});
+						break;
+
+					case "FACE_VERIFY":
+						// High risk - requires face verification
+						router.push({
+							pathname: "(transfer)/faceVerification",
+							params: baseParams,
+						});
+						break;
+
+					case "SMS_OTP":
+					default:
+						// Standard - requires SMS OTP
+						router.push({
+							pathname: "(transfer)/otpVerification",
+							params: {
+								...baseParams,
+								fromAccountId: transferData.senderAccountId,
+							},
+						});
+						break;
 				}
 			} else {
 				setAlertModal({
