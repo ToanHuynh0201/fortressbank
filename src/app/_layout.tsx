@@ -1,10 +1,14 @@
 import { Stack } from "expo-router";
+import { LogBox } from "react-native";
 import { AuthProvider, NotificationProvider } from "@/contexts";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotificationListeners } from "@/hooks/useNotificationListeners";
 import NotificationToast from "@/components/common/NotificationToast";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { OfflineBar } from "@/components/common/OfflineBar";
+
+// Tắt tất cả các thông báo lỗi màu đỏ/vàng trong React Native
+LogBox.ignoreAllLogs(true);
 
 const AppContent = () => {
 	const { user } = useAuth();
