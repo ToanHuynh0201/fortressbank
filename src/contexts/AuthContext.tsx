@@ -386,7 +386,15 @@ export const AuthProvider = ({ children }: any) => {
 
 	// Change password function
 	const changePassword = async (oldPassword: string, newPassword: string) => {
-		return await authService.changePassword(oldPassword, newPassword);
+		const response = await authService.changePassword(oldPassword, newPassword);
+
+		// If password change is successful, refresh biometric status
+		// This ensures biometricEnabled state is updated after credentials are removed
+		if (response.data?.code === 1000 || response.status === 200) {
+			await checkBiometricStatus();
+		}
+
+		return response;
 	};
 
 	// Check biometric status
