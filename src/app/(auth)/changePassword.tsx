@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { primary, neutral, commonStyles, typography, spacingScale, borderRadius } from "@/constants";
+import {
+	primary,
+	neutral,
+	commonStyles,
+	typography,
+	spacingScale,
+	borderRadius,
+} from "@/constants";
 import { scale, fontSize, spacing } from "@/utils/responsive";
 import {
 	AppHeader,
@@ -90,8 +97,9 @@ const ChangePassword = () => {
 				values.oldPassword,
 				values.newPassword,
 			);
+			console.log(response.data);
 
-			if (response.success) {
+			if (response.data.code === 1000) {
 				setStep("success");
 			} else {
 				setAlertModal({

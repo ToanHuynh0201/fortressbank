@@ -1,8 +1,13 @@
 import React, { useRef, useState } from "react";
 import { View, TextInput, StyleSheet, Pressable } from "react-native";
 import colors from "@/constants/colors";
-import { scale, fontSize, spacing } from '@/utils/responsive';
-import { typography, spacingScale, borderRadius, componentSizes } from '@/constants/responsive';
+import { scale, fontSize, spacing } from "@/utils/responsive";
+import {
+	typography,
+	spacingScale,
+	borderRadius,
+	componentSizes,
+} from "@/constants/responsive";
 
 interface PINInputProps {
 	length?: number;
@@ -111,7 +116,6 @@ const PINInput: React.FC<PINInputProps> = ({
 						onFocus={() => setFocusedIndex(index)}
 						selectTextOnFocus
 						textAlign="center"
-						secureTextEntry={secureTextEntry && digit !== ""}
 					/>
 				</Pressable>
 			))}

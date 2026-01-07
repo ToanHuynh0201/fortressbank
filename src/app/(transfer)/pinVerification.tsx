@@ -26,7 +26,7 @@ import {
 	ConfirmationModal,
 } from "@/components";
 import { transferService, accountService } from "@/services";
-import { scale, fontSize, spacing } from '@/utils/responsive';
+import { scale, fontSize, spacing } from "@/utils/responsive";
 
 const PINVerification = () => {
 	const router = useRouter();
@@ -283,7 +283,6 @@ const PINVerification = () => {
 						length={6}
 						onComplete={(code) => setPin(code)}
 						onChangeText={(code) => setPin(code)}
-						secureTextEntry={true}
 					/>
 				</Animated.View>
 
