@@ -26,6 +26,11 @@ interface AuthContextType {
 	biometricEnabled: boolean;
 	login: (username: string, password: string) => Promise<any>;
 	loginWithBiometric: () => Promise<any>;
+	verifyDeviceSwitchOtp: (
+		username: string,
+		password: string,
+		otp: string,
+	) => Promise<any>;
 	logout: () => Promise<void>;
 	clearError: () => void;
 	updateUser: (user: any) => void;
@@ -198,11 +203,28 @@ export const AuthProvider = ({ children }: any) => {
 				username,
 				password,
 			});
+			console.log(response);
 
-			const user = await getStorageItem(STORAGE_KEYS.USER_DATA);
+			// Check if device switch OTP is required
+			if (
+				response.code === 1000 &&
+				response.data?.requiresDeviceSwitchOtp === true
+			) {
+				// Stop loading state but don't complete login
+				dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+				// Return response indicating OTP is required
+				return response;
+			}
 
 			// Check if response code is 1000 (success)
-			if (response.code === 1000 && user) {
+			if (response.code === 1000) {
+				// Get user data from storage (set by authService after successful login)
+				const user = await getStorageItem(STORAGE_KEYS.USER_DATA);
+
+				if (!user) {
+					throw new Error("Failed to fetch user profile");
+				}
+
 				const userData = user;
 				let accountSwitched = false;
 
@@ -254,6 +276,84 @@ export const AuthProvider = ({ children }: any) => {
 		} catch (error: any) {
 			const errorMessage =
 				error.message || "Login failed. Please try again.";
+			dispatch({
+				type: AUTH_ACTIONS.LOGIN_FAILURE,
+				payload: { error: errorMessage },
+			});
+			throw error;
+		}
+	};
+
+	// Verify device switch OTP function
+	const verifyDeviceSwitchOtp = async (
+		username: string,
+		password: string,
+		otp: string,
+	) => {
+		dispatch({ type: AUTH_ACTIONS.LOGIN_START });
+
+		try {
+			const response = await authService.verifyDeviceSwitchOtp(
+				username,
+				password,
+				otp,
+			);
+			console.log(response);
+
+			const user = await getStorageItem(STORAGE_KEYS.USER_DATA);
+
+			// Check if response code is 1000 (success)
+			if (response.code === 1000 && user) {
+				const userData = user;
+				let accountSwitched = false;
+
+				// Check if user switched accounts - clear old biometric credentials
+				try {
+					const storedCredentials =
+						await biometricService.getCredentials();
+					if (
+						storedCredentials &&
+						storedCredentials.username !== username
+					) {
+						console.log(
+							"Account switch detected - clearing old biometric credentials",
+						);
+						await biometricService.removeCredentials();
+						setBiometricEnabled(false);
+						accountSwitched = true;
+					}
+				} catch (error) {
+					console.error(
+						"Error checking stored biometric credentials:",
+						error,
+					);
+				}
+
+				dispatch({
+					type: AUTH_ACTIONS.LOGIN_SUCCESS,
+					payload: { user: userData },
+				});
+
+				// Register push notification after successful login
+				// Run in background, don't await to avoid blocking login flow
+				registerPushNotification(userData.id || userData.userId).catch(
+					(error) => {
+						console.error(
+							"Background push notification registration failed:",
+							error,
+						);
+					},
+				);
+
+				// Return response with accountSwitched flag
+				return { ...response, accountSwitched };
+			} else {
+				const errorMsg = response.message || "OTP verification failed";
+				throw new Error(errorMsg);
+			}
+		} catch (error: any) {
+			const errorMessage =
+				error.message || "OTP verification failed. Please try again.";
 			dispatch({
 				type: AUTH_ACTIONS.LOGIN_FAILURE,
 				payload: { error: errorMessage },
@@ -402,6 +502,7 @@ export const AuthProvider = ({ children }: any) => {
 		biometricEnabled,
 		login,
 		loginWithBiometric,
+		verifyDeviceSwitchOtp,
 		changePassword,
 		logout,
 		clearError,

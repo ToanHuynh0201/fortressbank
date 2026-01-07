@@ -75,21 +75,36 @@ class AuthService {
 			const result = await response.json();
 
 			if (result.code === 1000 && result.data) {
-				const { access_token, refresh_token } = result.data;
-
-				if (access_token) {
-					await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, access_token);
+				// Check if device switch OTP is required
+				if (result.data.requiresDeviceSwitchOtp === true) {
+					// Return early - OTP verification needed
+					return result;
 				}
 
-				if (refresh_token) {
+				// Handle both camelCase (new API) and snake_case (old API) token names
+				const accessToken = result.data.accessToken || result.data.access_token;
+				const refreshToken = result.data.refreshToken || result.data.refresh_token;
+
+				console.log("🔑 Extracted tokens:", {
+					accessToken: accessToken ? "present" : "missing",
+					refreshToken: refreshToken ? "present" : "missing",
+				});
+
+				if (accessToken) {
+					await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
+				}
+
+				if (refreshToken) {
 					await setStorageItem(
 						STORAGE_KEYS.SESSION_DATA,
-						refresh_token,
+						refreshToken,
 					);
 				}
 
 				// Fetch user profile after successful login
+				console.log("👤 Fetching user profile...");
 				const userProfileResponse = await this.getUserProfile();
+				console.log("👤 User profile response:", userProfileResponse);
 
 				// Add user data to response
 				return {
@@ -104,6 +119,72 @@ class AuthService {
 			return result;
 		} catch (error) {
 			console.error("Login error:", error);
+			return {
+				code: -1,
+				message:
+					error instanceof Error
+						? error.message
+						: "Network error occurred",
+			};
+		}
+	}
+
+	/**
+	 * Verify device switch OTP
+	 * @param {string} username - Username
+	 * @param {string} password - Password
+	 * @param {string} otp - OTP code
+	 * @returns {Promise<any>} API response data
+	 */
+	async verifyDeviceSwitchOtp(
+		username: string,
+		password: string,
+		otp: string,
+	) {
+		try {
+			const response = await fetch(
+				`${API_CONFIG.BASE_URL}/auth/verify-device-switch-otp`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ username, password, otp }),
+				},
+			);
+
+			const result = await response.json();
+
+			if (result.code === 1000 && result.data) {
+				const { accessToken, refreshToken } = result.data;
+
+				if (accessToken) {
+					await setStorageItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
+				}
+
+				if (refreshToken) {
+					await setStorageItem(
+						STORAGE_KEYS.SESSION_DATA,
+						refreshToken,
+					);
+				}
+
+				// Fetch user profile after successful verification
+				const userProfileResponse = await this.getUserProfile();
+
+				// Add user data to response
+				return {
+					...result,
+					data: {
+						...result.data,
+						user: userProfileResponse?.data?.data || null,
+					},
+				};
+			}
+
+			return result;
+		} catch (error) {
+			console.error("Verify device switch OTP error:", error);
 			return {
 				code: -1,
 				message:

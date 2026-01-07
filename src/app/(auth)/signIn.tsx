@@ -25,6 +25,7 @@ import {
 	DecorativeIllustration,
 	AlertModal,
 	ConfirmationModal,
+	DeviceSwitchOTPModal,
 } from "@/components";
 import { useForm, useAuth } from "@/hooks";
 
@@ -33,6 +34,7 @@ const SignIn = () => {
 	const {
 		login,
 		loginWithBiometric,
+		verifyDeviceSwitchOtp,
 		biometricAvailable,
 		biometricEnabled,
 		enableBiometric,
@@ -40,6 +42,7 @@ const SignIn = () => {
 	} = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
 	const [isBiometricLoading, setIsBiometricLoading] = useState(false);
+	const [isOtpLoading, setIsOtpLoading] = useState(false);
 	const [alertModal, setAlertModal] = useState({
 		visible: false,
 		title: "",
@@ -50,6 +53,9 @@ const SignIn = () => {
 		visible: false,
 	});
 	const [biometricSuccessModal, setBiometricSuccessModal] = useState({
+		visible: false,
+	});
+	const [deviceSwitchOtpModal, setDeviceSwitchOtpModal] = useState({
 		visible: false,
 	});
 
@@ -95,6 +101,13 @@ const SignIn = () => {
 			const result = await login(values.username, values.password);
 
 			if (result.code === 1000) {
+				// Check if device switch OTP is required
+				if (result.data?.requiresDeviceSwitchOtp === true) {
+					// Show device switch OTP modal
+					setDeviceSwitchOtpModal({ visible: true });
+					return;
+				}
+
 				// Check if account was switched and biometric was cleared
 				if (result.accountSwitched && biometricAvailable) {
 					// Account switched - ask user if they want to enable biometric for new account
@@ -192,6 +205,60 @@ const SignIn = () => {
 	const handleBiometricSuccess = () => {
 		setBiometricSuccessModal({ visible: false });
 		router.replace("/(home)");
+	};
+
+	const handleVerifyDeviceSwitchOtp = async (otp: string) => {
+		setIsOtpLoading(true);
+
+		try {
+			const result = await verifyDeviceSwitchOtp(
+				values.username,
+				values.password,
+				otp,
+			);
+
+			if (result.code === 1000) {
+				// Close OTP modal
+				setDeviceSwitchOtpModal({ visible: false });
+
+				// Check if account was switched and biometric was cleared
+				if (result.accountSwitched && biometricAvailable) {
+					// Account switched - ask user if they want to enable biometric for new account
+					setEnableBiometricModal({ visible: true });
+				} else if (biometricAvailable && !biometricEnabled) {
+					// First time login or biometric not enabled - ask to enable
+					setEnableBiometricModal({ visible: true });
+				} else {
+					// Biometric already enabled or not available - proceed to home
+					router.replace("/(home)");
+				}
+			} else {
+				const errorMsg = result.message || "OTP verification failed";
+				// Show error in modal
+				setAlertModal({
+					visible: true,
+					title: "Verification Failed",
+					message: errorMsg,
+					variant: "error",
+				});
+			}
+		} catch (error: any) {
+			const errorMsg =
+				error.message || "OTP verification failed. Please try again.";
+			// Show error in modal
+			setAlertModal({
+				visible: true,
+				title: "Error",
+				message: errorMsg,
+				variant: "error",
+			});
+		} finally {
+			setIsOtpLoading(false);
+		}
+	};
+
+	const handleCancelDeviceSwitchOtp = () => {
+		setDeviceSwitchOtpModal({ visible: false });
 	};
 
 	const isValid =
@@ -400,6 +467,14 @@ const SignIn = () => {
 				message={alertModal.message}
 				variant={alertModal.variant}
 				onClose={() => setAlertModal({ ...alertModal, visible: false })}
+			/>
+
+			{/* Device Switch OTP Modal */}
+			<DeviceSwitchOTPModal
+				visible={deviceSwitchOtpModal.visible}
+				onVerify={handleVerifyDeviceSwitchOtp}
+				onCancel={handleCancelDeviceSwitchOtp}
+				isLoading={isOtpLoading}
 			/>
 		</AuthLayout>
 	);

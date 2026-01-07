@@ -16,6 +16,7 @@ export { default as ConfirmationModal } from "./ConfirmationModal";
 export { default as SuccessModal } from "./SuccessModal";
 export { default as AlertModal } from "./AlertModal";
 export { default as InputModal } from "./InputModal";
+export { default as DeviceSwitchOTPModal } from "./DeviceSwitchOTPModal";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as LoadingOverlay } from "./LoadingOverlay";
 export { default as LoadingState } from "./LoadingState";

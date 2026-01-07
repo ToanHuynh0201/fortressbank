@@ -243,10 +243,9 @@ class TransferService {
 	async resendOTP(
 		txId: string,
 	): Promise<{ status: string; message: string }> {
-		const response = await apiService.post(
-			`/transactions/${txId}/resend-otp`,
-			{},
-		);
+		const response = await apiService.post(`/transactions/resend-otp`, {
+			trannsactionId: txId,
+		});
 		return response.data;
 	}
 
